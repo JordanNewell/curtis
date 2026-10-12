@@ -53,8 +53,8 @@ machine. Free and BUSL-1.1-licensed. No telemetry.
 
 ## 1.2 · Sixty-second setup
 
-1. Install Curtis.ai from Obsidian's community plugins (or drop `main.js`,
-   `manifest.json`, `styles.css` into `.obsidian/plugins/curtis-ai-chat/`).
+1. Install Curtis.ai manually: drop `main.js`, `manifest.json`, and
+   `styles.css` into `.obsidian/plugins/curtis-ai-chat/` — or via [BRAT](https://github.com/TfTHacker/obsidian42-brat).
 2. Open **Settings → Curtis.ai → Provider configuration** and enable a
    provider. The default is **Anthropic** — paste an API key (it goes straight
    into your **OS keychain**, never into a settings file).

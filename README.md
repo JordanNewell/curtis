@@ -377,7 +377,7 @@ Scheduled runs execute through the agent loop with shell access always excluded,
 ## Installation
 
 > [!TIP]
-> Curtis.ai is in the [community plugin directory](https://community.obsidian.md/plugins/curtis-ai-chat). Install from there, manually (below), or via [BRAT](https://github.com/TfTHacker/obsidian42-brat) for beta-channel updates.
+> Curtis.ai installs via [BRAT](https://github.com/TfTHacker/obsidian42-brat) for beta-channel updates, or manually (below).
 
 ### Manual install
 

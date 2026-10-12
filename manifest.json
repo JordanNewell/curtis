@@ -1,7 +1,7 @@
 {
 	"id": "curtis-ai-chat",
 	"name": "Curtis.ai",
-	"version": "2.0.1",
+	"version": "2.1.0",
 	"minAppVersion": "1.13.0",
 	"description": "AI chat + agent. 53 providers: ChatGPT, Claude, Gemini, DeepSeek, Ollama + local. Agent tools edit your notes, MCP client & server, skills, RAG vault search, scheduled runs, arena. Free, source-available.",
 	"author": "Jordan Newell",
