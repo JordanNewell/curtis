@@ -32,6 +32,6 @@
 
 ## Links
 
-- Site: https://curtisai.jordannewell.com/
+- Site: https://curtisai.tech/chat/
 - Source: https://github.com/JordanNewell/curtis-ai-chat
 - Releases: https://github.com/JordanNewell/curtis-ai-chat/releases
