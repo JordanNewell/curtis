@@ -126,4 +126,4 @@ export const MCP_CLIENT_PROTOCOL_VERSION = '2025-06-18';
 
 /** clientInfo name — version is injected from manifest.json at runtime so it
  *  can't drift from the release. */
-export const MCP_CLIENT_NAME = 'curtis-ai-chat';
+export const MCP_CLIENT_NAME = 'curtis';

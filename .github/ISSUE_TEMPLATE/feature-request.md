@@ -1,6 +1,6 @@
 ---
 name: Feature Request
-about: Suggest a feature for curtis-ai-chat
+about: Suggest a feature for curtis
 title: "[FEAT] "
 labels: ["enhancement"]
 assignees: []

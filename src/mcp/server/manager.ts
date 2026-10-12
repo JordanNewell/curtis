@@ -83,7 +83,7 @@ export class McpServerManager {
 			port: s.mcpServerPort,
 			token: s.mcpServerToken,
 			backend: this.buildBackend(),
-			serverInfo: { name: 'curtis-ai-chat', version: this.plugin.manifest.version },
+			serverInfo: { name: 'curtis', version: this.plugin.manifest.version },
 		});
 		try {
 			await server.start();

@@ -10,7 +10,7 @@ export const RAG_VAULT_DIR = '.curtis';
 export const RAG_INDEX_FILENAME = 'rag-index.json';
 
 /** Active and inactive index paths for the configured location. `pluginDir`
- *  is vault-relative (e.g. `.obsidian/plugins/curtis-ai-chat`). */
+ *  is vault-relative (e.g. `.obsidian/plugins/curtis`). */
 export function ragIndexPaths(
 	location: RagIndexLocation,
 	pluginDir: string

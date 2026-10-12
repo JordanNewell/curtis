@@ -28,7 +28,7 @@ const { chromium } = require('playwright-core');
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const VAULT = resolve(ROOT, 'demo-vault');
-const PLUGIN_DIR = resolve(VAULT, '.obsidian/plugins/curtis-ai-chat');
+const PLUGIN_DIR = resolve(VAULT, '.obsidian/plugins/curtis');
 const OUT_DIR = resolve(ROOT, 'assets/screenshots');
 
 const OBSIDIAN_EXE =
@@ -45,7 +45,7 @@ function bootstrapVault() {
 		cpSync(resolve(ROOT, f), resolve(PLUGIN_DIR, f));
 	}
 	const obsidianDir = resolve(VAULT, '.obsidian');
-	writeFileSync(resolve(obsidianDir, 'community-plugins.json'), JSON.stringify(['curtis-ai-chat']));
+	writeFileSync(resolve(obsidianDir, 'community-plugins.json'), JSON.stringify(['curtis']));
 	if (!existsSync(resolve(obsidianDir, 'app.json'))) {
 		writeFileSync(resolve(obsidianDir, 'app.json'), JSON.stringify({ livePreview: true, readableLineLength: true }));
 	}
@@ -203,7 +203,7 @@ const SEED_MESSAGES = [
 ];
 
 const seedConversation = (messages) => {
-	const plugin = window.app.plugins.plugins['curtis-ai-chat'];
+	const plugin = window.app.plugins.plugins['curtis'];
 	if (!plugin) throw new Error('plugin not loaded');
 	const store = plugin.conversationStore;
 	const conv = store.createConversation('ollama', 'qwen2.5:7b-instruct');
@@ -213,14 +213,14 @@ const seedConversation = (messages) => {
 };
 
 const selectLatestConversation = () => {
-	const plugin = window.app.plugins.plugins['curtis-ai-chat'];
+	const plugin = window.app.plugins.plugins['curtis'];
 	const convs = plugin.conversationStore.getAllConversations();
 	if (convs.length > 0) plugin.conversationStore.setCurrentConversation(convs[0].id);
 	return convs[0]?.id ?? null;
 };
 
 const enableOllama = () => {
-	const plugin = window.app.plugins.plugins['curtis-ai-chat'];
+	const plugin = window.app.plugins.plugins['curtis'];
 	plugin.settings.providerConfigs.ollama = Object.assign(
 		{ enabled: true },
 		plugin.settings.providerConfigs.ollama || {}
@@ -231,7 +231,7 @@ const enableOllama = () => {
 };
 
 const openChatAndRender = async () => {
-	window.app.commands.executeCommandById('curtis-ai-chat:open-chat');
+	window.app.commands.executeCommandById('curtis:open-chat');
 	// Wait for the view's DOM to exist before forcing a re-render —
 	// refreshChatViews on a half-constructed view is a no-op at best.
 	const deadline = Date.now() + 10000;
@@ -243,13 +243,13 @@ const openChatAndRender = async () => {
 	// to whatever was current THEN (often null — nothing sets a current
 	// conversation at boot), and setViewState reuses that view instance.
 	// Rebind the pane to the seeded conversation explicitly.
-	const plugin = window.app.plugins.plugins['curtis-ai-chat'];
+	const plugin = window.app.plugins.plugins['curtis'];
 	const view = window.app.workspace.getLeavesOfType('curtis-chat')[0]?.view;
 	const current = plugin.conversationStore.getCurrentConversation();
 	if (view && current && typeof view.switchConversation === 'function') {
 		view.switchConversation(current.id);
 	}
-	window.app.plugins.plugins['curtis-ai-chat'].refreshChatViews?.();
+	window.app.plugins.plugins['curtis'].refreshChatViews?.();
 };
 
 const scrollChatToTop = () => {
@@ -390,14 +390,14 @@ async function bootInstance(port, extraArgs = []) {
 	// plugin can end up loaded-but-disabled (restricted mode) with no modal
 	// shown. Enable programmatically; no-op when already enabled.
 	await page.evaluate(async () => {
-		try { await window.app.plugins.enablePlugin('curtis-ai-chat'); } catch { /* restricted or already on */ }
+		try { await window.app.plugins.enablePlugin('curtis'); } catch { /* restricted or already on */ }
 	});
 
 	// conversationStore is created in onload step 3 (after settings, before
 	// commands) — its presence means the full init sequence completed.
 	page = await waitForVaultPage(
 		ctx,
-		() => !!window.app?.plugins?.plugins?.['curtis-ai-chat']?.conversationStore,
+		() => !!window.app?.plugins?.plugins?.['curtis']?.conversationStore,
 		45000,
 		'plugin onload'
 	);
@@ -405,7 +405,7 @@ async function bootInstance(port, extraArgs = []) {
 	// no-ops.
 	await waitForVaultPage(
 		ctx,
-		() => !!window.app?.commands?.commands?.['curtis-ai-chat:open-chat'],
+		() => !!window.app?.commands?.commands?.['curtis:open-chat'],
 		15000,
 		'command registration'
 	);
@@ -479,7 +479,7 @@ async function main() {
 
 		await page.evaluate(() => {
 			window.app.setting.open();
-			window.app.setting.openTabById('curtis-ai-chat');
+			window.app.setting.openTabById('curtis');
 		});
 		const settingsPage = await waitForAnyPage(
 			ctx,
@@ -517,7 +517,7 @@ async function main() {
 		let { page, ctx } = mob;
 		// Persisted settings: dock the chat panel on the left for phone framing.
 		await page.evaluate(() => {
-			const plugin = window.app.plugins.plugins['curtis-ai-chat'];
+			const plugin = window.app.plugins.plugins['curtis'];
 			plugin.settings.chatViewPosition = 'left';
 			plugin.saveSettings();
 		});
@@ -533,13 +533,13 @@ async function main() {
 		await page.evaluate(() => location.reload());
 		page = await waitForVaultPage(
 			ctx,
-			() => !!window.app?.plugins?.plugins?.['curtis-ai-chat']?.conversationStore,
+			() => !!window.app?.plugins?.plugins?.['curtis']?.conversationStore,
 			45000,
 			'phone reload'
 		);
 		await waitForVaultPage(
 			ctx,
-			() => !!window.app?.commands?.commands?.['curtis-ai-chat:open-chat'],
+			() => !!window.app?.commands?.commands?.['curtis:open-chat'],
 			15000,
 			'command registration (phone)'
 		);
@@ -590,7 +590,7 @@ async function main() {
 
 		await page.evaluate(() => {
 			window.app.setting.open();
-			window.app.setting.openTabById('curtis-ai-chat');
+			window.app.setting.openTabById('curtis');
 		});
 		const settingsPage = await waitForAnyPage(
 			ctx,

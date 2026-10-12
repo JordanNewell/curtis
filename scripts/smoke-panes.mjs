@@ -30,7 +30,7 @@ const { chromium } = require('playwright-core');
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const VAULT = resolve(ROOT, 'demo-vault');
-const PLUGIN_DIR = resolve(VAULT, '.obsidian/plugins/curtis-ai-chat');
+const PLUGIN_DIR = resolve(VAULT, '.obsidian/plugins/curtis');
 const DEBUG_PORT = 9334;
 
 const OBSIDIAN_EXE =
@@ -44,13 +44,13 @@ const ok = (cond, name, detail = '') => {
 	cond ? pass++ : fail++;
 };
 
-// Console gate: errors whose text or source URL names plugin:curtis-ai-chat
+// Console gate: errors whose text or source URL names plugin:curtis
 // fail the run even when every assertion passes. Anything else (core Obsidian,
 // theme ENOENTs, other plugins) is surfaced but never gates.
 const pluginErrors = [];
 const watchPluginErrors = (text, url = '') => {
 	const s = `${text}\n${url}`;
-	if (!s.includes('plugin:curtis-ai-chat')) return;
+	if (!s.includes('plugin:curtis')) return;
 	if (!pluginErrors.includes(text)) pluginErrors.push(text);
 };
 const reportConsoleGate = () => {
@@ -72,7 +72,7 @@ function bootstrapVault() {
 		cpSync(resolve(ROOT, f), resolve(PLUGIN_DIR, f));
 	}
 	const obsidianDir = resolve(VAULT, '.obsidian');
-	writeFileSync(resolve(obsidianDir, 'community-plugins.json'), JSON.stringify(['curtis-ai-chat']));
+	writeFileSync(resolve(obsidianDir, 'community-plugins.json'), JSON.stringify(['curtis']));
 	// Reset the persisted layout — prior runs (terminal/pane window tests) leave
 	// floating OS windows behind, and getLeaf('tab') docks beside the most
 	// recently active split, so a stale popout would swallow the "new tab".
@@ -173,7 +173,7 @@ async function until(page, expr, timeoutMs, label) {
 const INSTALL_HELPERS = `(() => {
 	const sleepP = (ms) => new Promise((r) => setTimeout(r, ms));
 	window.__smoke = {
-		plugin: () => window.app.plugins.plugins['curtis-ai-chat'],
+		plugin: () => window.app.plugins.plugins['curtis'],
 		chatViews: () => window.app.workspace.getLeavesOfType('curtis-chat').map((l) => l.view),
 		chatView() {
 			const views = this.chatViews();
@@ -181,7 +181,7 @@ const INSTALL_HELPERS = `(() => {
 			return views[0];
 		},
 		async openChat() {
-			window.app.commands.executeCommandById('curtis-ai-chat:open-chat');
+			window.app.commands.executeCommandById('curtis:open-chat');
 			const deadline = Date.now() + 10000;
 			while (Date.now() < deadline) {
 				// Wait for the COMPOSER, not just the leaf — the leaf-content
@@ -193,7 +193,7 @@ const INSTALL_HELPERS = `(() => {
 			throw new Error('chat view never opened');
 		},
 		openNewTab() {
-			window.app.commands.executeCommandById('curtis-ai-chat:open-new-chat-tab');
+			window.app.commands.executeCommandById('curtis:open-new-chat-tab');
 		},
 		/** Deterministic offline AI. chunkDelay controls stream length so the
 		 *  abort test has a window to click Stop in. Both call paths are
@@ -308,11 +308,11 @@ async function main() {
 		await page.getByRole('button', { name: /trust/i }).click({ timeout: 8000 });
 	} catch { /* already trusted */ }
 	await page.evaluate(async () => {
-		try { await window.app.plugins.enablePlugin('curtis-ai-chat'); } catch { /* already on */ }
+		try { await window.app.plugins.enablePlugin('curtis'); } catch { /* already on */ }
 	});
 	page = await waitForVaultPage(
 		ctx,
-		() => !!window.app.plugins.plugins['curtis-ai-chat']?.conversationStore,
+		() => !!window.app.plugins.plugins['curtis']?.conversationStore,
 		30000,
 		'plugin onload complete'
 	);
@@ -331,7 +331,7 @@ async function main() {
 	});
 	await page.evaluate(() => {
 		if (window.app.workspace.getLeavesOfType('curtis-chat').length === 0) {
-			window.app.commands.executeCommandById('curtis-ai-chat:open-chat');
+			window.app.commands.executeCommandById('curtis:open-chat');
 		}
 	});
 	// The command path above doesn't wait for onOpen — hold here until the
@@ -387,7 +387,7 @@ async function main() {
 	// --- P2: open a second chat tab --------------------------------------------
 	const cmdResult = await page.evaluate(() => {
 		try {
-			const r = window.app.commands.executeCommandById('curtis-ai-chat:open-new-chat-tab');
+			const r = window.app.commands.executeCommandById('curtis:open-new-chat-tab');
 			return { ran: r !== false, leaves: __smoke.chatViews().length };
 		} catch (e) {
 			return { err: String(e) };

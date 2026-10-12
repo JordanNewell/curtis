@@ -82,7 +82,7 @@ try {
 	try { await page.getByRole('button', { name: /trust/i }).click({ timeout: 5000 }); } catch { /* trusted */ }
 
 	await page.evaluate(async () => {
-		try { await window.app.plugins.enablePlugin('curtis-ai-chat'); } catch { /* on */ }
+		try { await window.app.plugins.enablePlugin('curtis'); } catch { /* on */ }
 	});
 	await sleep(1500);
 
@@ -95,7 +95,7 @@ try {
 	await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 5 });
 
 	// Open a chat pane.
-	await page.evaluate(() => window.app.commands.executeCommandById('curtis-ai-chat:open-chat'));
+	await page.evaluate(() => window.app.commands.executeCommandById('curtis:open-chat'));
 	await sleep(2000);
 
 	const m = await page.evaluate(() => {

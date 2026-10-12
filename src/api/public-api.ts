@@ -1,7 +1,7 @@
 // Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Curtis plugin API — the surface other Obsidian plugins consume.
 //
-// Reachable as `app.plugins.plugins['curtis-ai-chat'].api` once Curtis is
+// Reachable as `app.plugins.plugins['curtis'].api` once Curtis is
 // loaded. Deliberately small and read-mostly: headless runs of the full
 // agent loop (chat targets the default assistant, runAgent a named agent),
 // vault reads/searches, and memory reads. It shares the MCP server's vault

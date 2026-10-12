@@ -1,6 +1,6 @@
 # Curtis.ai — Agent Guide
 
-Obsidian plugin (id: `curtis-ai-chat`), TypeScript + esbuild bundled to `main.js`.
+Obsidian plugin (id: `curtis`), TypeScript + esbuild bundled to `main.js`.
 
 ## Build & verify
 

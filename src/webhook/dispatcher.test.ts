@@ -99,7 +99,7 @@ describe('buildReceiptPayload', () => {
 			conversationId: 'c1',
 		};
 		const receipt = buildReceiptPayload('chat.completion', evt, buildEventPayload('chat.completion', evt));
-		expect(receipt.agent).toBe('curtis-ai-chat');
+		expect(receipt.agent).toBe('curtis');
 		expect(ACTION_RE.test(String(receipt.action))).toBe(true);
 		expect(['ok', 'error', 'aborted']).toContain(receipt.status);
 		expect(Number.isFinite(receipt.durationMs as number)).toBe(true);
@@ -153,7 +153,7 @@ describe('WebhookDispatcher', () => {
 		});
 		dispatcher.chatFinished({ provider: 'p', model: 'm', durationMs: 1, status: 'ok' });
 		expect(calls).toHaveLength(1);
-		expect(calls[0]).toMatchObject({ agent: 'curtis-ai-chat', action: 'chat.completion' });
+		expect(calls[0]).toMatchObject({ agent: 'curtis', action: 'chat.completion' });
 	});
 
 	it('never throws into the caller — transport and audit failures are logged', async () => {

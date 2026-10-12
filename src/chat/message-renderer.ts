@@ -244,7 +244,7 @@ export class MessageRenderer {
 			el.addEventListener('mouseenter', (evt) => {
 				this.app.workspace.trigger('hover-link', {
 					event: evt,
-					source: 'curtis-ai-chat',
+					source: 'curtis',
 					targetEl: el,
 					linktext: path,
 					sourcePath: '',

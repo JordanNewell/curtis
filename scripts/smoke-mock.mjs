@@ -27,7 +27,7 @@ const { chromium } = require('playwright-core');
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const VAULT = resolve(ROOT, 'demo-vault');
-const PLUGIN_DIR = resolve(VAULT, '.obsidian/plugins/curtis-ai-chat');
+const PLUGIN_DIR = resolve(VAULT, '.obsidian/plugins/curtis');
 const DEBUG_PORT = 9340;
 const OBSIDIAN_EXE =
 	process.env.OBSIDIAN_EXE ||
@@ -43,13 +43,13 @@ const ok = (cond, name, detail = '') => {
 	cond ? pass++ : fail++;
 };
 
-// Console gate: plugin:curtis-ai-chat errors fail the run even when every
+// Console gate: plugin:curtis errors fail the run even when every
 // assertion passes. Anything else (theme ENOENTs, core Obsidian) is surfaced
 // but never gates — same contract as the other suites.
 const pluginErrors = [];
 const watchPluginErrors = (text, url = '') => {
 	const s = `${text}\n${url}`;
-	if (!s.includes('plugin:curtis-ai-chat')) return;
+	if (!s.includes('plugin:curtis')) return;
 	// M5 deliberately induces a 401; the view logs it (console.error) before
 	// rendering the inline warning the assertions check for. Expected, handled.
 	if (text.includes('[Curtis] Stream error:') && text.includes('Mock LLM API error (401)')) return;
@@ -180,7 +180,7 @@ function bootstrapVault(port) {
 		cpSync(resolve(ROOT, f), resolve(PLUGIN_DIR, f));
 	}
 	const obsidianDir = resolve(VAULT, '.obsidian');
-	writeFileSync(resolve(obsidianDir, 'community-plugins.json'), JSON.stringify(['curtis-ai-chat']));
+	writeFileSync(resolve(obsidianDir, 'community-plugins.json'), JSON.stringify(['curtis']));
 	// Reset the persisted layout — prior runs leave floating windows behind and
 	// a stale popout would swallow the chat tab.
 	for (const f of ['workspace.json', 'workspace-mobile.json']) {
@@ -312,14 +312,14 @@ async function until(page, expr, timeoutMs, label) {
 
 const INSTALL_HELPERS = `(() => {
 	window.__smoke = {
-		plugin: () => window.app.plugins.plugins['curtis-ai-chat'],
+		plugin: () => window.app.plugins.plugins['curtis'],
 		chatView: () => {
 			const leaves = window.app.workspace.getLeavesOfType('curtis-chat');
 			if (leaves.length === 0) throw new Error('no chat view open');
 			return leaves[0].view;
 		},
 		async openChat() {
-			window.app.commands.executeCommandById('curtis-ai-chat:open-chat');
+			window.app.commands.executeCommandById('curtis:open-chat');
 			const deadline = Date.now() + 10000;
 			while (Date.now() < deadline) {
 				if (document.querySelector('.workspace-leaf-content[data-type="curtis-chat"]')) return true;
@@ -393,11 +393,11 @@ async function main() {
 		console.log('[smoke] dismissed trust-vault modal');
 	} catch { /* already trusted */ }
 	await page.evaluate(async () => {
-		try { await window.app.plugins.enablePlugin('curtis-ai-chat'); } catch { /* already on */ }
+		try { await window.app.plugins.enablePlugin('curtis'); } catch { /* already on */ }
 	});
 	page = await waitForVaultPage(
 		ctx,
-		() => !!window.app.plugins.plugins['curtis-ai-chat']?.conversationStore,
+		() => !!window.app.plugins.plugins['curtis']?.conversationStore,
 		30000,
 		'plugin onload complete'
 	);

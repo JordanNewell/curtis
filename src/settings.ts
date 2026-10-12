@@ -3700,7 +3700,7 @@ export class CurtisSettingTab extends PluginSettingTab {
 
 					const author = wrap.createEl('p', { cls: 'ai-setting-hint' });
 					author.appendText('By ');
-					const link = author.createEl('a', { href: 'https://github.com/jordannewell/curtis-ai-chat' });
+					const link = author.createEl('a', { href: 'https://github.com/jordannewell/curtis' });
 					link.setText('Jordan Newell');
 
 					// NEWELL maker badge, bottom-right of the About block. The art

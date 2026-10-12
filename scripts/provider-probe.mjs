@@ -69,7 +69,7 @@ try {
 	try { await page.getByRole('button', { name: /trust/i }).click({ timeout: 5000 }); } catch { /* trusted */ }
 
 	await page.evaluate(async () => {
-		try { await window.app.plugins.enablePlugin('curtis-ai-chat'); } catch { /* on */ }
+		try { await window.app.plugins.enablePlugin('curtis'); } catch { /* on */ }
 	});
 	await sleep(1500);
 
@@ -92,7 +92,7 @@ try {
 	// 2. Settings — provider configuration card, full-res.
 	await page.evaluate(() => {
 		window.app.setting.open();
-		window.app.setting.openTabById('curtis-ai-chat');
+		window.app.setting.openTabById('curtis');
 	});
 	await sleep(2500);
 	const pages = ctx.pages();
