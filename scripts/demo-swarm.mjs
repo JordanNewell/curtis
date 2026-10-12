@@ -24,7 +24,7 @@ const { chromium } = require('playwright-core');
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const VAULT = resolve(ROOT, 'demo-vault');
-const PLUGIN_DIR = resolve(VAULT, '.obsidian/plugins/curtis-ai-chat');
+const PLUGIN_DIR = resolve(VAULT, '.obsidian/plugins/curtis');
 const OUT = resolve(ROOT, 'demo-swarm');
 const DEBUG_PORT = 9334;
 
@@ -62,7 +62,7 @@ function bootstrapVault() {
 		cpSync(resolve(ROOT, f), resolve(PLUGIN_DIR, f));
 	}
 	const obsidianDir = resolve(VAULT, '.obsidian');
-	writeFileSync(resolve(obsidianDir, 'community-plugins.json'), JSON.stringify(['curtis-ai-chat']));
+	writeFileSync(resolve(obsidianDir, 'community-plugins.json'), JSON.stringify(['curtis']));
 	if (!existsSync(resolve(obsidianDir, 'app.json'))) {
 		writeFileSync(resolve(obsidianDir, 'app.json'), JSON.stringify({ livePreview: true, readableLineLength: true }));
 	}
@@ -193,14 +193,14 @@ async function waitForVaultPage(ctx, timeoutMs) {
 	page = await waitForVaultPage(ctx, 30000);
 	try { await page.getByRole('button', { name: /trust/i }).click({ timeout: 8000 }); } catch { /* trusted */ }
 	await page.evaluate(async () => {
-		try { await window.app.plugins.enablePlugin('curtis-ai-chat'); } catch { /* on */ }
+		try { await window.app.plugins.enablePlugin('curtis'); } catch { /* on */ }
 	});
-	await until(page, () => !!window.app.plugins.plugins['curtis-ai-chat']?.conversationStore, undefined, 30000, 'plugin loaded');
+	await until(page, () => !!window.app.plugins.plugins['curtis']?.conversationStore, undefined, 30000, 'plugin loaded');
 	console.log('[demo] plugin loaded');
 
 	// ---- Snapshot settings FIRST (the probe rewrites the active provider).
 	const origSettings = await page.evaluate(() => {
-		const s = window.app.plugins.plugins['curtis-ai-chat'].settings;
+		const s = window.app.plugins.plugins['curtis'].settings;
 		return {
 			enableMemory: s.enableMemory, notifyOnCompletion: s.notifyOnCompletion,
 			notifyOnError: s.notifyOnError, agentMaxTurns: s.agentMaxTurns,
@@ -213,7 +213,7 @@ async function waitForVaultPage(ctx, timeoutMs) {
 	// Runs BEFORE the leader pane is staged — the pane (and its conversation)
 	// capture the active provider/model at open.
 	const probe = await page.evaluate(async (candidates) => {
-		const p = window.app.plugins.plugins['curtis-ai-chat'];
+		const p = window.app.plugins.plugins['curtis'];
 		for (const c of candidates) {
 			p.settings.activeProvider = c.provider;
 			p.settings.activeModel = c.model;
@@ -236,7 +236,7 @@ async function waitForVaultPage(ctx, timeoutMs) {
 	// ---- workspace can carry popouts from earlier runs, and getLeaf('tab')
 	// ---- would happily land the chat in one (invisible to main-window shots).
 	const leaderConvId = await page.evaluate(async () => {
-		const p = window.app.plugins.plugins['curtis-ai-chat'];
+		const p = window.app.plugins.plugins['curtis'];
 		const ws = window.app.workspace;
 		for (const c of (ws.floatingSplit?.children ?? []).slice()) c.detach?.();
 		const conv = p.conversationStore.createConversation(p.settings.activeProvider, p.settings.activeModel);
@@ -253,7 +253,7 @@ async function waitForVaultPage(ctx, timeoutMs) {
 		await page.screenshot({ path: resolve(OUT, 'fatal-composer.png') }).catch(() => undefined);
 		const diag = await page.evaluate(() => ({
 			chatLeaves: window.app.workspace.getLeavesOfType('curtis-chat').length,
-			pluginEnabled: !!window.app.plugins.plugins['curtis-ai-chat'],
+			pluginEnabled: !!window.app.plugins.plugins['curtis'],
 			modals: [...document.querySelectorAll('.modal-container')].map((m) => m.textContent?.slice(0, 120)),
 		})).catch(() => null);
 		console.error('[demo] composer diagnostics:', JSON.stringify(diag, null, 2));
@@ -276,7 +276,7 @@ async function waitForVaultPage(ctx, timeoutMs) {
 
 	// ---- Demo-friendly settings (snapshot taken earlier; restore at the end).
 	await page.evaluate(() => {
-		const s = window.app.plugins.plugins['curtis-ai-chat'].settings;
+		const s = window.app.plugins.plugins['curtis'].settings;
 		s.enableMemory = false;      // no memory-proposal noise mid-demo
 		s.notifyOnCompletion = false;
 		s.notifyOnError = true;
@@ -284,7 +284,7 @@ async function waitForVaultPage(ctx, timeoutMs) {
 		s.swarmMaxFollowers = 3;
 		s.temperature = 1;           // dodge per-model sampling rejections
 	});
-	await page.evaluate(() => window.app.plugins.plugins['curtis-ai-chat'].saveSettings());
+	await page.evaluate(() => window.app.plugins.plugins['curtis'].saveSettings());
 
 	const shot = async (name) => {
 		// The chat may live in a popout window (a separate CDP page) — shoot
@@ -324,11 +324,11 @@ async function waitForVaultPage(ctx, timeoutMs) {
 
 	await composerSend('/leader', leaderConvId);
 	await until(page, (id) => {
-		const s = window.app.plugins.plugins['curtis-ai-chat'];
+		const s = window.app.plugins.plugins['curtis'];
 		return s.conversationStore.getConversation(id)?.role === 'leader';
 	}, leaderConvId, 5000, 'leader role set');
 	const leaderTitle = await page.evaluate((id) => {
-		const s = window.app.plugins.plugins['curtis-ai-chat'];
+		const s = window.app.plugins.plugins['curtis'];
 		const t = s.conversationStore.getConversation(id).title;
 		s.conversationStore.renameCurrentConversation('Weekly review (leader)', id);
 		return t;
@@ -340,7 +340,7 @@ async function waitForVaultPage(ctx, timeoutMs) {
 	// ---- Step 2: send the swarm prompt through the real composer.
 	await composerSend(LEADER_PROMPT, leaderConvId);
 	await until(page, (id) => {
-		const s = window.app.plugins.plugins['curtis-ai-chat'];
+		const s = window.app.plugins.plugins['curtis'];
 		const c = s.conversationStore.getConversation(id);
 		return c.messages.some((m) => m.role === 'user' && m.content.includes('weekly project review'));
 	}, leaderConvId, 8000, 'prompt sent');
@@ -359,7 +359,7 @@ async function waitForVaultPage(ctx, timeoutMs) {
 	let final = null;
 	while (Date.now() - t0 < 420000) {
 		const snap = await page.evaluate((id) => {
-			const s = window.app.plugins.plugins['curtis-ai-chat'];
+			const s = window.app.plugins.plugins['curtis'];
 			const leader = s.conversationStore.getConversation(id);
 			const followers = s.conversationStore.getAllConversations().filter((c) => c.role === 'follower');
 			const busy = s.swarm.isFollowerBusy(followers[0]?.id ?? '');
@@ -405,7 +405,7 @@ async function waitForVaultPage(ctx, timeoutMs) {
 
 	// ---- Step 4: transcript export + summary.
 	const summary = await page.evaluate((id) => {
-		const s = window.app.plugins.plugins['curtis-ai-chat'];
+		const s = window.app.plugins.plugins['curtis'];
 		const leader = s.conversationStore.getConversation(id);
 		const followers = s.conversationStore.getAllConversations().filter((c) => c.role === 'follower');
 		const lastAssistant = [...leader.messages].reverse().find((m) => m.role === 'assistant' && m.content.trim());
@@ -428,10 +428,10 @@ async function waitForVaultPage(ctx, timeoutMs) {
 
 	// ---- Settings back the way they were; leave the vault OPEN for browsing.
 	await page.evaluate((snap) => {
-		const s = window.app.plugins.plugins['curtis-ai-chat'].settings;
+		const s = window.app.plugins.plugins['curtis'].settings;
 		Object.assign(s, snap);
 	}, origSettings);
-	await page.evaluate(() => window.app.plugins.plugins['curtis-ai-chat'].saveSettings());
+	await page.evaluate(() => window.app.plugins.plugins['curtis'].saveSettings());
 	restoreLaunchVault();
 	done = true;
 	clearTimeout(watchdog);

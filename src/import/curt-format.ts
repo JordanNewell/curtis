@@ -30,7 +30,7 @@ export function serializeCurt(conv: Conversation, pluginVersion?: string): strin
 		curt: CURT_MAGIC,
 		version: CURT_VERSION,
 		conversation: conv,
-		...(pluginVersion ? { generator: `curtis-ai-chat@${pluginVersion}` } : {}),
+		...(pluginVersion ? { generator: `curtis@${pluginVersion}` } : {}),
 	};
 	return JSON.stringify(file, null, '\t');
 }

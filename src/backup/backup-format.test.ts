@@ -114,7 +114,7 @@ describe('serializeBackup / parseBackupEntries round-trip', () => {
 		expect(bundle!.promptLibrary.map((p) => p.id)).toEqual(['p1']);
 		expect(bundle!.harnessProfiles.map((h) => h.id)).toEqual(['h1']);
 		expect(bundle!.settings?.activeProvider).toBe('openai');
-		expect(bundle!.manifest.generator).toBe('curtis-ai-chat@2.0.0');
+		expect(bundle!.manifest.generator).toBe('curtis@2.0.0');
 	});
 
 	it('drops empty conversations from the zip', () => {

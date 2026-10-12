@@ -68,7 +68,7 @@ export default class CurtisPlugin extends Plugin {
 	/** Vault-backed Agent Skills (src/skills/, the open Agent Skills
 	 *  standard) — shared injection point for every inference arena. */
 	skills!: SkillManager;
-	/** Public plugin API — `app.plugins.plugins['curtis-ai-chat'].api`. */
+	/** Public plugin API — `app.plugins.plugins['curtis'].api`. */
 	api!: CurtisPublicApi;
 	/** Scheduled runs — fires persisted job prompts headlessly on a cadence
 	 *  while the app is open (src/scheduler/, docs/SCHEDULED_RUNS.md). */
@@ -159,7 +159,7 @@ export default class CurtisPlugin extends Plugin {
 		this.skills.syncTools(this.toolRegistry);
 
 		// Public plugin API — other plugins reach Curtis through
-		// app.plugins.plugins['curtis-ai-chat'].api (docs/PLUGIN_API.md).
+		// app.plugins.plugins['curtis'].api (docs/PLUGIN_API.md).
 		this.api = createPublicApi(this);
 
 		// Scheduled runs — ticks 30s after boot, so starting it here is safe

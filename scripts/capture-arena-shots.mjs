@@ -38,7 +38,7 @@ const { chromium } = require('playwright-core');
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const VAULT = resolve(ROOT, 'demo-vault');
-const PLUGIN_DIR = resolve(VAULT, '.obsidian/plugins/curtis-ai-chat');
+const PLUGIN_DIR = resolve(VAULT, '.obsidian/plugins/curtis');
 const OUT_DIR = resolve(ROOT, 'assets/screenshots');
 
 const OBSIDIAN_EXE =
@@ -74,7 +74,7 @@ function bootstrapVault() {
 		cpSync(resolve(ROOT, f), resolve(PLUGIN_DIR, f));
 	}
 	const obsidianDir = resolve(VAULT, '.obsidian');
-	writeFileSync(resolve(obsidianDir, 'community-plugins.json'), JSON.stringify(['curtis-ai-chat']));
+	writeFileSync(resolve(obsidianDir, 'community-plugins.json'), JSON.stringify(['curtis']));
 	if (!existsSync(resolve(obsidianDir, 'app.json'))) {
 		writeFileSync(resolve(obsidianDir, 'app.json'), JSON.stringify({ livePreview: true, readableLineLength: true }));
 	}
@@ -271,18 +271,18 @@ async function bootInstance(port) {
 	} catch { /* already trusted */ }
 
 	await page.evaluate(async () => {
-		try { await window.app.plugins.enablePlugin('curtis-ai-chat'); } catch { /* restricted or already on */ }
+		try { await window.app.plugins.enablePlugin('curtis'); } catch { /* restricted or already on */ }
 	});
 
 	page = await waitForVaultPage(
 		ctx,
-		() => !!window.app?.plugins?.plugins?.['curtis-ai-chat']?.conversationStore,
+		() => !!window.app?.plugins?.plugins?.['curtis']?.conversationStore,
 		45000,
 		'plugin onload'
 	);
 	await waitForVaultPage(
 		ctx,
-		() => !!window.app?.commands?.commands?.['curtis-ai-chat:open-chat'],
+		() => !!window.app?.commands?.commands?.['curtis:open-chat'],
 		15000,
 		'command registration'
 	);
@@ -299,7 +299,7 @@ async function shutdownInstance(instance) {
 // --- page-side steps ---------------------------------------------------------
 
 const configureForCapture = () => {
-	const plugin = window.app.plugins.plugins['curtis-ai-chat'];
+	const plugin = window.app.plugins.plugins['curtis'];
 	// Deterministic shots: no memory proposals, no retrieval excerpts, no
 	// background extraction call after each turn.
 	plugin.settings.enableMemory = false;
@@ -309,18 +309,18 @@ const configureForCapture = () => {
 };
 
 const openChatAndRender = async () => {
-	window.app.commands.executeCommandById('curtis-ai-chat:open-chat');
+	window.app.commands.executeCommandById('curtis:open-chat');
 	const deadline = Date.now() + 10000;
 	while (Date.now() < deadline) {
 		if (document.querySelector('.workspace-leaf-content[data-type="curtis-chat"]')) break;
 		await new Promise((r) => setTimeout(r, 200));
 	}
-	window.app.plugins.plugins['curtis-ai-chat'].refreshChatViews?.();
+	window.app.plugins.plugins['curtis'].refreshChatViews?.();
 };
 
 /** Report which enabled providers actually pass the auth check. */
 const authReport = () => {
-	const plugin = window.app.plugins.plugins['curtis-ai-chat'];
+	const plugin = window.app.plugins.plugins['curtis'];
 	const enabled = plugin.providerRegistry.getAllEnabledProviders().map(({ id }) => id);
 	const out = [];
 	for (const id of enabled) {
@@ -333,7 +333,7 @@ const authReport = () => {
 };
 
 const storeSnapshot = () => {
-	const plugin = window.app.plugins.plugins['curtis-ai-chat'];
+	const plugin = window.app.plugins.plugins['curtis'];
 	const conv = plugin.conversationStore.getCurrentConversation();
 	if (!conv) return null;
 	return {
@@ -398,7 +398,7 @@ async function parkMouse(page) {
  *  start a clean conversation, and make sure the chat renders it. */
 async function resetRound(page, ctx, providerId, modelId) {
 	await page.evaluate(([p, m]) => {
-		const plugin = window.app.plugins.plugins['curtis-ai-chat'];
+		const plugin = window.app.plugins.plugins['curtis'];
 		plugin.settings.activeProvider = p;
 		plugin.settings.activeModel = m;
 		plugin.saveSettings();
@@ -588,7 +588,7 @@ async function pollVaultState(ctx, pred, timeoutMs) {
  *  re-patching) to send thinking:disabled per DeepSeek's API. */
 async function patchDeepseekThinking(page) {
 	await page.evaluate(() => {
-		const prov = window.app.plugins.plugins['curtis-ai-chat'].providerRegistry.getProvider('deepseek');
+		const prov = window.app.plugins.plugins['curtis'].providerRegistry.getProvider('deepseek');
 		if (!prov) throw new Error('deepseek provider not initialized');
 		if (prov.__thinkingPatched) return;
 		const orig = prov.formatRequest.bind(prov);
@@ -617,13 +617,13 @@ async function desktopPass() {
 		await page.evaluate(() => location.reload());
 		page = await waitForVaultPage(
 			ctx,
-			() => !!window.app?.plugins?.plugins?.['curtis-ai-chat']?.conversationStore,
+			() => !!window.app?.plugins?.plugins?.['curtis']?.conversationStore,
 			45000,
 			'desktop reload'
 		);
 		await waitForVaultPage(
 			ctx,
-			() => !!window.app?.commands?.commands?.['curtis-ai-chat:open-chat'],
+			() => !!window.app?.commands?.commands?.['curtis:open-chat'],
 			15000,
 			'command registration (desktop reload)'
 		);
@@ -653,7 +653,7 @@ async function desktopPass() {
 		const resolveModel = (pid, wanted) =>
 			page.evaluate(
 				([p, w]) => {
-					const prov = window.app.plugins.plugins['curtis-ai-chat'].providerRegistry.getProvider(p);
+					const prov = window.app.plugins.plugins['curtis'].providerRegistry.getProvider(p);
 					const m = prov?.models.find((x) => x.id === w) ?? prov?.models.find((x) => w && x.id.includes(w)) ?? prov?.models[0];
 					return m ? { id: m.id, name: m.name } : null;
 				},
@@ -837,7 +837,7 @@ async function phonePass() {
 		let { page, ctx } = inst;
 		await page.evaluate(configureForCapture);
 		await page.evaluate(() => {
-			const plugin = window.app.plugins.plugins['curtis-ai-chat'];
+			const plugin = window.app.plugins.plugins['curtis'];
 			plugin.settings.chatViewPosition = 'left';
 			plugin.saveSettings();
 		});
@@ -852,13 +852,13 @@ async function phonePass() {
 		await page.evaluate(() => location.reload());
 		page = await waitForVaultPage(
 			ctx,
-			() => !!window.app?.plugins?.plugins?.['curtis-ai-chat']?.conversationStore,
+			() => !!window.app?.plugins?.plugins?.['curtis']?.conversationStore,
 			45000,
 			'phone reload'
 		);
 		await waitForVaultPage(
 			ctx,
-			() => !!window.app?.commands?.commands?.['curtis-ai-chat:open-chat'],
+			() => !!window.app?.commands?.commands?.['curtis:open-chat'],
 			15000,
 			'command registration (phone)'
 		);
@@ -883,7 +883,7 @@ async function phonePass() {
 		const resolveModel = (pid, wanted) =>
 			page.evaluate(
 				([p, w]) => {
-					const prov = window.app.plugins.plugins['curtis-ai-chat'].providerRegistry.getProvider(p);
+					const prov = window.app.plugins.plugins['curtis'].providerRegistry.getProvider(p);
 					const m = prov?.models.find((x) => x.id === w) ?? prov?.models.find((x) => w && x.id.includes(w)) ?? prov?.models[0];
 					return m ? { id: m.id, name: m.name } : null;
 				},

@@ -22,7 +22,7 @@ const { chromium } = require('playwright-core');
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const VAULT = resolve(ROOT, 'demo-vault');
 const CONVS = resolve(VAULT, 'AI/Conversations');
-const PLUGIN_DIR = resolve(VAULT, '.obsidian/plugins/curtis-ai-chat');
+const PLUGIN_DIR = resolve(VAULT, '.obsidian/plugins/curtis');
 const EXE = process.env.OBSIDIAN_EXE || resolve(process.env.USERPROFILE ?? process.env.HOME, 'scoop/apps/obsidian/current/Obsidian.exe');
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -95,7 +95,7 @@ async function bootOnce(label) {
 	let seedsFound = 0;
 	for (let i = 0; i < 50; i++) {
 		seedsFound = await page.evaluate((ids) => {
-			const s = window.app.plugins.plugins['curtis-ai-chat']?.conversationStore;
+			const s = window.app.plugins.plugins['curtis']?.conversationStore;
 			return s ? ids.filter((id) => !!s.getConversation(id)).length : -1;
 		}, SEED_IDS).catch(() => -1);
 		if (seedsFound === SEED_IDS.length) break;
@@ -103,7 +103,7 @@ async function bootOnce(label) {
 	}
 	await sleep(1500);
 	const diag = await page.evaluate((ids) => {
-		const store = window.app.plugins.plugins['curtis-ai-chat'].conversationStore;
+		const store = window.app.plugins.plugins['curtis'].conversationStore;
 		return {
 			total: store.getAllConversations().length,
 			seedsFound: ids.filter((id) => !!store.getConversation(id)).length,

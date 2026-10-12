@@ -4,7 +4,7 @@ import { RAG_INDEX_FILENAME, RAG_VAULT_DIR, ragIndexPaths } from './index-paths'
 
 // Any vault-relative plugin dir works — the helpers never hardcode the
 // config folder name themselves.
-const PLUGIN_DIR = 'plugin-dir/curtis-ai-chat';
+const PLUGIN_DIR = 'plugin-dir/curtis';
 
 describe('ragIndexPaths', () => {
 	it('keeps the index beside data.json in the default plugin location', () => {

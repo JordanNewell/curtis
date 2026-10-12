@@ -54,7 +54,7 @@ machine. Free and BUSL-1.1-licensed. No telemetry.
 ## 1.2 · Sixty-second setup
 
 1. Install Curtis.ai manually: drop `main.js`, `manifest.json`, and
-   `styles.css` into `.obsidian/plugins/curtis-ai-chat/` — or via [BRAT](https://github.com/TfTHacker/obsidian42-brat).
+   `styles.css` into `.obsidian/plugins/curtis/` — or via [BRAT](https://github.com/TfTHacker/obsidian42-brat).
 2. Open **Settings → Curtis.ai → Provider configuration** and enable a
    provider. The default is **Anthropic** — paste an API key (it goes straight
    into your **OS keychain**, never into a settings file).
@@ -92,8 +92,8 @@ you'd want to read, sync, back up, or hand-edit is a plain markdown note:
 | ⏰ Scheduled run notes | `AI/Scheduled/` | One note per run, frontmatter audit trail |
 | 🪪 Agent claims profile | `AI/PCP.md` | `## PEP-*` sections agents may read (by consent) |
 | 🖼️ Pasted images | `attachments/` in the vault | Real files; chats store the vault path, not bytes |
-| ⚙️ Everything else | `.obsidian/plugins/curtis-ai-chat/data.json` | Settings, agents, jobs, prompts |
-| 📐 RAG index | `.obsidian/plugins/curtis-ai-chat/rag-index.json` | int8-quantized vectors; not a note, never synced |
+| ⚙️ Everything else | `.obsidian/plugins/curtis/data.json` | Settings, agents, jobs, prompts |
+| 📐 RAG index | `.obsidian/plugins/curtis/rag-index.json` | int8-quantized vectors; not a note, never synced |
 | 🔑 API keys & OAuth tokens | **Your OS keychain** | Obsidian's `secretStorage`; `data.json` fallback only if keychain is unavailable |
 
 A conversation file looks like this — sync it, grep it, script around it:
@@ -646,7 +646,7 @@ scheduled runs are separate toggles.
 ## 2.28 · 🧩 Plugin API — for plugin developers
 
 Other Obsidian plugins can use Curtis as the vault's AI layer:
-`app.plugins.plugins['curtis-ai-chat'].api` — `chat(prompt, options)` (one
+`app.plugins.plugins['curtis'].api` — `chat(prompt, options)` (one
 headless agent run: `system`, `history`, `model`, `providerId`, `maxTurns`,
 `allowRunCommand`, `signal`, `onChunk`, `onUsage`), `runAgent(name, task)`,
 `searchNotes`, `semanticSearch`, `readNote`, `listNotes`, `getMemory`,

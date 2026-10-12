@@ -1,6 +1,6 @@
 ---
 name: Bug Report
-about: Report a bug in curtis-ai-chat to help us improve
+about: Report a bug in curtis to help us improve
 title: "[BUG] "
 labels: ["bug", "triage"]
 assignees: []
@@ -26,13 +26,13 @@ What actually happened.
 
 ## Environment
 
-- **curtis-ai-chat version:** (Settings → Community plugins, or check `manifest.json`)
+- **curtis version:** (Settings → Community plugins, or check `manifest.json`)
 - **Obsidian version:** (Settings → About)
 - **OS:** (macOS / Windows / Linux + version)
 - **Provider:** (OpenAI / Anthropic / Google / Ollama / other)
 - **Model:** (e.g. `gpt-4o`, `claude-sonnet-4-5`, `gemini-2.0-flash`)
 - **Install source:** (Community plugins / BRAT / manual)
-- **Vault state:** does this reproduce in a fresh vault with only curtis-ai-chat enabled? (yes / no / haven't checked)
+- **Vault state:** does this reproduce in a fresh vault with only curtis enabled? (yes / no / haven't checked)
 
 ## Logs / screenshots
 

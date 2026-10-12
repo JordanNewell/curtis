@@ -24,7 +24,7 @@ const { chromium } = require('playwright-core');
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const VAULT = resolve(ROOT, 'demo-vault');
-const PLUGIN_DIR = resolve(VAULT, '.obsidian/plugins/curtis-ai-chat');
+const PLUGIN_DIR = resolve(VAULT, '.obsidian/plugins/curtis');
 const DEBUG_PORT = 9335;
 
 const OBSIDIAN_EXE =
@@ -38,13 +38,13 @@ const ok = (cond, name, detail = '') => {
 	cond ? pass++ : fail++;
 };
 
-// Console gate: errors whose text or source URL names plugin:curtis-ai-chat
+// Console gate: errors whose text or source URL names plugin:curtis
 // fail the run even when every assertion passes. Anything else (core Obsidian,
 // theme ENOENTs, other plugins) is surfaced but never gates.
 const pluginErrors = [];
 const watchPluginErrors = (text, url = '') => {
 	const s = `${text}\n${url}`;
-	if (!s.includes('plugin:curtis-ai-chat')) return;
+	if (!s.includes('plugin:curtis')) return;
 	if (!pluginErrors.includes(text)) pluginErrors.push(text);
 };
 const reportConsoleGate = () => {
@@ -68,7 +68,7 @@ function bootstrapVault() {
 		cpSync(resolve(ROOT, f), resolve(PLUGIN_DIR, f));
 	}
 	const obsidianDir = resolve(VAULT, '.obsidian');
-	writeFileSync(resolve(obsidianDir, 'community-plugins.json'), JSON.stringify(['curtis-ai-chat']));
+	writeFileSync(resolve(obsidianDir, 'community-plugins.json'), JSON.stringify(['curtis']));
 	// Reset the persisted layout — this very test opens terminal OS windows
 	// that Obsidian persists on kill, and a stale popout would make
 	// getLeaf('tab') dock future "tabs" inside it in later runs.
@@ -209,11 +209,11 @@ async function main() {
 		await page.getByRole('button', { name: /trust/i }).click({ timeout: 8000 });
 	} catch { /* already trusted */ }
 	await page.evaluate(async () => {
-		try { await window.app.plugins.enablePlugin('curtis-ai-chat'); } catch { /* already on */ }
+		try { await window.app.plugins.enablePlugin('curtis'); } catch { /* already on */ }
 	});
 	page = await waitForVaultPage(
 		ctx,
-		() => !!window.app.plugins.plugins['curtis-ai-chat']?.conversationStore,
+		() => !!window.app.plugins.plugins['curtis']?.conversationStore,
 		30000,
 		'plugin onload complete'
 	);
@@ -222,7 +222,7 @@ async function main() {
 	const termLeaves = `window.app.workspace.getLeavesOfType('curtis-terminal')`;
 
 	// T1 — command: open terminal as a tab.
-	await page.evaluate(() => window.app.commands.executeCommandById('curtis-ai-chat:open-terminal-tab'));
+	await page.evaluate(() => window.app.commands.executeCommandById('curtis:open-terminal-tab'));
 	await sleep(1500);
 	ok(await page.evaluate(`(function(){return ${termLeaves}.length})()`) === 1, 'T1 open-terminal-tab command yields one terminal leaf');
 
@@ -245,7 +245,7 @@ async function main() {
 	}
 
 	// T3 — chat toolbar terminal button: dedupe-reveal, leaf count holds.
-	await page.evaluate(() => window.app.commands.executeCommandById('curtis-ai-chat:open-chat'));
+	await page.evaluate(() => window.app.commands.executeCommandById('curtis:open-chat'));
 	await sleep(1200);
 	const chatBtn = `document.querySelector('.workspace-leaf-content[data-type="curtis-chat"] button[aria-label="Open terminal"]')`;
 	const chatBtnPresent = await page.evaluate(`!!${chatBtn}`);
