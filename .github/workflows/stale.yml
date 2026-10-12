@@ -1,0 +1,35 @@
+name: Stale issues
+
+# Marks issues with no activity for 30 days as stale and closes them 14 days
+# later if still silent. PRs are never touched — Dependabot major bumps
+# legitimately sit for weeks waiting on manual review. Anything assigned to
+# someone or carrying an exempt label is left alone.
+
+on:
+  schedule:
+    - cron: '0 7 * * 2' # Tuesdays 07:00 UTC
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v11
+        with:
+          days-before-issue-stale: 30
+          days-before-issue-close: 14
+          days-before-pr-stale: -1
+          days-before-pr-close: -1
+          exempt-all-assignees: true
+          exempt-issue-labels: 'pinned,security,roadmap,dependencies'
+          stale-issue-message: >-
+            No activity for 30 days, so this is marked stale. If it still
+            matters, comment with what you've tried since opening it —
+            otherwise it closes in 14 days.
+          close-issue-message: >-
+            Closing after 14 more days of silence. Reopen with new details
+            (plugin version, Obsidian version, console output) anytime.
+          stale-issue-label: 'stale'

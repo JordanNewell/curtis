@@ -1,0 +1,28 @@
+name: Issue triage
+
+# Curtis bot, rules-based v1: keyword-matches every new issue (title + body),
+# applies feature labels, and posts one comment linking the relevant
+# per-feature docs. Usage-looking questions get pointed at the Q&A category.
+# The script dry-runs without GITHUB_TOKEN, so behavior is checkable locally.
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  issues: write
+
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '20'
+
+      - name: Triage new issue
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/triage-issue.mjs

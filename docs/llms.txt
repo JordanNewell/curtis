@@ -1,0 +1,39 @@
+# Curtis AI
+
+> Curtis AI is an applied AI company (est. 2026); its first product is Curtis.ai, a polyglot AI chat plugin for Obsidian.
+
+## About Curtis AI
+
+- Applied AI company, established 2026.
+- Ships products and runs a research arm; the lab is in setup.
+- First research subject: the memory system shipping inside Curtis.ai.
+
+## Curtis.ai (Product 01)
+
+- Polyglot AI chat for Obsidian: 53 built-in providers, one sidebar.
+- Local-first: Ollama and LM Studio supported for fully offline use; nothing leaves the machine unless a provider points at the cloud.
+- Bring-your-own keys; API keys stored in the OS keychain (Obsidian 1.13+).
+- Agent mode: AI calls twelve built-in tools (read/search/create/edit vault notes, hybrid semantic + keyword search when vault retrieval is on, and more), plus any tool exposed by user-connected MCP servers (Streamable HTTP, opt-in) and read-only Cloud Storage on a user-connected GCP project (service-account key, opt-in).
+- Named agents: reusable worker configs — persona + model routing + tool ceilings — bound to any chat or spawned as swarm specialists; swarm mode lets a leader chat spawn follower agents that work subtasks in their own panes.
+- Skills: vault folders in the open Agent Skills standard (SKILL.md: name + description frontmatter, markdown instructions), off by default; every enabled skill's description rides the system prompt in all arenas and the full instructions load on demand via the load_skill tool, /skill, or the plugin API; skill files are portable to and from other skills-compatible agents.
+- Other features: multi-model arena (2-4 models streaming one prompt in parallel), multi-pane chat (tabs and popout windows), terminal pane with an opt-in run_command agent tool, scheduled runs (a prompt or agent on a daily/interval cadence, headless, results as notes), MCP server mode (serve the vault and agents to external AI apps on localhost), a public plugin API for other Obsidian plugins, a prompt library with a fuzzy /prompt picker and editor, selectable harness profiles as the base contract composed under every system prompt (two built-ins plus custom), inline autocomplete (off by default), inline diff rewrite, @-mention notes as context, voice I/O (Whisper dictation in; read-aloud with a sentence player, voice picker, and karaoke highlight), cross-conversation search, vault retrieval (hybrid semantic + keyword context auto-injected; embeddings fused with local BM25 via reciprocal rank fusion; fully local embedding models supported), desktop notifications, chat import from ChatGPT/Claude plus the portable .curt format, /export to Markdown, a full backup zip (chats, prompt library, harness profiles, and settings with API keys stripped; restore is section-by-section through the import dialog), editable long-term memory, outbound webhook events (opt-in: a metadata-only JSON POST to a user-configured HTTPS URL when a chat response or scheduled run finishes, optional shared-secret header; mirrored as local audit receipts when the curtis-ai-audit plugin is installed), and one-click import of an existing Claude Code setup (user-scope and project MCP servers import disabled, vault skills copy into AI/Skills, subagent markdown files become named agents with remote invocation off, CLAUDE.md becomes a harness profile; desktop-only local file scan, no network).
+
+## Install
+
+- Obsidian community plugin listing: https://community.obsidian.md/plugins/curtis-ai-chat
+- Deep link: obsidian://show-plugin?id=curtis-ai-chat
+- Manual: download main.js, manifest.json, and styles.css from the latest GitHub release into .obsidian/plugins/curtis-ai-chat/, then enable under Settings -> Community plugins.
+
+## Facts
+
+- Current version: 2.0.0
+- Minimum Obsidian version: 1.13.0
+- License: BUSL-1.1 — free to use, modify, and redistribute; production use (personal or business) permitted except for competing products or services, which need a commercial license; each version converts to Apache-2.0 four years after release (Copyright (c) 2026 Jordan Newell)
+- No telemetry or analytics. Source contains no sendBeacon/XHR/WebSocket/analytics calls; network requests go only to the user-configured AI provider endpoint, OpenAI's transcription endpoint when voice dictation is used, OpenAI's OAuth endpoints (auth.openai.com) when the "Sign in with ChatGPT" provider is used (desktop, user-initiated, official OpenAI program; tokens stored in the OS keychain), site favicons for external links in chat (icons.duckduckgo.com, one request per domain; "Link favicons" toggle under Settings -> Chat UI, on by default; off keeps chat rendering fully local), opt-in (off-by-default) web_search/read_url agent tools (DuckDuckGo, Jina Reader), opt-in (off-by-default) user-configured MCP server URLs, Google's OAuth/Cloud Storage endpoints when the opt-in (off-by-default) GCP connector is enabled, and the user-configured HTTPS webhook URL when the opt-in (off-by-default) webhook is enabled (a metadata-only POST — provider, model, duration, tokens, cost, status; never message or note content — with an optional shared-secret header). The opt-in (off-by-default) plugin MCP server mode additionally serves the vault on localhost (127.0.0.1, bearer-token protected) when enabled; that is inbound local connections, not egress.
+
+## Links
+
+- Site: https://curtisai.jordannewell.com/
+- Source: https://github.com/JordanNewell/curtis-ai-chat
+- Releases: https://github.com/JordanNewell/curtis-ai-chat/releases
+- Obsidian community listing: https://community.obsidian.md/plugins/curtis-ai-chat

@@ -1,0 +1,263 @@
+// Voice I/O helpers — speech-to-text (Whisper or any OpenAI-compatible
+// transcription endpoint) + text-to-speech (Web Speech API).
+//
+// The STT path uses raw fetch() because transcription APIs require
+// multipart/form-data and Obsidian's requestUrl helper does not support
+// FormData bodies. The same architectural justification as transport.ts
+// (fetch required for mobile streaming) applies.
+
+/**
+ * Speech-to-text against OpenAI's Whisper API or any OpenAI-compatible
+ * /audio/transcriptions endpoint (Groq, local gateways, …).
+ *
+ * `bearerToken` should already include the `Bearer ` prefix.
+ *
+ * Returns transcribed text or throws on error.
+ */
+export interface TranscribeOptions {
+	/** Base URL of an Openai-compatible host ('' = OpenAI itself). */
+	baseUrl?: string;
+	/** Transcription model id (whisper-1, whisper-large-v3-turbo, …). */
+	model?: string;
+}
+
+/** Groq's OpenAI-compatible base — its whisper-large-v3-turbo is far
+ *  cheaper/faster than OpenAI's at the same API shape. */
+export const GROQ_STT_BASE_URL = 'https://api.groq.com/openai/v1';
+export const GROQ_STT_MODEL = 'whisper-large-v3-turbo';
+
+/** Resolve the transcription URL for a base URL. Hosts are written both
+ *  with ('https://api.groq.com/openai/v1') and without
+ *  ('https://my-host/api') a trailing /v1 — meet both spellings. */
+export function audioTranscriptionUrl(baseUrl = ''): string {
+	const trimmed = baseUrl.trim().replace(/\/+$/, '');
+	if (!trimmed) return 'https://api.openai.com/v1/audio/transcriptions';
+	return trimmed.endsWith('/v1')
+		? `${trimmed}/audio/transcriptions`
+		: `${trimmed}/v1/audio/transcriptions`;
+}
+
+/** Effective dictation base URL from settings — the Groq preset expands to
+ *  its fixed host; only 'custom' reads sttBaseUrl. */
+export function effectiveSttBaseUrl(settings: { sttEndpoint: string; sttBaseUrl: string }): string {
+	if (settings.sttEndpoint === 'groq') return GROQ_STT_BASE_URL;
+	if (settings.sttEndpoint === 'custom') return settings.sttBaseUrl.trim();
+	return '';
+}
+
+export async function transcribeAudio(
+	audioBlob: Blob,
+	bearerToken: string,
+	opts: TranscribeOptions = {}
+): Promise<string> {
+	const formData = new FormData();
+	const filename = audioBlob.type.includes('mp4') ? 'recording.mp4' : 'recording.webm';
+	formData.append('file', audioBlob, filename);
+	formData.append('model', opts.model || 'whisper-1');
+	formData.append('response_format', 'text');
+
+	// fetch() is architecturally required here — Obsidian's requestUrl does
+	// not support multipart/form-data bodies, which the transcription API
+	// requires. Use window.fetch to satisfy Obsidian's no-restricted-globals
+	// rule (which forbids bare `fetch` and forbids disabling the rule via
+	// eslint-disable).
+	const response = await window.fetch(audioTranscriptionUrl(opts.baseUrl), {
+		method: 'POST',
+		headers: {
+			Authorization: bearerToken,
+		},
+		body: formData,
+	});
+
+	if (!response.ok) {
+		const errorText = await response.text();
+		throw new Error(`Transcription API error (${response.status}): ${errorText}`);
+	}
+
+	return (await response.text()).trim();
+}
+
+/**
+ * Strip markdown for cleaner speech. Code fences, inline code, bold, links,
+ * headings, and list markers are normalized so the synthesized voice reads
+ * naturally instead of reciting punctuation.
+ */
+export function cleanTextForSpeech(text: string): string {
+	return text
+		.replace(/```[\s\S]*?```/g, ' code block ')
+		.replace(/`([^`]+)`/g, '$1')
+		.replace(/\*\*([^*]+)\*\*/g, '$1')
+		.replace(/\*([^*]+)\*/g, '$1')
+		.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+		.replace(/^#+\s+/gm, '')
+		.replace(/^\s*[-*]\s+/gm, '')
+		.replace(/!\[[^\]]*\]\([^)]+\)/g, '')
+		.trim();
+}
+
+/**
+ * Resolve the speechSynthesis voice for read-aloud. An explicit voiceURI
+ * wins when it exists on this machine; otherwise the en-US default, any
+ * English voice, or the first voice. Returns null when speech is
+ * unsupported or no voices are loaded yet (the list arrives
+ * asynchronously after voiceschanged).
+ */
+export function pickSpeechVoice(voiceUri = ''): SpeechSynthesisVoice | null {
+	if (!isSpeechSupported()) return null;
+	const voices = window.speechSynthesis.getVoices();
+	if (voices.length === 0) return null;
+	const explicit = voiceUri ? voices.find((v) => v.voiceURI === voiceUri) : undefined;
+	return explicit || voices.find((v) => v.lang === 'en-US' && v.default) || voices.find((v) => v.lang.startsWith('en')) || voices[0] || null;
+}
+
+/**
+ * Text-to-speech using the browser's built-in speechSynthesis.
+ * Voice/rate/pitch come from the caller (settings-driven); omit them for
+ * platform defaults.
+ */
+export interface SpeakTextOptions {
+	voiceUri?: string;
+	rate?: number;
+	pitch?: number;
+	onStart?: () => void;
+	onEnd?: () => void;
+	onError?: () => void;
+}
+
+export function speakText(text: string, opts: SpeakTextOptions = {}): void {
+	if (!isSpeechSupported()) {
+		console.warn('[Curtis] speechSynthesis unavailable');
+		opts.onError?.();
+		return;
+	}
+
+	// Cancel any in-progress speech so rapid clicks don't queue utterances.
+	window.speechSynthesis.cancel();
+
+	const cleanText = cleanTextForSpeech(text);
+	if (!cleanText) {
+		opts?.onEnd?.();
+		return;
+	}
+
+	const utterance = new SpeechSynthesisUtterance(cleanText);
+	utterance.rate = opts.rate ?? 1.0;
+	utterance.pitch = opts.pitch ?? 1.0;
+	utterance.volume = 1.0;
+
+	const preferredVoice = pickSpeechVoice(opts.voiceUri);
+	if (preferredVoice) utterance.voice = preferredVoice;
+
+	if (opts.onStart) utterance.onstart = opts.onStart;
+	if (opts.onEnd) {
+		utterance.onend = opts.onEnd;
+		utterance.onerror = opts.onEnd;
+	} else if (opts.onError) {
+		utterance.onerror = opts.onError;
+	}
+
+	window.speechSynthesis.speak(utterance);
+}
+
+export function stopSpeaking(): void {
+	if (isSpeechSupported()) {
+		window.speechSynthesis.cancel();
+	}
+}
+
+export function isSpeechSupported(): boolean {
+	return 'speechSynthesis' in window;
+}
+
+export function isMediaRecorderSupported(): boolean {
+	return typeof MediaRecorder !== 'undefined' && !!navigator.mediaDevices;
+}
+
+/**
+ * Record audio from the microphone. Call start() to begin, stop() to receive
+ * the captured Blob, or cancel() to discard without resolving.
+ */
+export class VoiceRecorder {
+	private mediaRecorder: MediaRecorder | null = null;
+	private chunks: Blob[] = [];
+	private stream: MediaStream | null = null;
+
+	async start(): Promise<void> {
+		this.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+		this.chunks = [];
+
+		try {
+			const mimeType = this.pickMimeType();
+			this.mediaRecorder = mimeType
+				? new MediaRecorder(this.stream, { mimeType })
+				: new MediaRecorder(this.stream);
+
+			this.mediaRecorder.ondataavailable = (e) => {
+				if (e.data.size > 0) this.chunks.push(e.data);
+			};
+
+			this.mediaRecorder.start();
+		} catch (e) {
+			// Don't leak a live mic stream when recorder setup fails.
+			this.cleanup();
+			throw e;
+		}
+	}
+
+	stop(): Promise<Blob> {
+		return new Promise((resolve) => {
+			if (!this.mediaRecorder) {
+				resolve(new Blob());
+				return;
+			}
+
+			// The recorder can already be inactive — all tracks ending (e.g. a
+			// BT headset disconnect) auto-stops it, and calling .stop() on an
+			// inactive recorder throws InvalidStateError synchronously, which
+			// would wedge the mic button for the rest of the session.
+			if (this.mediaRecorder.state === 'inactive') {
+				const mimeType = this.mediaRecorder.mimeType || 'audio/webm';
+				const blob = new Blob(this.chunks, { type: mimeType });
+				this.cleanup();
+				resolve(blob);
+				return;
+			}
+
+			this.mediaRecorder.onstop = () => {
+				const mimeType = this.mediaRecorder?.mimeType || 'audio/webm';
+				const blob = new Blob(this.chunks, { type: mimeType });
+				this.cleanup();
+				resolve(blob);
+			};
+
+			this.mediaRecorder.stop();
+		});
+	}
+
+	cancel(): void {
+		if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
+			this.mediaRecorder.stop();
+		}
+		this.cleanup();
+	}
+
+	private cleanup(): void {
+		this.stream?.getTracks().forEach((t) => t.stop());
+		this.stream = null;
+		this.mediaRecorder = null;
+		this.chunks = [];
+	}
+
+	private pickMimeType(): string | null {
+		const candidates = [
+			'audio/webm;codecs=opus',
+			'audio/webm',
+			'audio/ogg;codecs=opus',
+			'audio/mp4',
+		];
+		for (const type of candidates) {
+			if (MediaRecorder.isTypeSupported(type)) return type;
+		}
+		return null;
+	}
+}
