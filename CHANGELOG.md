@@ -2,7 +2,7 @@
 
 All notable changes to Curtis AI Chat are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/).
 
-## [2.1.0] — 2026-10-12
+## [1.0.0] — 2026-10-12
 
 ### Changed
 
