@@ -1,0 +1,236 @@
+# Slash commands
+
+Type `/` in the chat input to open the autocomplete menu. Arrow keys to navigate, Enter/Tab to pick, Esc to dismiss. Or run `/help` to open a reference modal inside Obsidian.
+
+Unknown commands (e.g. `/typo hello`) fall through and get sent as a literal user message — useful when you actually want to send text starting with `/`.
+
+## Reference
+
+| Command | Args | Description |
+|---|---|---|
+| `/clear` | — | Start a new chat. Previous conversation stays in history. |
+| `/regen` · `/regenerate` | — | Regenerate the last assistant response. |
+| `/title` | `<new name>` | Rename the current conversation. |
+| `/leader` | — | Toggle leader mode — this chat can spawn follower agents. See [SWARM.md](SWARM.md). |
+| `/agent` | `[name\|off]` | Bind a named agent to this chat (bare = picker, `off` clears). See [AGENTS.md](AGENTS.md). |
+| `/skill` | `[name]` | Attach a skill to this chat — its full instructions ride every send (bare = list, `off` detaches). See [SKILLS.md](SKILLS.md). |
+| `/copy` | — | Copy the last assistant response to clipboard. |
+| `/note` | `[name]` | Save the last assistant response as a new note. |
+| `/save-all` | `[name]` | Export the entire conversation as one structured markdown note in your vault. |
+| `/export` | — | Download the current conversation as a `.md` file to your downloads folder. *(new in v1.0)* |
+| `/paste` | — | Paste from system clipboard into the chat input. |
+| `/prompt` | `[name]` | Insert a saved prompt from the prompt library (bare = picker; replaces the input). |
+| `/model` | `<query>` | Switch the active model via fuzzy match. |
+| `/provider` | `<query>` | Switch the active provider via fuzzy match. |
+| `/system` | `<text>` | Set your standing system-prompt extension — global, applies to all chats, persists. No arg resets to default. |
+| `/stats` | — | Show conversation stats (conversations, messages, tokens). |
+| `/remember` | `<fact>` | Manually save a durable fact to long-term memory. |
+| `/forget` | `<substring>` | Delete the first memory fact matching the substring. |
+| `/memory` | `[open\|clear]` | List recent facts, or `open`/`clear` the memory file. |
+| `/recap` | — | Summarize this conversation and log it to the journal. |
+| `/help` | — | Open a modal listing every slash command. |
+
+## Conversation management
+
+### `/clear`
+
+Start a new chat. Clears the message list, attachments, and image strip. The previous conversation stays in history (click the **history icon** in the header to find it).
+
+### `/regen` · `/regenerate`
+
+Regenerate the last assistant response. Drops the trailing assistant message and re-runs the last user prompt for a fresh answer.
+
+### `/title <new name>`
+
+Rename the current conversation. The title shows up in the history dropdown.
+
+```
+/title Q3 planning notes
+```
+
+### `/leader`
+
+Toggle leader mode on the current conversation. A leader chat can spawn follower agents — separate chats that work subtasks in parallel and report back. Run again to turn it off. See [SWARM.md](SWARM.md).
+
+### `/agent [name|off]`
+
+Bind one of your named agents to this conversation — its persona, model routing, and tool ceilings take over for this chat. Bare `/agent` opens the picker; `/agent editor` fuzzy-matches a name; `/agent off` returns the chat to the default assistant. Switching mid-conversation is fine: the transcript records which agent wrote each turn. See [AGENTS.md](AGENTS.md).
+
+### `/skill [name]`
+
+Attach a skill from your skills folder to this conversation — the skill's full instructions join the system prompt of every subsequent send, in plain and agent mode alike. Bare `/skill` lists skills with their attachment state; `/skill pdf-processing` fuzzy-matches and toggles; `/skill off` detaches all. Attachments persist on the conversation. See [SKILLS.md](SKILLS.md).
+
+### `/stats`
+
+Show a Notice with conversation stats: total conversations, total messages, total tokens used. If the @/slash autocomplete has run this session, the Notice also shows autocomplete request/token usage for the session.
+
+## Saving & exporting
+
+### `/copy`
+
+Copy the last assistant response to your clipboard.
+
+### `/note [name]`
+
+Save the last assistant response as a new note in your configured Note save folder.
+
+- Without a name: the basename is derived from the first line of the response
+- With a name: uses what you provide
+- Opens the note in a new split
+- Frontmatter records `source: Curtis`, `provider`, `model`, `created`
+- Embeds any attached images as `![[filename.png]]`
+
+```
+/note Q3 Strategy Draft
+```
+
+### `/save-all [name]`
+
+Export the entire current conversation as a single structured markdown note **inside your vault**. Without a name, the note is titled after the conversation. Each message becomes a section:
+
+```markdown
+# Conversation title
+
+## 🧑 You
+*provider / model*
+
+Your message here.
+
+## 🤖 Assistant
+*provider / model*
+
+Assistant response here.
+```
+
+Great for archiving a useful conversation as a searchable, linkable note.
+
+### `/export`
+
+Download the current conversation as a `.md` file to your browser's downloads folder (not into your vault). Uses a clean markdown format with metadata header:
+
+```markdown
+# Conversation title
+
+> Provider: openai (OpenAI)
+> Model: gpt-6.1-sol
+> Started: 2026-07-22 4:54 PM
+> Messages: 12
+
+---
+
+## User
+*2026-07-22 4:54 PM*
+
+Your message.
+
+---
+
+## Assistant · gpt-6.1-sol
+*2026-07-22 4:54 PM*
+
+Response.
+
+---
+```
+
+Attached images are emitted as `![](vault/path.png)` references — they won't render outside your vault, but the paths are preserved.
+
+> [!NOTE]
+> `/save-all` writes into your vault (searchable, linkable). `/export` downloads to your filesystem (shareable, portable). Pick based on where you want the artifact to live.
+
+## Input helpers
+
+### `/paste`
+
+Paste from the system clipboard into the chat input, **replacing** whatever is currently there. Useful when you've copied text from elsewhere and want to ask about it.
+
+> [!NOTE]
+> Requires clipboard-read permission. If Obsidian blocks it, paste normally with `Ctrl+V`.
+
+### `/prompt [name]`
+
+Insert a saved prompt from the **prompt library** into the chat input — the text replaces whatever is in the box, ready to edit and send. Prompts are managed in Settings → Curtis.ai → Prompt library.
+
+- Bare `/prompt` opens a fuzzy picker; its **Create new prompt…** tail saves a new entry and inserts it immediately.
+- `/prompt <name>` fuzzy-matches a name and inserts it directly; no match gets a Notice listing what's available.
+
+```
+/prompt           ← opens the picker
+/prompt translate ← inserts the best-matching saved prompt
+```
+
+The book-marked button in the composer opens the same picker. One shared library across all chats and models.
+
+### `/model <query>`
+
+Switch the active model via fuzzy match. Searches both model name and ID across all enabled providers.
+
+```
+/model sonnet       → Claude Sonnet 4.5
+/model gpt-6-luna   → GPT-6 Luna
+/model llama        → Llama 3.3 70B (via Groq, Together, etc.)
+```
+
+### `/provider <query>`
+
+Switch the active provider via fuzzy match. Sets the provider's first available model as active.
+
+```
+/provider anthropic
+/provider groq
+/provider ollama
+```
+
+### `/system <text>`
+
+Set your **standing** system-prompt extension. This is a global setting — it applies to every conversation and persists across restarts, so treat it as "my standing instructions to Curtis". It layers on top of the active harness profile (Settings → Generation): the profile is the base contract, this is your addition. Without an argument, resets to the default.
+
+```
+/system You are a senior Rust engineer. Always explain ownership and lifetimes.
+/system                            ← resets to default
+```
+
+## Memory
+
+### `/remember <fact>`
+
+Manually save a durable fact to long-term memory. The fact is added to `AI/Curtis Memory.md` and injected into every future prompt.
+
+```
+/remember I prefer concise answers without preamble
+/remember My main project is "Aurora" — a Rust async runtime
+```
+
+### `/forget <substring>`
+
+Delete the first memory whose content contains the substring. Returns a Notice showing what was removed.
+
+```
+/forget Aurora
+```
+
+### `/memory`
+
+Without an argument: show a Notice summarizing the last 8 facts.
+
+With arguments:
+- `/memory open` — open the memory file in Obsidian
+- `/memory clear` — wipe all facts (asks for confirmation first)
+
+See [MEMORY.md](MEMORY.md) for how memory works and how to edit individual facts from the settings UI (new in v1.0).
+
+## Recap & journal
+
+### `/recap`
+
+Summarize the current conversation in Curtis's voice — 2–3 terse bullets covering what was worked on, what was decided, and what was left open. Curtis reads the last ~30 turns (first 500 characters each) and the summary is appended to the chat itself, so it lives in the transcript like any other message.
+
+- Needs at least 3 messages in the conversation — otherwise you get "Nothing to recap yet".
+- Also reachable from the pane's **export menu** → **Recap conversation**.
+- With **Recap journal** enabled (Settings → Curtis.ai → Conversations), each recap is also appended to the journal file — default `AI/Curtis Journal.md`, path configurable right below the toggle. The journal is plain, append-only markdown: one entry per recap, and Curtis never rewrites it, so hand edits are safe. It syncs and searches like any vault note.
+
+## Reference
+
+### `/help`
+
+Open a modal listing every slash command. Use this when you forget the syntax.

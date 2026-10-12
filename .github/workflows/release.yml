@@ -1,0 +1,146 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - '*.*.*'
+
+permissions:
+  contents: write
+  discussions: write
+  id-token: write
+  attestations: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # The manifest/versions rule is absolute: a release that lies about its
+      # floor ships broken installs. Gate the tag before building anything.
+      - name: Verify tag matches manifest and versions.json
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          version=$(node -p "require('./manifest.json').version")
+          floor=$(node -p "require('./manifest.json').minAppVersion")
+          mapped=$(node -p "require('./versions.json')['$version'] ?? ''")
+          echo "tag=$TAG manifest=$version minAppVersion=$floor versions.json[$version]=$mapped"
+          if [ "$TAG" != "$version" ]; then
+            echo "::error::Tag $TAG does not match manifest.json version $version — refusing to release."
+            exit 1
+          fi
+          if [ -z "$mapped" ]; then
+            echo "::error::versions.json has no entry for $version — every release needs one."
+            exit 1
+          fi
+          if [ "$mapped" != "$floor" ]; then
+            echo "::error::versions.json maps $version to $mapped but manifest.json declares $floor."
+            exit 1
+          fi
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm test
+
+      - name: Build plugin
+        run: npm run build
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v4
+        with:
+          subject-path: |
+            main.js
+            manifest.json
+            styles.css
+
+      - name: Create release + upload assets
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          tag="${GITHUB_REF#refs/tags/}"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "Release $tag already exists — uploading assets"
+            gh release upload "$tag" main.js manifest.json styles.css --clobber
+          else
+            echo "Creating release $tag"
+            gh release create "$tag" \
+              --verify-tag \
+              --title "$tag" \
+              --generate-notes \
+              main.js manifest.json styles.css
+          fi
+
+      # Fire-and-forget by design: a failed announcement must never fail a release.
+      - name: Post release announcement discussion
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          tag="${GITHUB_REF#refs/tags/}"
+          title="Release $tag"
+
+          if gh api "repos/${GITHUB_REPOSITORY}/discussions?per_page=100" \
+              --jq ".[] | select(.title == \"$title\") | .number" | grep -q .; then
+            echo "'$title' already exists — skipping"
+            exit 0
+          fi
+
+          # Keep-a-Changelog: the section under "## [tag]" down to the next "## ["
+          awk -v ver="$tag" '
+            index($0, "## [" ver "]") == 1 { found = 1; next }
+            found && /^## \[/ { exit }
+            found { print }
+          ' CHANGELOG.md > /tmp/announcement.md
+          if [ ! -s /tmp/announcement.md ]; then
+            echo "See the [release notes](https://github.com/${GITHUB_REPOSITORY}/releases/tag/${tag})." > /tmp/announcement.md
+          fi
+          {
+            echo ""
+            echo "---"
+            echo ""
+            echo "Install via **Settings → Community plugins → Check for updates**, or grab \`main.js\`, \`manifest.json\`, and \`styles.css\` from the [release assets](https://github.com/${GITHUB_REPOSITORY}/releases/tag/${tag})."
+            echo ""
+            echo "Comment here if anything breaks."
+          } >> /tmp/announcement.md
+
+          ids=$(gh api graphql -f query='
+            query($owner: String!, $name: String!) {
+              repository(owner: $owner, name: $name) {
+                id
+                discussionCategories(first: 20) {
+                  nodes { id name }
+                }
+              }
+            }' \
+            -F owner="${GITHUB_REPOSITORY%/*}" \
+            -F name="${GITHUB_REPOSITORY#*/}" \
+            --jq '[.data.repository.id, (.data.repository.discussionCategories.nodes[] | select(.name == "Announcements") | .id)] | join(" ")')
+          repo_id="${ids%% *}"
+          category_id="${ids##* }"
+          if [ -z "$category_id" ] || [ "$category_id" = "$repo_id" ]; then
+            echo "::warning::No Announcements discussion category found — skipping announcement"
+            exit 0
+          fi
+
+          gh api graphql -f query='
+            mutation($repositoryId: ID!, $categoryId: ID!, $title: String!, $body: String!) {
+              createDiscussion(input: {repositoryId: $repositoryId, categoryId: $categoryId, title: $title, body: $body}) {
+                discussion { url }
+              }
+            }' \
+            -f repositoryId="$repo_id" \
+            -f categoryId="$category_id" \
+            -f title="$title" \
+            -F body=@/tmp/announcement.md \
+            --jq '.data.createDiscussion.discussion.url'

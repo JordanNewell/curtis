@@ -1,0 +1,13 @@
+# CodeQL analysis config. Source only — main.js is the committed esbuild
+# artifact (analyzing it would duplicate every finding at bundle scale) and
+# the other trees are vault data or site content.
+name: "CodeQL config"
+
+queries:
+  - uses: security-extended
+
+paths-ignore:
+  - main.js
+  - demo-vault
+  - docs
+  - assets

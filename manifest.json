@@ -1,0 +1,14 @@
+{
+	"id": "curtis-ai-chat",
+	"name": "Curtis.ai",
+	"version": "2.0.1",
+	"minAppVersion": "1.13.0",
+	"description": "AI chat + agent. 53 providers: ChatGPT, Claude, Gemini, DeepSeek, Ollama + local. Agent tools edit your notes, MCP client & server, skills, RAG vault search, scheduled runs, arena. Free, source-available.",
+	"author": "Jordan Newell",
+	"authorUrl": "https://github.com/jordannewell",
+	"fundingUrl": {
+		"Buy Me a Coffee": "https://www.buymeacoffee.com/jordannewell",
+		"GitHub Sponsors": "https://github.com/sponsors/jordannewell"
+	},
+	"isDesktopOnly": false
+}
