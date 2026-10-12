@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Filename + browser-download helpers shared by the markdown/curt export
 // paths and the conversation store (which names the vault transcript files).
 

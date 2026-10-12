@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Terminal memory — the pure logic behind the pane's persistent command
 // history. Deliberately Obsidian-free so it runs under vitest (same boundary
 // as vshell.ts); storage is a settings array owned by the plugin, shared by

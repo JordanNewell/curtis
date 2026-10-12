@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Full-backup bundle — the portable "vault state snapshot" format.
 //
 // One zip = conversations (.curt, identical to the bulk export) plus the

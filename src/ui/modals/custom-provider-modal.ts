@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Custom Provider Modal — form for adding/editing user-defined OpenAI-compatible endpoints.
 // Covers Ollama, LM Studio, LiteLLM, Novita, DeepInfra, Requesty, AIMLAPI, Portkey,
 // Helicone, self-hosted llama.cpp, and any future OpenAI-compat service.

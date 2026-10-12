@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 import { Menu, Editor, MarkdownView, Notice } from 'obsidian';
 import type CurtisPlugin from '../main';
 import { CHAT_VIEW_TYPE, ChatView } from '../chat/view';

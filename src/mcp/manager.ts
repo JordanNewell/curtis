@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // MCP manager — owns one McpClient per configured server and projects their
 // tools into the Curtis ToolRegistry.
 //

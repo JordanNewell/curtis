@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Secret storage helpers — move API keys from plaintext settings into
 // Obsidian's app.secretStorage (OS keychain; Obsidian 1.11.4+).
 //

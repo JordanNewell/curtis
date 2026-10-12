@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Outbound events — HTTP webhook + local audit receipts, one payload shape.
 //
 // Two independent sinks fire per event and must never break the caller

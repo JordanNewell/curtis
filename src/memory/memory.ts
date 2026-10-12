@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Long-term memory store — markdown-file-backed, full-injection recall.
 //
 // Design (lifted from obsidian-copilot's user-memory layer, see _research/):

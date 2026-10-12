@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // TTS playback controller — sentence-level sequencing over a pluggable
 // speech backend (see tts-backends.ts). The Web Speech API has no native
 // seek, so sentences are played one utterance at a time; that is what

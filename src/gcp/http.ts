@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Injectable HTTP layer for the GCP modules.
 //
 // Types only, Obsidian-free — auth.ts and storage.ts take a sender instead

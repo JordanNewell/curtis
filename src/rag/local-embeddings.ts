@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Curtis — Local (on-device) embeddings via transformers.js.
 //
 // The runtime and model weights load lazily: nothing initializes until this

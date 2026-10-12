@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Curtis plugin API — the surface other Obsidian plugins consume.
 //
 // Reachable as `app.plugins.plugins['curtis-ai-chat'].api` once Curtis is

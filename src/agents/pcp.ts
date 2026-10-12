@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // PCP-0 — personal context profile parsing.
 //
 // The profile is a markdown file with one section per claim class:

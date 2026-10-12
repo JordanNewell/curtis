@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Conversation Store — vault-file-backed persistent conversation management.
 //
 // Design (mirrors the memory store's file-backed pattern):

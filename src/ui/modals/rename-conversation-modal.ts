@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Rename Conversation Modal — one field. Retails nothing itself: the
 // callback routes through ConversationStore.renameCurrentConversation so the
 // vault file retitles and every pane bound to the conversation updates.

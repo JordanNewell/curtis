@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 import { describe, expect, it } from 'vitest';
 import { combineBackends, createAgentBackend, limitConcurrency } from './agent-tools';
 import type { AgentBackendDeps, AgentSummary } from './agent-tools';

@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // MCP server mode — the pure JSON-RPC half.
 //
 // Server mode turns the MCP relationship around: Curtis, already an MCP

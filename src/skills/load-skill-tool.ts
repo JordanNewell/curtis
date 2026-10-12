@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // load_skill — the model-initiated activation path for skills (stage 2 of
 // the Agent Skills progressive-disclosure model). The discovery index tells
 // the model a skill exists; this tool hands over the full instructions when

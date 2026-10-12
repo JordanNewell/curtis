@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Agents — named worker configs: persona + model routing + tool ACL.
 //
 // An agent is NOT a runtime. It resolves to (system-prompt persona,

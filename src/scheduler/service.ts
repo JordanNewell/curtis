@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Scheduled runs — a best-effort trigger layer over the headless agent API.
 //
 // An Obsidian plugin only executes while Obsidian is open (and on mobile,

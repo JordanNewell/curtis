@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Claude-setup import tests — pure functions, node-safe (no Obsidian imports).
 // The fs port is an in-memory fake; YAML parse is the same minimal fake the
 // skills parser tests use.

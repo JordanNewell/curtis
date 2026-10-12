@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // MCP client session — one instance per configured server.
 //
 // Lifecycle: connect() runs the initialize handshake + notifications/

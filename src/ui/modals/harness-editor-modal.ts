@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Harness Editor Modal — create or edit a user-defined harness profile:
 // the base contract composed under every system prompt (identity, context
 // mechanics, operating principles). Mirrors CustomActionEditorModal: validate

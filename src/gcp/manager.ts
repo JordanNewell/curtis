@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // GCP manager — owns the service-account session and projects the read-only
 // Cloud Storage tools into the Curtis ToolRegistry. Mirrors McpManager's
 // contract: live settings callbacks, an onToolsChanged callback wired to a

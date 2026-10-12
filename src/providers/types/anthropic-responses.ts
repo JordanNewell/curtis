@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Anthropic Messages API — https://docs.anthropic.com/en/api/messages
 
 /** Why the model stopped. `pause_turn` means the server paused a long turn

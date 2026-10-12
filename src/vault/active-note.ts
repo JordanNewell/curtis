@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Resolve the user's "active" note even when the chat sidebar has focus.
 //
 // `workspace.getActiveViewOfType(MarkdownView)` returns the view that holds

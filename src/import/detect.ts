@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Export-format auto-detection.
 //
 // Order matters: extension-based (.curt, .zip) first, then structural JSON

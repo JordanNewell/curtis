@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Tests for the HTTP half of MCP server mode: the security gates (bearer
 // token, Host allowlist, Origin allowlist), method routing, and the JSON-RPC
 // plumbing, all over a real socket. The server binds port 0 on 127.0.0.1 with

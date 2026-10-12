@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Model Picker Modal — fuzzy-searchable model selector with capability pills.
 //
 // Routed through from ChatView whenever the user clicks the model name in the

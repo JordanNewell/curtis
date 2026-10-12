@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Skills parser tests — pure functions, node-safe (no Obsidian imports).
 // The YAML fn is a minimal fake covering the shapes SKILL.md frontmatter
 // uses (flat scalars + one nested map), same port-injection idiom as the

@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Cloud Storage JSON API client — the READ-ONLY surface the GCP connector
 // exposes (list buckets, list objects, read one object). Obsidian-free: it
 // takes the injected HttpSender plus token callbacks, so the wire logic is

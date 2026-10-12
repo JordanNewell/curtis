@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Slash command parser + registry. The ChatView intercepts the input on Send:
 // if the trimmed text starts with `/`, dispatch via handleSlashCommand, which
 // either consumes it (returns true) or lets the send fall through (false).

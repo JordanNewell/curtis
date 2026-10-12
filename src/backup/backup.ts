@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Backup export/apply — the Obsidian-facing half of the backup format
 // (src/backup/backup-format.ts owns the pure serialization and merge rules).
 

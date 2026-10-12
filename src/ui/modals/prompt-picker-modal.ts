@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Prompt Picker Modal — fuzzy-searchable prompt library selector. `onChoose`
 // receives the picked entry; the "Create new prompt…" tail saves through
 // settings and routes the fresh entry to onChoose, so a create-from-picker

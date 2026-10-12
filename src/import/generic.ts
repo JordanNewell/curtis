@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Generic best-effort importers: plain JSON transcripts and role-headed
 // markdown. These cover tools with no official export format — Copilot chat
 // pastes, Gemini printouts, arbitrary {role, content} JSON. Best-effort means

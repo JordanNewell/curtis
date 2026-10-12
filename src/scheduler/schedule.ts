@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Schedule math for scheduled runs — pure, Obsidian-free (unit-tested under
 // node). All decisions flow through isJobDue: the tick loop never does its
 // own time arithmetic.

@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Node tests for the swarm runtime's orchestration seams: the leader
 // generation guard, the per-generation follower cap, the global
 // one-follower-at-a-time queue, and the conditional "most recent"

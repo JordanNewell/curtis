@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Conversation file format — serialize/parse the markdown conversation files
 // (frontmatter + H1 title + marker-attributed message sections).
 //

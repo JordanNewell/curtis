@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Skills — vault-backed store for the open Agent Skills standard.
 //
 // Skills live as folders under <skillsFolder>/ (default AI/Skills/), one

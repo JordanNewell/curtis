@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Translate Language Modal — one text field asking for the translate
 // action's target language. Resolves null when dismissed without
 // committing; the caller persists the committed language as the next prefill.

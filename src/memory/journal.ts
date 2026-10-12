@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Curtis Journal — append-only session log. /recap writes one entry per
 // recap: what was worked on, decided, and left open. The file is plain
 // markdown in the vault, so it syncs, searches, and stays portable. There is

@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Terminal runner — the desktop shell-execution core.
 //
 // One implementation serves both consumers: the terminal pane (user-typed,

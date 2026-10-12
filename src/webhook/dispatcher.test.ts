@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Dispatcher tests — node-only (the module is deliberately Obsidian-free;
 // transport and audit recorder are injected). The invariants that matter:
 // audit receipts match curtis-ai-audit's validation rules, the webhook fires

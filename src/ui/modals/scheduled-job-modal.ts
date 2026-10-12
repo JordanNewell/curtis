@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Scheduled Job Modal — form for creating/editing a scheduled agent run.
 //
 // The schedule picker is two shapes, not free-form cron: daily-at-time and
