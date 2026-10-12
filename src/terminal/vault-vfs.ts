@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // VaultVfs — the Obsidian side of the vshell Vfs port (see vshell.ts for the
 // boundary rationale). Every operation goes through the official vault API,
 // which is what keeps the vault shell permission-free on mobile.

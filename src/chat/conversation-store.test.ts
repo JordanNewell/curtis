@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Node tests for the conversation file format + store — the seam the separate
 // Curtis AI Porter repo builds on: markdown round-trip, the import path, and
 // store orchestration over an in-memory ConversationFiles port (no Obsidian).

@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Backup apply — post-import step for a full-backup zip. Conversations
 // already landed through the normal pipeline; this modal is the opt-in gate
 // for the remaining sections. Prompts and harnesses merge by id (existing

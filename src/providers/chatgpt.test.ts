@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // ChatGPT provider tests — pure mappings and parsers, node-safe (no Obsidian
 // imports; buildToolParametersSchema comes from core/tool-schema).
 

@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Unit tests for the TTS backend layer: the object-URL LRU behind the
 // neural engine, the OpenAI speech backend's fetch/cache/prefetch/degrade
 // behavior (fetch + Audio injected, no DOM), and the transcription URL

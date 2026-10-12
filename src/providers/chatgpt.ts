@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // ChatGPT Provider — "Sign in with ChatGPT" (plan usage) over the OpenAI
 // Responses API.
 //

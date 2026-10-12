@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Curtis — RAG lexical index: field-weighted BM25 over the same chunks the
 // embedding index holds, fused with cosine rankings via RRF.
 //

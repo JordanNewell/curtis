@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Completion prompt construction + response cleanup. Pure functions — the
 // request itself rides the shared chat transport (plugin.callCompletion).
 

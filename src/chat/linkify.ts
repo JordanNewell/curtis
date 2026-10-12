@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Link helpers — pure string logic, Obsidian-free so the unit tests run
 // under node. The DOM wiring lives in message-renderer.ts.
 

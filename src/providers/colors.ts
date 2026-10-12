@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 /** Brand color per built-in provider id. Used for the role/picker dot.
  *  Custom providers fall back to --interactive-accent via CSS. */
 const PROVIDER_COLORS: Record<string, string> = {

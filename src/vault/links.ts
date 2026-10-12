@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Note-link conventions — the harness must not prescribe a link style the
 // user's vault disagrees with. Obsidian exposes the choice as
 // <configDir>/app.json → useMarkdownLinks (absent/false = [[wikilinks]], the

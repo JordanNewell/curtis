@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Node tests for the lexical half of hybrid retrieval — tokenizer, BM25
 // scoring with field boosts, and RRF fusion. No Obsidian imports here, same
 // as the module under test.

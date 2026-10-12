@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Storage port for conversation files, plus the Obsidian (vault) adapter.
 //
 // ConversationStore orchestrates (in-memory map, write queues, debounce, the

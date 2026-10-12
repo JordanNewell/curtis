@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Arena Model Picker Modal — multi-select for the Multi-Model Arena.
 //
 // FuzzySuggestModal is single-select only; arena needs several simultaneous

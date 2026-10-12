@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Local Embedding Model Modal — curated on-device models plus a live
 // Hugging Face search for anything else.
 //

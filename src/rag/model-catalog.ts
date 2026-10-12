@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Curtis — Curated on-device embedding models + family-aware run specs.
 //
 // Pooling and (for the e5 family) query/passage instruction prefixes differ

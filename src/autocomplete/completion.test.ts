@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 import { describe, it, expect } from 'vitest';
 import { buildCompletionMessages, extractCompletion, COMPLETION_MAX_CHARS } from './completion';
 

@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // .curt pure serialization — the format contract, split from the Obsidian
 // I/O in curt.ts so node-side modules (backup-format, detect) can import it
 // without pulling in Obsidian.

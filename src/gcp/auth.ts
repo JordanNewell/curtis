@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // GCP service-account auth — RFC 7523 JWT-bearer flow.
 //
 // The service-account key's RSA private key signs a JWT asserting the

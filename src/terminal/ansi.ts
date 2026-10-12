@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // ANSI escape handling for the terminal.
 //
 // Output captured through a pipe carries whatever the child emitted: tools

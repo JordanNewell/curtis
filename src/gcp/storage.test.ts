@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // GCP Storage client tests — bucket/object listing, the readObject text vs
 // binary vs oversized policy, 401 token invalidation, and API error
 // mapping. Runs under node: storage.ts is Obsidian-free (injected sender +

@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Agent Picker Modal — fuzzy-searchable named-agent selector. Dumb on
 // purpose: it resolves nothing itself. `onChoose` receives the picked agent
 // (or null for "default assistant"); `onCreate`, when given, receives the

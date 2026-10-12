@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // vshell — the vault shell: a curated POSIX-ish command set implemented over
 // the Obsidian vault API instead of the OS. This is the terminal mobile can
 // have: iOS forbids spawning processes outright, and Obsidian's mobile webview

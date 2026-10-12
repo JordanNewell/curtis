@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // GCP auth tests — service-account JSON parsing, RS256 JWT signing, and the
 // token cache. Runs under node: auth.ts is Obsidian-free (injected HTTP
 // sender), and node's global WebCrypto generates + verifies the same keys

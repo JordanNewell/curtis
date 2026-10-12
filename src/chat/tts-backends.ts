@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // TTS backends — the playback seam behind the sentence player.
 //
 // TTSController owns sentence sequencing and state; a backend speaks one

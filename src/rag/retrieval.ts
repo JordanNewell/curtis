@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Curtis — RAG retrieval formatting: turn search results into a prompt block.
 //
 // The block is self-describing so the model treats excerpts correctly:

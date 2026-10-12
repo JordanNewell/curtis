@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Chat Search Modal — fuzzy-search across ALL conversations (titles + message
 // contents). Opens via the header search button or the "Search conversations"
 // command (no default hotkey).

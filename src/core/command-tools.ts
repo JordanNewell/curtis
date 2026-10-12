@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Command tool — opt-in command execution for Curtis Agent.
 //
 // Desktop: run_command spawns the platform shell for one command and returns

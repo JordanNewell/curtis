@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Voice I/O helpers — speech-to-text (Whisper or any OpenAI-compatible
 // transcription endpoint) + text-to-speech (Web Speech API).
 //

@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // /recap — end-of-session summary in Curtis's voice. One background
 // completion over the current conversation; the result is appended to the
 // chat itself (so it lives in the transcript) and, when the journal is

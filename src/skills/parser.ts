@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Agent Skills parsing — the open Agent Skills standard (agentskills.io).
 //
 // A skill is a folder under <skillsFolder>/ containing a SKILL.md: YAML

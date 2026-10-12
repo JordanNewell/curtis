@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Import-from-Claude-Code modal: scan → checklist → apply → result.
 // Desktop-only (the scanner reads files outside the vault); callers gate on
 // Platform.isDesktopApp before opening. Reuses the chat-import summary

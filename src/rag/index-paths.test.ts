@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 import { describe, expect, it } from 'vitest';
 import { RAG_INDEX_FILENAME, RAG_VAULT_DIR, ragIndexPaths } from './index-paths';
 

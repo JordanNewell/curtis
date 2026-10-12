@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Ollama Provider — native /api/chat dialect
 //
 // Curtis speaks Ollama's native protocol rather than its OpenAI-compatible

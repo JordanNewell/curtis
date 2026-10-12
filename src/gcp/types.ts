@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // GCP connector types — the service-account credential shape, the runtime
 // connector status, and the v1 scope constants.
 //

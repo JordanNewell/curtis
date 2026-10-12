@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Import from Claude Code — one-click bring-over of an existing setup.
 //
 // Scans (desktop, local files only — no network):

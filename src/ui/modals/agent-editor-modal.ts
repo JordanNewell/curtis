@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Agent Editor Modal — create or edit a named agent: name, emoji, persona,
 // model routing, tool ACL, remote-invocation gate, memory participation,
 // optional loop-cap override.

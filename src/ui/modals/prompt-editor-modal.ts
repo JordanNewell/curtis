@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Prompt Editor Modal — form for adding/editing prompt library entries.
 // Mirrors CustomActionEditorModal: validate on submit, hand the record back
 // to the caller (settings owns persistence and the id).

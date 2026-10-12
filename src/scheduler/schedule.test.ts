@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Schedule-math tests — the catch-up promises docs/SCHEDULED_RUNS.md makes:
 // a daily job never silently skips (late = fires on next tick), interval
 // jobs re-anchor instead of stacking retroactive runs, and a job can never

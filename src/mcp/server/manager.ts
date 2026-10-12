@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // MCP server mode — lifecycle + the Obsidian side of the vault port.
 //
 // The manager owns the HTTP server, builds the VaultToolPort adapter over

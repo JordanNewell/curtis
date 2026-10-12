@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Unit tests for the TTS sentence player. tts-controller is Obsidian-free —
 // playback is driven through the TTSBackend seam, so a fake backend stands
 // in for window.speechSynthesis under node.

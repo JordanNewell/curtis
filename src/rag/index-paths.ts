@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Curtis — RAG index storage paths. Pure (no Obsidian imports) so the
 // location-flip rules stay unit-testable under node.
 

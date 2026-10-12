@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Curtis — Custom icon registry.
 //
 // The Curtis.ai mark: monoline C with round terminals, aperture right, and

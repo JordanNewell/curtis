@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 import { App, FuzzySuggestModal, TFile } from 'obsidian';
 
 /** Fuzzy-pick an image file from the vault. Used for the wallpaper setting. */

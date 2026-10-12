@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Curtis — RAG index manager: build, persist, and query the vault embedding index.
 //
 // Storage: `rag-index.json`, either in the plugin dir (default) or the synced

@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // "Sign in with ChatGPT" — OAuth 2.0 Authorization Code + PKCE against
 // auth.openai.com, using OpenAI's dynamic client registration (no client
 // secret: `client_id=dynamic_agent_client` plus a per-installation host id;

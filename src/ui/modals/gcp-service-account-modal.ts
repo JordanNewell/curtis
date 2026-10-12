@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // GCP Service Account Modal — paste a service-account JSON key.
 //
 // The key is validated here (parse errors surface before anything is saved)

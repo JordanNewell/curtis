@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Claude (claude.ai) export converter.
 //
 // The claude.ai data export ships `conversations.json`: an array of

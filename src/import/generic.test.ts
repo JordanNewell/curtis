@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Generic importer tests — headings, bold labels, and bare inline labels
 // (English + Chinese). Kept in lockstep with the porter's parsers.test.ts;
 // the conservative-detection negatives matter as much as the positives: a

@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Import orchestrator: pick files → detect format → normalize → write to
 // the conversations folder → report. This is the single entry point shared
 // by the command picker, chat-view drag-and-drop, and the .curt click-to-import

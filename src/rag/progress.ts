@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Curtis — RAG rebuild UX: shared by the settings button and the command
 // palette. One persistent Notice whose message tracks chunk progress.
 

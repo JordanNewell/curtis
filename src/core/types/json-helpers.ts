@@ -1,3 +1,4 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Type guards for narrowing `unknown` values at JSON boundaries.
 // Every external JSON parse site should pass through one of these before
 // the value enters typed code.
