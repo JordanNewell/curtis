@@ -81,3 +81,27 @@ jobs:
             node scripts/ci-annotate-tests.mjs test-results.json vitest-output.log || true
           fi
           exit $status
+
+  smoke:
+    # Offline harness smokes: node-only, deterministic, no network and no
+    # Obsidian needed (fake MCP server, in-process provider registry, fake
+    # Google). The real-Obsidian CDP smokes (npm run suite -- --app) stay
+    # local-only — they drive a desktop install and close it for the duration.
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Offline smokes (mcp, models, gcp)
+        run: node scripts/suite.mjs offline
