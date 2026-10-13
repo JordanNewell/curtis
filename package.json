@@ -53,13 +53,13 @@
 		"@codemirror/state": "6.5.0",
 		"@codemirror/view": "^6.38.6",
 		"@types/node": "^20.11.0",
-		"esbuild": "^0.19.11",
+		"esbuild": "^0.28.2",
 		"eslint": "^9.39.5",
 		"eslint-plugin-obsidianmd": "^0.4.1",
 		"obsidian": "^1.13.1",
 		"playwright-core": "^1.63.0",
 		"typescript": "^5.3.3",
-		"vitest": "^1.6.1"
+		"vitest": "^5.0.4"
 	},
 	"dependencies": {
 		"@curtis/agents": "0.1.0",
