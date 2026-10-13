@@ -388,8 +388,19 @@ export default class CurtisPlugin extends Plugin {
 			window.setTimeout(() => { this.memorySelfWrite = false; }, 0);
 		};
 		return {
-			read: (path) => this.vaultAdapter.read(path),
-			exists: (path) => this.vaultAdapter.exists(path),
+			read: async (path) => {
+				try {
+					return await this.vaultAdapter.read(path);
+				} catch (e) {
+					// The vault index can lag the filesystem on a cold boot — the
+					// in-tree store read filesystem truth before giving up, and
+					// vault.create() would otherwise throw "File already exists".
+					// Keep that parity: fall back to the adapter before failing.
+					return await this.app.vault.adapter.read(path);
+				}
+			},
+			exists: async (path) =>
+				(await this.vaultAdapter.exists(path)) || (await this.app.vault.adapter.exists(path)),
 			list: (path) => this.vaultAdapter.list(path),
 			write: async (path, data) => {
 				this.memorySelfWrite = true;
