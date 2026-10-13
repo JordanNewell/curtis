@@ -3,33 +3,42 @@
 
 import { Editor, Notice, Platform, Plugin, addIcon, requestUrl, TFile, debounce } from 'obsidian';
 import { CURTIS_ICON_ID, CURTIS_ICON_SVG } from './icons';
-import type { CurtisSettings, AIMessage, TokenUsage, AIProvider, AIRequestOptions, ToolCall, ToolDefinition, MemoryProposal } from './types';
+import type { CurtisSettings, AIMessage, TokenUsage, AIProvider, AIRequestOptions, ProviderConfig, ToolCall, ToolDefinition, MemoryProposal } from '@curtis/shared';
+import {
+	JournalStore,
+	MemoryStore,
+	McpManager,
+	SchedulerService,
+	SkillManager,
+	SWARM_TOOL_NAME,
+	SwarmManager,
+} from '@curtis/core';
+import { ProviderRegistry, chatStream, flattenHeaders, getReasoningWire } from '@curtis/llms';
+import type { ChatGPTTokens, ChatGPTProvider } from '@curtis/llms';
 import { DEFAULT_SETTINGS, CurtisSettingTab } from './settings';
-import { ProviderRegistry, getReasoningWire } from './providers/registry';
-import { ChatGPTTokenManager, signInWithChatGPT } from './providers/chatgpt-signin';
-import type { ChatGPTTokens } from './providers/chatgpt';
-import { ChatGPTProvider } from './providers/chatgpt';
-import { chatStream, flattenHeaders } from './providers/transport';
+import { ChatGPTTokenManager, signInWithChatGPT } from './integrations/chatgpt-signin';
 import { EventBus } from './core/events';
 import { ToolRegistry } from './core/tools';
-import { McpManager } from './mcp/manager';
 import { McpServerManager } from './mcp/server/manager';
 import { GcpManager } from './gcp/manager';
 import { createPublicApi } from './api/public-api';
 import type { CurtisPublicApi } from './api/public-api';
-import { SchedulerService } from './scheduler/service';
 import { WebhookDispatcher, type AuditRecorder } from './webhook/dispatcher';
 import { RagIndexManager } from './rag';
 import { runMigrations } from './core/migration';
 import type { SettingsData } from './core/migration';
 import { migrateSecretsToKeychain, resolveApiKey, resolveGcpServiceAccount } from './core/secrets';
-import { MemoryStore } from './memory';
 import { ConversationStore } from './chat/conversation-store';
 import { VaultConversationFiles, vaultYamlPort } from './chat/conversation-files';
-import { SwarmManager, SWARM_TOOL_NAME } from './swarm';
-import { AgentManager } from './agents';
-import { SkillManager } from './skills/manager';
-import type { ResolvedAgent } from './agents';
+import { AgentManager } from '@curtis/agents';
+import type { ResolvedAgent } from '@curtis/agents';
+import { ObsidianHttpAdapter } from './adapters/http';
+import { ObsidianVaultAdapter } from './adapters/vault';
+import { SettingsAgentStore, VaultClaimsFilePort } from './adapters/agent-store';
+import { PluginSkillsHost } from './adapters/skills-host';
+import { PluginSchedulerHost } from './adapters/scheduler-host';
+import { PluginSwarmHost } from './adapters/swarm-host';
+import { obsidianHttpSender } from './adapters/mcp-sender';
 import { ChatSearchModal } from './ui/modals/chat-search-modal';
 import { DiffRewriteModal } from './ui/modals/diff-rewrite-modal';
 import { CHAT_VIEW_TYPE, ChatView } from './chat/view';
@@ -45,6 +54,10 @@ import type { SelectionAction } from './commands/selection';
 import { TranslateLanguageModal } from './ui/modals/translate-language-modal';
 import { createAutocompleteExtension } from './autocomplete/editor-extension';
 import { AUTOCOMPLETE_MAX_TOKENS, AUTOCOMPLETE_STOP_SEQUENCES } from './autocomplete/completion';
+
+/** Minimal shape of the Electron `window.require` (Node builtin loader). */
+type ElectronRequire = (id: string) => unknown;
+const nodeRequire = (window as unknown as { require?: ElectronRequire }).require;
 
 /** Bind intent for a freshly opened chat pane: the literal opens a new
  *  conversation; any other string is an existing conversation id carried
@@ -77,6 +90,12 @@ export default class CurtisPlugin extends Plugin {
 	 *  (src/webhook/dispatcher.ts). */
 	webhooks!: WebhookDispatcher;
 	mcpServerManager!: McpServerManager;
+	/** VaultLike over the Obsidian vault — the seam every @curtis/core
+	 *  store (memory, journal, skills) is built on. */
+	vaultAdapter!: ObsidianVaultAdapter;
+	/** Buffered network port (requestUrl) — model discovery + the
+	 *  non-streaming chat fallback. Streaming bypasses it via node https. */
+	httpPort!: ObsidianHttpAdapter;
 
 	async onload(): Promise<void> {
 		// 1. Load settings with migration
@@ -105,10 +124,11 @@ export default class CurtisPlugin extends Plugin {
 			enableCommands: this.settings.enableCommands,
 			ragIndex: this.ragIndex,
 		});
-		// Swarm — the spawn_agent tool is registered for every conversation but
-		// only ever advertised to leader chats (filtered in callAgentLoop).
-		this.swarm = new SwarmManager(this);
-		this.toolRegistry.register(this.swarm.buildSpawnTool());
+		// Shared vault adapter — every package port (memory, journal, skills,
+		// agent claims) rides the same VaultLike over the Obsidian vault.
+		this.vaultAdapter = new ObsidianVaultAdapter(this.app);
+		this.httpPort = new ObsidianHttpAdapter();
+
 		// MCP: connect user-configured servers in the background — a slow or
 		// dead server must never delay plugin boot. Tools join the registry
 		// via onToolsChanged as connections come up.
@@ -116,6 +136,7 @@ export default class CurtisPlugin extends Plugin {
 			getServers: () => this.settings.mcpServers,
 			isEnabled: () => this.settings.enableMcp,
 			clientVersion: this.manifest.version,
+			sender: obsidianHttpSender,
 		});
 		this.mcpManager.onToolsChanged = () => this.mcpManager.syncTools(this.toolRegistry);
 		this.mcpManager.syncTools(this.toolRegistry);
@@ -131,9 +152,13 @@ export default class CurtisPlugin extends Plugin {
 		this.gcpManager.onToolsChanged = () => this.gcpManager.syncTools(this.toolRegistry);
 		this.gcpManager.syncTools(this.toolRegistry);
 		if (this.settings.enableGcp) void this.gcpManager.connect();
-		this.memoryStore = new MemoryStore(this.app);
+		// No notify: the package's clear() would toast a generic "Memory
+		// cleared" on top of the specific notices the call sites already show.
+		this.memoryStore = new MemoryStore(this.vaultAdapter, {
+			path: this.settings.memoryFilePath?.trim() || 'AI/Curtis Memory.md',
+		});
 		try {
-			await this.memoryStore.load(this);
+			await this.memoryStore.load();
 		} catch (e) {
 			// A bad memory-file path (or a read-only vault) must not kill the
 			// whole plugin — degrade to an empty in-memory store instead.
@@ -150,12 +175,18 @@ export default class CurtisPlugin extends Plugin {
 			notifyError: (message) => new Notice(message),
 		});
 		// Named agents — persona + model routing + tool ACL per conversation.
-		this.agents = new AgentManager(this);
+		// The store hands the manager the LIVE settings.agents array (by
+		// reference) — see SettingsAgentStore.
+		this.agents = new AgentManager(
+			new SettingsAgentStore(this),
+			new VaultClaimsFilePort(this.app),
+			(msg) => new Notice(msg)
+		);
 
 		// Skills — vault-backed Agent Skills (AI/Skills/), injected into every
 		// arena's system prompt via skillBlocks(); the load_skill tool joins
 		// the registry when the master toggle is on.
-		this.skills = new SkillManager(this);
+		this.skills = new SkillManager(new PluginSkillsHost(this, this.vaultAdapter));
 		this.skills.syncTools(this.toolRegistry);
 
 		// Public plugin API — other plugins reach Curtis through
@@ -164,7 +195,10 @@ export default class CurtisPlugin extends Plugin {
 
 		// Scheduled runs — ticks 30s after boot, so starting it here is safe
 		// even though it reads this.api lazily at run time.
-		this.scheduler = new SchedulerService(this);
+		this.scheduler = new SchedulerService(new PluginSchedulerHost(this), {
+			tickMs: 30_000,
+			firstTickDelayMs: 20_000,
+		});
 		this.scheduler.start();
 
 		// Outbound events — receipts to curtis-ai-audit when installed, plus
@@ -189,6 +223,16 @@ export default class CurtisPlugin extends Plugin {
 			},
 		});
 
+		// Swarm host wiring — the package SwarmManager needs the conversation
+		// store, the agent manager, and the skill manager, all constructed
+		// above; the plugin supplies the pane opener + nested loop. The
+		// spawn_agent tool is registered for every conversation but only ever
+		// advertised to leader chats (filtered in callAgentLoop).
+		this.swarm = new SwarmManager(
+			new PluginSwarmHost(this, this.conversationStore, this.agents, this.skills)
+		);
+		this.toolRegistry.register(this.swarm.buildSpawnTool());
+
 		// MCP server mode — serve the vault to external MCP clients. Desktop
 		// only (mobile has no listening sockets); a bind failure must not
 		// break boot, so it surfaces as a notice and the plugin loads on.
@@ -200,7 +244,7 @@ export default class CurtisPlugin extends Plugin {
 		}
 
 		// 4. Initialize provider registry (with keychain-aware key resolver)
-		const resolveKey = (_providerId: string, config?: import('./types').ProviderConfig): string => {
+		const resolveKey = (_providerId: string, config?: ProviderConfig): string => {
 			return resolveApiKey(this.app, config);
 		};
 		// Sign in with ChatGPT — keychain-backed OAuth token store; the
@@ -211,6 +255,7 @@ export default class CurtisPlugin extends Plugin {
 			() => this.saveSettings()
 		);
 		this.providerRegistry = new ProviderRegistry(
+			this.httpPort,
 			this.settings.providerConfigs,
 			this.settings.customProviders,
 			resolveKey,
@@ -309,6 +354,32 @@ export default class CurtisPlugin extends Plugin {
 		});
 	}
 
+	/**
+	 * The journal store over the CURRENT journal-file path. JournalStore is
+	 * stateless, so constructing per access keeps the settings path change
+	 * handler live without any reload dance.
+	 */
+	get journal(): JournalStore {
+		return new JournalStore(this.vaultAdapter, {
+			path: this.settings.journalFilePath?.trim() || 'AI/Curtis Journal.md',
+		});
+	}
+
+	/**
+	 * Rebuild the memory store against the CURRENT memory-file path. The
+	 * package MemoryStore pins its path at construction (the old in-tree
+	 * one re-resolved settings on every call), so the settings edit flow
+	 * calls this instead of a reload().
+	 */
+	async reloadMemoryStore(): Promise<void> {
+		// No notify: the package's clear() would toast a generic "Memory
+		// cleared" on top of the specific notices the call sites already show.
+		this.memoryStore = new MemoryStore(this.vaultAdapter, {
+			path: this.settings.memoryFilePath?.trim() || 'AI/Curtis Memory.md',
+		});
+		await this.memoryStore.load();
+	}
+
 	onunload(): void {
 		// Abort in-flight scheduled runs and stop the tick before anything
 		// they might call tears down underneath them.
@@ -317,7 +388,6 @@ export default class CurtisPlugin extends Plugin {
 		// mutation already schedules its own write 200ms out). Guarded: onload
 		// may have aborted before a service was constructed.
 		this.conversationStore?.save();
-		void this.memoryStore?.save(this);
 		void this.mcpManager?.disconnectAll();
 		void this.gcpManager?.disconnect();
 		void this.mcpServerManager?.stop();
@@ -337,6 +407,13 @@ export default class CurtisPlugin extends Plugin {
 		this.registerEvent(
 			this.app.vault.on('modify', (file) => {
 				if (file instanceof TFile && file.extension === 'md') this.ragIndex.scheduleFileUpdate(file);
+				// Hand edits to the memory file re-read it into the store (the
+				// package MemoryStore ships no watcher — the host is the watcher).
+				if (this.memoryStore && file.path === this.memoryStore.getPath()) {
+					void this.memoryStore.load().catch((e: unknown) => {
+						console.error('[Curtis] Memory file re-read failed:', e);
+					});
+				}
 			})
 		);
 		this.registerEvent(
@@ -942,9 +1019,10 @@ export default class CurtisPlugin extends Plugin {
 		let receivedAnyChunk = false;
 
 		const result = await chatStream(
+			this.httpPort,
 			provider,
 			requestInit,
-			{ stream },
+			{ stream, nodeRequire },
 			{
 				onChunk: (delta) => {
 					receivedAnyChunk = true;
@@ -993,9 +1071,10 @@ export default class CurtisPlugin extends Plugin {
 				new Notice('This endpoint rejected the image — retrying as text only. Try a different provider for vision.', 6000);
 				streamError = null;
 				const retry = await chatStream(
+					this.httpPort,
 					provider,
 					strippedRequest,
-					{ stream },
+					{ stream, nodeRequire },
 					{
 						onChunk: (delta) => callbacks?.onChunk?.(delta),
 						onUsage,
@@ -1386,6 +1465,7 @@ export default class CurtisPlugin extends Plugin {
 		let text = '';
 		let tokens = 0;
 		const result = await chatStream(
+			this.httpPort,
 			provider,
 			requestInit,
 			{ stream: false },

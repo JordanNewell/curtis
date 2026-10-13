@@ -61,6 +61,12 @@ const context = await esbuild.context({
 	plugins: [copyStyles, syncDemoVault],
 	entryPoints: ['src/main.ts'],
 	bundle: true,
+	// @curtis/llms imports node:module at top level for its streaming-transport
+	// probe; alias it to a lazy window.require shim so the bundled main.js
+	// never executes a bare require() at load (mobile-safe).
+	alias: {
+		'node:module': './src/shims/node-module.ts',
+	},
 	external: [
 		'obsidian',
 		'electron',
@@ -75,7 +81,10 @@ const context = await esbuild.context({
 		'@lezer/common',
 		'@lezer/highlight',
 		'@lezer/lr',
-		...builtinModules],
+		...builtinModules,
+		// The @curtis packages import Node builtins by the 'node:'-prefixed
+		// names (builtinModules lists them bare) — keep both spellings out.
+		'node:*'],
 	format: 'cjs',
 	target: 'es2022',
 	logLevel: "info",

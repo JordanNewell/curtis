@@ -47,8 +47,6 @@ export default [
 		// tests stub `window` with plain timers instead.
 		files: [
 			'src/autocomplete/controller.test.ts',
-			'src/agents/pcp.ts',
-			'src/agents/pcp.test.ts',
 			'src/chat/conversation-format.ts',
 			'src/chat/conversation-store.test.ts',
 			'src/core/tool-schema.ts',
@@ -57,12 +55,8 @@ export default [
 			'src/gcp/http.ts',
 			'src/gcp/storage.ts',
 			'src/gcp/storage.test.ts',
-			'src/providers/chatgpt.ts',
-			'src/providers/chatgpt.test.ts',
 			'src/terminal/vshell.ts',
 			'src/terminal/vshell.test.ts',
-			'src/scheduler/schedule.ts',
-			'src/scheduler/schedule.test.ts',
 		],
 		rules: {
 			'obsidianmd/prefer-window-timers': 'off',

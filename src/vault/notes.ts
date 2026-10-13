@@ -2,7 +2,7 @@
 // Note creation helpers — used by "Save as note", /note, /save-all, and auto-save.
 
 import { App, Notice, TFile } from 'obsidian';
-import type { ConversationMessage } from '../types';
+import type { ConversationMessage } from '@curtis/shared';
 
 /** Resolve the attachment folder. We use a fixed default rather than reading
  * Obsidian's per-vault setting (no public API in this obsidian version). */

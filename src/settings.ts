@@ -3,9 +3,9 @@
 
 import { App, Notice, Platform, PluginSettingTab, Setting, requestUrl, TFile } from 'obsidian';
 import type { SettingDefinitionItem, SettingDefinitionRender } from 'obsidian';
-import type { CurtisSettings, CustomSelectionAction, ModelOverrides, ProviderConfig, ProviderDefinition, McpServerConfig, RagIndexLocation, ReasoningEffort } from './types';
-import { PROVIDER_DEFINITIONS, getParamCaps } from './providers/registry';
-import { isChatGPTSignInAvailable } from './providers/chatgpt-signin';
+import type { CurtisSettings, CustomSelectionAction, ModelOverrides, ProviderConfig, ProviderDefinition, McpServerConfig, RagIndexLocation, ReasoningEffort } from '@curtis/shared';
+import { PROVIDER_DEFINITIONS, getParamCaps } from '@curtis/llms';
+import { isChatGPTSignInAvailable } from './integrations/chatgpt-signin';
 import { CustomProviderModal } from './ui/modals/custom-provider-modal';
 import { CustomActionEditorModal } from './ui/modals/custom-action-editor-modal';
 import { SELECTION_ACTIONS } from './commands/selection';
@@ -14,11 +14,10 @@ import { AgentEditorModal } from './ui/modals/agent-editor-modal';
 import { HarnessEditorModal } from './ui/modals/harness-editor-modal';
 import { PromptEditorModal } from './ui/modals/prompt-editor-modal';
 import { ScheduledJobModal } from './ui/modals/scheduled-job-modal';
-import { describeSchedule } from './scheduler/schedule';
+import { describeSchedule } from '@curtis/core';
 import { FolderSuggestModal } from './ui/modals/folder-suggest-modal';
 import { ImageSuggestModal } from './ui/modals/image-suggest-modal';
 import { ModelPickerModal, buildModelPickerEntries } from './ui/modals/model-picker-modal';
-import { ensureJournalFile } from './memory/journal';
 import { EditFactModal } from './ui/modals/edit-fact-modal';
 import { BUILTIN_HARNESSES, resolveHarnessPrompt } from './core/system-prompt';
 import { setApiKeyForProvider, getSecretStorage, resolveApiKey, resolveGcpServiceAccount, setGcpServiceAccount, getSttApiKey, setSttApiKey } from './core/secrets';
@@ -34,7 +33,7 @@ import { openImportDialog } from './import/importer';
 import { downloadConversationsCurtZip } from './import/curt';
 import { ClaudeSetupImportModal } from './import/claude-setup-modal';
 import { agentToClaudeMarkdown } from './import/claude-setup';
-import { flattenHeaders } from './providers/transport';
+import { flattenHeaders } from '@curtis/llms';
 import { ensureNotificationPermission, isSystemNotificationSupported } from './chat/notifications';
 import { isSpeechSupported, GROQ_STT_MODEL } from './chat/voice';
 import { OPENAI_TTS_VOICES } from './chat/tts-backends';
@@ -585,7 +584,7 @@ export class CurtisSettingTab extends PluginSettingTab {
 
 	/** Sign in with ChatGPT — the OAuth provider's card: connection status
 	 *  plus sign-in/sign-out buttons. No API key exists for this provider;
-	 *  the browser flow mints the tokens (see providers/chatgpt-signin.ts). */
+	 *  the browser flow mints the tokens (see integrations/chatgpt-signin.ts). */
 	private buildChatGPTOAuthSetting(el: HTMLElement, _config: ProviderConfig): void {
 		const tokens = this.plugin.getChatGPTTokens();
 		const signedIn = !!(tokens?.access_token || tokens?.refresh_token);
@@ -3294,7 +3293,7 @@ export class CurtisSettingTab extends PluginSettingTab {
 							.onChange(async (val) => {
 								s.memoryFilePath = val.trim() || 'AI/Curtis Memory.md';
 								await this.plugin.saveSettings();
-								await this.plugin.memoryStore.reload(this.plugin);
+								await this.plugin.reloadMemoryStore();
 							});
 					})
 					.addButton((btn) => {
@@ -3305,7 +3304,7 @@ export class CurtisSettingTab extends PluginSettingTab {
 									const fname = 'Curtis Memory.md';
 									s.memoryFilePath = path ? `${path}/${fname}` : fname;
 									await this.plugin.saveSettings();
-									await this.plugin.memoryStore.reload(this.plugin);
+									await this.plugin.reloadMemoryStore();
 									this.update();
 								})();
 							}).open();
@@ -3452,7 +3451,7 @@ export class CurtisSettingTab extends PluginSettingTab {
 						})
 						.addButton((btn) => {
 							btn.setButtonText('Open').setTooltip('Open journal file').onClick(async () => {
-								await ensureJournalFile(this.plugin);
+								await this.plugin.journal.ensureFile();
 								const p = s.journalFilePath || 'AI/Curtis Journal.md';
 								if (this.app.vault.getAbstractFileByPath(p)) {
 									await this.app.workspace.openLinkText(p, '', false);
@@ -3801,7 +3800,7 @@ async function testProviderConnection(
 	def: ProviderDefinition,
 	config: ProviderConfig,
 	app?: App,
-	provider?: import('./types').AIProvider
+	provider?: import('@curtis/shared').AIProvider
 ): Promise<TestResult> {
 	const endpoint = config.customEndpoint || def.endpoint;
 	const apiKey = app ? resolveApiKey(app, config) : (config.apiKey || '');

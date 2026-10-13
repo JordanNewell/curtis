@@ -17,7 +17,7 @@
 
 import { Notice, TFile, type App } from 'obsidian';
 import { zipSync, strToU8 } from 'fflate';
-import type { Conversation } from '../types';
+import type { Conversation } from '@curtis/shared';
 import { downloadBlob, sanitizeFilename } from '../utils/download';
 import { serializeCurt, parseCurt, curtZipEntryName } from './curt-format';
 

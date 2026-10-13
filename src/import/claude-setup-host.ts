@@ -11,8 +11,8 @@
 
 import { FileSystemAdapter, Notice, parseYaml, Platform, TFile } from 'obsidian';
 import type CurtisPlugin from '../main';
-import type { AgentManager } from '../agents';
-import type { McpServerConfig } from '../types';
+import type { AgentManager } from '@curtis/agents';
+import type { McpServerConfig } from '@curtis/shared';
 import {
 	mapAgentToCurtis,
 	markMcpDuplicates,

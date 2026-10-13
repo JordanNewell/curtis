@@ -4,7 +4,7 @@
 // The block is self-describing so the model treats excerpts correctly:
 // partial, path-addressed, and never a substitute for reading the file.
 
-import type { RetrievalResult } from '../types';
+import type { RetrievalResult } from '@curtis/shared';
 
 const RETRIEVED_CONTEXT_HEADER =
 	'[Retrieved vault context — excerpts from the user\'s notes that appear relevant to ' +

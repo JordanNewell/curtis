@@ -30,7 +30,7 @@
 //     only — they are never written into any persisted config.
 //   - Collisions never overwrite; callers skip and report.
 
-import type { Agent, AgentToolAcl, McpServerConfig } from '../types';
+import type { Agent, AgentToolAcl, McpServerConfig } from '@curtis/shared';
 
 /** YAML frontmatter parser, injected by the host (Obsidian passes parseYaml). */
 export type ClaudeYamlParse = (text: string) => unknown;

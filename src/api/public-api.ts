@@ -10,15 +10,15 @@
 // Stability: this object is a public contract. Add things; don't change or
 // remove existing members without a major version bump and a docs note.
 
-import type { AIMessage, MemoryFact, TokenUsage } from '../types';
+import type { AIMessage, MemoryFact, TokenUsage } from '@curtis/shared';
 import type CurtisPlugin from '../main';
 import { composeSystemPrompt, resolveHarnessPrompt } from '../core/system-prompt';
 import { noteLinkGuidanceForVault } from '../vault/links';
 import { RUN_COMMAND_TOOL } from '../core/command-tools';
-import { SWARM_TOOL_NAME } from '../swarm';
+import { SWARM_TOOL_NAME } from '@curtis/core';
 import { buildVaultToolPort } from '../mcp/server/manager';
 import { findTextHits, safeVaultPath } from '../mcp/server/vault-tools';
-import { ThinkingStreamSplitter } from '../providers/anthropic';
+import { ThinkingStreamSplitter } from '@curtis/llms';
 
 export interface CurtisApiChatOptions {
 	/** Replaces Curtis's default system prompt (date + core prompt + the

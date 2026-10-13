@@ -7,7 +7,7 @@
 // pills) but add a checkbox-style selected state.
 
 import { App, Modal, Notice, setIcon } from 'obsidian';
-import type { AIModel } from '../../types';
+import type { AIModel } from '@curtis/shared';
 import { CURTIS_ICON_ID } from '../../icons';
 
 export interface ArenaModelEntry {

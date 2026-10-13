@@ -3,7 +3,7 @@
 // I/O in curt.ts so node-side modules (backup-format, detect) can import it
 // without pulling in Obsidian.
 
-import type { Conversation, ConversationMessage } from '../types';
+import type { Conversation, ConversationMessage } from '@curtis/shared';
 
 const CURT_MAGIC = 'curtis-conversation';
 const CURT_VERSION = 1;
