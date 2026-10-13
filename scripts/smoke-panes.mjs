@@ -560,14 +560,19 @@ async function main() {
 	await page.evaluate(() => __smoke.patchHasFocus(false));
 
 	// --- N3: no notification for an aborted stream -------------------------------
+	// Scope to p1's own container: two panes each carry an .ai-chat-abort-btn,
+	// and document.querySelector would grab pane two's (idle, hidden) button.
 	await page.evaluate(() => __smoke.installFakeAI(700));
-	const sendPromise = page.evaluate(() => {
+	// sendMessage awaits the full stream (view.ts) — invoke it fire-and-forget
+	// the way the UI's click/Enter handlers do, or the abort window closes
+	// before we can poll for the stop button.
+	await page.evaluate(() => {
 		__smoke.p1.inputEl.value = 'Abort me midway';
-		return __smoke.p1.sendMessage();
+		void __smoke.p1.sendMessage();
 	});
-	await until(page, () => !document.querySelector('.ai-chat-abort-btn')?.classList.contains('is-hidden'), 5000, 'stop button visible');
-	await page.evaluate(() => document.querySelector('.ai-chat-abort-btn')?.click());
-	await sendPromise;
+	await until(page, () => !window.__smoke.p1.contentEl.querySelector('.ai-chat-abort-btn')?.classList.contains('is-hidden'), 5000, 'stop button visible');
+	await page.evaluate(() => window.__smoke.p1.contentEl.querySelector('.ai-chat-abort-btn')?.click());
+	await until(page, () => __smoke.p1.isGenerating === false, 5000, 'aborted stream settled');
 	await sleep(300);
 	const n3 = await page.evaluate(() => ({ count: window.__notifs.length, generating: __smoke.p1.isGenerating }));
 	ok(n3.count === 1 && n3.generating === false,

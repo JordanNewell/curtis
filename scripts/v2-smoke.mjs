@@ -105,6 +105,25 @@ function bootstrapVault() {
 	if (!existsSync(resolve(VAULT, 'Daily/2026-10-01.md'))) {
 		writeFileSync(resolve(VAULT, 'Daily/2026-10-01.md'), '# 2026-10-01\n\n- other note\n');
 	}
+	// Crashed prior runs leave state the next run assumes absent — addFact
+	// dedupes against a leftover 'Smoke fact with provenance' and keeps ITS
+	// conv marker, which fails T2 legitimately. The plugin recreates the
+	// memory file header-only at boot, so removing it is a full facts reset.
+	rmSync(resolve(VAULT, 'AI/Curtis Memory.md'), { force: true });
+	// Same for the plugin settings: T0's existing-install precondition is
+	// onboarded=true, and the send lane needs the active provider actually
+	// registered (initializeProviders skips enabled:false, which made
+	// resolveSendConfig null and every send a silent no-op Notice).
+	const dataJsonPath = resolve(PLUGIN_DIR, 'data.json');
+	if (existsSync(dataJsonPath)) {
+		const d = JSON.parse(readFileSync(dataJsonPath, 'utf8'));
+		d.onboardingCompleted = true;
+		d.activeProvider = 'ollama';
+		d.activeModel = 'smoke-model';
+		d.providerConfigs ??= {};
+		d.providerConfigs.ollama = { ...(d.providerConfigs.ollama ?? {}), enabled: true };
+		writeFileSync(dataJsonPath, JSON.stringify(d, null, 2));
+	}
 }
 
 let originalLaunchVault = null;
@@ -379,7 +398,7 @@ async function main() {
 		const fact = await p.memoryStore.addFact('Smoke fact with provenance', 'project', conv.id);
 		const raw = await app.vault.adapter.read(p.settings.memoryFilePath);
 		const inFile = raw.includes(`conv:${conv.id}`);
-		await p.memoryStore.reload(p);
+		await p.reloadMemoryStore();
 		const survived = p.memoryStore.getFacts().some((f) => f.id === fact.id && f.sourceConversationId === conv.id);
 		return { convId: conv.id, factId: fact.id, inFile, survived };
 	});
@@ -412,6 +431,14 @@ async function main() {
 	created.convIds.push(t3convId);
 	await page.evaluate(() => __smoke.chatView().sendMessage());
 
+	// sendMessage is fire-and-forget from here — user-message storage may sit
+	// behind an await, so poll instead of racing the first microtasks.
+	await until(
+		page,
+		() => __smoke.plugin().conversationStore.getCurrentConversation()?.messages.length === 2,
+		10000,
+		'send stores both messages'
+	);
 	const sent = await page.evaluate((expected) => {
 		const conv = __smoke.plugin().conversationStore.getCurrentConversation();
 		const last = conv.messages[conv.messages.length - 1];
