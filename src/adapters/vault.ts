@@ -58,8 +58,10 @@ export class ObsidianVaultAdapter implements VaultLike {
 	}
 
 	async list(dir: string): Promise<VaultEntry[]> {
+		// normalizeVaultPath('') returns '/' — map that to the vault root,
+		// otherwise a root listing would silently resolve to [].
 		const clean = normalizeVaultPath(dir);
-		const node = clean === '' ? this.app.vault.getRoot() : this.app.vault.getAbstractFileByPath(clean);
+		const node = clean === '/' ? this.app.vault.getRoot() : this.app.vault.getAbstractFileByPath(clean);
 		if (!(node instanceof TFolder)) return []; // missing == empty, never throws
 		return node.children.map((child): VaultEntry => ({
 			path: child.path,

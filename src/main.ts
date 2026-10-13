@@ -13,6 +13,7 @@ import {
 	SWARM_TOOL_NAME,
 	SwarmManager,
 } from '@curtis/core';
+import type { VaultLike } from '@curtis/core';
 import { ProviderRegistry, chatStream, flattenHeaders, getReasoningWire } from '@curtis/llms';
 import type { ChatGPTTokens, ChatGPTProvider } from '@curtis/llms';
 import { DEFAULT_SETTINGS, CurtisSettingTab } from './settings';
@@ -154,7 +155,7 @@ export default class CurtisPlugin extends Plugin {
 		if (this.settings.enableGcp) void this.gcpManager.connect();
 		// No notify: the package's clear() would toast a generic "Memory
 		// cleared" on top of the specific notices the call sites already show.
-		this.memoryStore = new MemoryStore(this.vaultAdapter, {
+		this.memoryStore = new MemoryStore(this.memoryVault(), {
 			path: this.settings.memoryFilePath?.trim() || 'AI/Curtis Memory.md',
 		});
 		try {
@@ -371,10 +372,48 @@ export default class CurtisPlugin extends Plugin {
 	 * one re-resolved settings on every call), so the settings edit flow
 	 * calls this instead of a reload().
 	 */
+	/**
+	 * VaultLike wrapper for the memory store that flags its own writes. The
+	 * modify listener below re-reads the memory file on EVERY Obsidian
+	 * 'modify' — including the ones the store itself triggers while
+	 * persisting, which would re-parse what was just written and swap every
+	 * MemoryFact identity. Same self-write guard the pre-package store
+	 * carried internally, now at the host layer.
+	 */
+	private memorySelfWrite = false;
+	private memoryVault(): VaultLike {
+		const releaseSoon = () => {
+			// The modify event fires synchronously after the write resolves —
+			// hold the guard until the next macrotask, like the old store did.
+			window.setTimeout(() => { this.memorySelfWrite = false; }, 0);
+		};
+		return {
+			read: (path) => this.vaultAdapter.read(path),
+			exists: (path) => this.vaultAdapter.exists(path),
+			list: (path) => this.vaultAdapter.list(path),
+			write: async (path, data) => {
+				this.memorySelfWrite = true;
+				try {
+					await this.vaultAdapter.write(path, data);
+				} finally {
+					releaseSoon();
+				}
+			},
+			append: async (path, data) => {
+				this.memorySelfWrite = true;
+				try {
+					await this.vaultAdapter.append(path, data);
+				} finally {
+					releaseSoon();
+				}
+			},
+		};
+	}
+
 	async reloadMemoryStore(): Promise<void> {
 		// No notify: the package's clear() would toast a generic "Memory
 		// cleared" on top of the specific notices the call sites already show.
-		this.memoryStore = new MemoryStore(this.vaultAdapter, {
+		this.memoryStore = new MemoryStore(this.memoryVault(), {
 			path: this.settings.memoryFilePath?.trim() || 'AI/Curtis Memory.md',
 		});
 		await this.memoryStore.load();
@@ -408,7 +447,11 @@ export default class CurtisPlugin extends Plugin {
 			this.app.vault.on('modify', (file) => {
 				if (file instanceof TFile && file.extension === 'md') this.ragIndex.scheduleFileUpdate(file);
 				// Hand edits to the memory file re-read it into the store (the
-				// package MemoryStore ships no watcher — the host is the watcher).
+				// package MemoryStore ships no watcher — the host is the
+				// watcher). The store's OWN persists also fire this event; the
+				// memoryVault() guard skips those so we never re-parse what we
+				// just wrote (which would swap every MemoryFact identity).
+				if (this.memorySelfWrite) return;
 				if (this.memoryStore && file.path === this.memoryStore.getPath()) {
 					void this.memoryStore.load().catch((e: unknown) => {
 						console.error('[Curtis] Memory file re-read failed:', e);
