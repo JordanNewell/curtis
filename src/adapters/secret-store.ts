@@ -4,6 +4,8 @@
 // get/set/delete follow the @curtis/core SecretStore port. Obsidian's
 // SecretStorage has no deleteSecret, so `delete` is an empty overwrite —
 // the strongest removal the API offers (same idiom core/secrets.ts uses).
+// get() normalizes '' back to null so the port's "absent after delete"
+// contract holds even though the key physically remains in the keychain.
 
 import type { App } from 'obsidian';
 import type { SecretStore } from '@curtis/core';
@@ -13,7 +15,8 @@ export class ObsidianSecretStore implements SecretStore {
 	constructor(private readonly app: App) {}
 
 	async get(key: string): Promise<string | null> {
-		return getSecretStorage(this.app)?.getSecret(key) ?? null;
+		const value = getSecretStorage(this.app)?.getSecret(key) ?? null;
+		return value === '' ? null : value;
 	}
 
 	async set(key: string, value: string): Promise<void> {
@@ -21,8 +24,11 @@ export class ObsidianSecretStore implements SecretStore {
 	}
 
 	async delete(key: string): Promise<void> {
-		// secretStorage has no deleteSecret — an empty overwrite is the
-		// strongest removal the API offers.
+		// LIMITATION: Obsidian's SecretStorage has no deleteSecret, so the
+		// secret is overwritten with '' rather than removed — the key stays
+		// in the keychain with an empty value. get() maps '' back to null so
+		// port consumers see "absent"; anything reading the keychain outside
+		// this adapter must treat '' as absent too.
 		try {
 			getSecretStorage(this.app)?.setSecret(key, '');
 		} catch {
