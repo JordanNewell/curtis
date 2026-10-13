@@ -4,7 +4,7 @@
 // to the caller (settings owns persistence and the id).
 
 import { App, Modal, Setting } from 'obsidian';
-import type { PromptLibraryEntry } from '../../types';
+import type { PromptLibraryEntry } from '@curtis/shared';
 
 export class PromptEditorModal extends Modal {
 	private name = '';

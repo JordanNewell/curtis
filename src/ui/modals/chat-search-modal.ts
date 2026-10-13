@@ -11,7 +11,7 @@
 import { App, FuzzySuggestModal, prepareFuzzySearch } from 'obsidian';
 import type { FuzzyMatch } from 'obsidian';
 import type CurtisPlugin from '../../main';
-import type { Conversation, ConversationMessage } from '../../types';
+import type { Conversation, ConversationMessage } from '@curtis/shared';
 
 export interface ChatSearchResult {
 	conversation: Conversation;

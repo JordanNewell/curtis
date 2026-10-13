@@ -2,7 +2,7 @@
 // Edit Fact Modal — edit a single memory fact's content + category.
 
 import { App, Modal, Notice, Setting } from 'obsidian';
-import type { MemoryFact } from '../../types';
+import type { MemoryFact } from '@curtis/shared';
 
 /** The only categories that round-trip through the memory markdown file. */
 const FACT_CATEGORIES = ['preference', 'identity', 'project', 'instruction', 'other'] as const;

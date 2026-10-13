@@ -3,7 +3,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { unzipSync, strFromU8 } from 'fflate';
-import type { Conversation, CurtisSettings, HarnessProfile, PromptLibraryEntry } from '../types';
+import type { Conversation, CurtisSettings, HarnessProfile, PromptLibraryEntry } from '@curtis/shared';
 import {
 	serializeBackup,
 	parseBackupEntries,

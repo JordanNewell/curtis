@@ -7,7 +7,7 @@
 
 import { Notice } from 'obsidian';
 import type CurtisPlugin from '../main';
-import type { Conversation } from '../types';
+import type { Conversation } from '@curtis/shared';
 import type { ImportedFileReport, ImportSummary, DetectedFile } from './types';
 import { conversationDedupeKey, detectAndParse, parsedChatToConversation } from './detect';
 import { ImportSummaryModal } from './import-summary-modal';

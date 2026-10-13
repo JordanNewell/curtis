@@ -7,8 +7,8 @@
 
 import { Modal, Setting } from 'obsidian';
 import type CurtisPlugin from '../../main';
-import type { ScheduledJob, ScheduledJobSchedule } from '../../types';
-import { parseDailyTime } from '../../scheduler/schedule';
+import type { ScheduledJob, ScheduledJobSchedule } from '@curtis/shared';
+import { parseDailyTime } from '@curtis/core';
 
 export type ScheduledJobResult = Omit<ScheduledJob, 'createdAt' | 'lastFiredAt' | 'lastStatus' | 'lastError' | 'lastDurationMs' | 'lastRunPath'>;
 

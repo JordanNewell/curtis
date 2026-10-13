@@ -6,9 +6,8 @@
 
 import { Notice } from 'obsidian';
 import type CurtisPlugin from '../main';
-import type { AIMessage, ConversationMessage } from '../types';
-import { appendJournalEntry } from '../memory/journal';
-import { ThinkingStreamSplitter } from '../providers/anthropic';
+import type { AIMessage, ConversationMessage } from '@curtis/shared';
+import { ThinkingStreamSplitter } from '@curtis/llms';
 
 const RECAP_SYSTEM_PROMPT =
 	'You are Curtis, an AI assistant integrated into Obsidian. Summarize the conversation below in 2-3 terse bullet points: what was worked on, what was decided, and what was left open. No preamble, no headings, no emoji — just the bullets, written as durable notes a future session could pick up from.';
@@ -91,7 +90,11 @@ export async function runRecap(
 
 	if (plugin.settings.enableJournal) {
 		try {
-			await appendJournalEntry(plugin, conv.title, recap, store.getConversationPath(conv.id));
+			// The package JournalStore stamps the date heading itself; the
+			// title and conversation link are composed into the entry text.
+			const link = store.getConversationPath(conv.id);
+			const body = [conv.title, recap.trim()].filter((part) => part).join('\n\n');
+			await plugin.journal.appendToday(link ? `${body}\n\n[[${link}|Open conversation]]` : body);
 			new Notice('Logged to Curtis Journal');
 		} catch (e) {
 			// The recap still landed in the chat — a journal failure is not fatal.

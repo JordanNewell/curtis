@@ -7,7 +7,7 @@
 // intermediate shape source-agnostic means a future standalone importer
 // plugin can lift this module wholesale.
 
-import type { Conversation } from '../types';
+import type { Conversation } from '@curtis/shared';
 import type { BackupBundle } from '../backup/backup-format';
 
 export type ImportFormat = 'curt' | 'curtis-md' | 'chatgpt' | 'claude' | 'generic-json' | 'generic-md' | 'curtis-backup';
