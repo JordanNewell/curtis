@@ -104,7 +104,7 @@ const SEARCH_TOOL: McpToolSpec = {
 		type: 'object',
 		properties: {
 			query: { type: 'string', description: 'Text to search for' },
-			limit: { type: 'number', description: 'Max notes with hits to return (default 20, cap 100)' },
+			limit: { type: 'number', description: 'Max notes with hits to return (default 20, cap 500)' },
 		},
 		required: ['query'],
 	},
@@ -155,7 +155,7 @@ const WRITE_TOOL: McpToolSpec = {
 // Limits for the scan-based tools — a big vault must not make one call
 // unreadable (or one call read the whole vault).
 const SEARCH_FILES_SCANNED = 2000;
-const SEARCH_TOTAL_CHARS = 8_000_000;
+const SEARCH_TOTAL_CHARS = 10_000_000;
 const EXCERPT_MAX = 160;
 const READ_MAX_CHARS_CAP = 200_000;
 const RESULT_TEXT_CAP = 100_000;
@@ -273,7 +273,7 @@ export async function findTextHits(
 async function searchNotes(port: VaultToolPort, args: Record<string, unknown>): Promise<McpCallResultText> {
 	const query = stringArg(args.query).trim();
 	if (!query) return textResult('Empty query.', true);
-	const limit = clampInt(args.limit, 1, 100, 20);
+	const limit = clampInt(args.limit, 1, 500, 20);
 
 	const hits = await findTextHits(port, query, limit);
 	if (hits.length === 0) return textResult(`No notes contain "${query}".`);
