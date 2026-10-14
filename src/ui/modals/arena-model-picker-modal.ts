@@ -56,6 +56,7 @@ export class ArenaModelPickerModal extends Modal {
 		onSubmit: (selections: ArenaSelection[]) => void
 	) {
 		super(app);
+		this.modalEl.addClass('curtis-modal');
 		this.entries = entries;
 		this.onSubmit = onSubmit;
 	}

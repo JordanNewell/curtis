@@ -3854,11 +3854,11 @@ async function testProviderConnection(
 		});
 		const latency = Date.now() - start;
 		if (resp.status >= 200 && resp.status < 300) {
-			return { ok: true, status: resp.status, message: `✓ ${def.name} OK (${resp.status}, ${latency}ms)` };
+			return { ok: true, status: resp.status, message: `ok — ${def.name} (${resp.status}, ${latency}ms)` };
 		}
 		const errSnippet = (resp.text || '').slice(0, 200);
-		return { ok: false, status: resp.status, message: `✗ ${def.name} returned ${resp.status}: ${errSnippet}` };
+		return { ok: false, status: resp.status, message: `fail — ${def.name} returned ${resp.status}: ${errSnippet}` };
 	} catch (e) {
-		return { ok: false, status: null, message: `✗ ${def.name} failed: ${(e as Error).message}` };
+		return { ok: false, status: null, message: `fail — ${def.name} failed: ${(e as Error).message}` };
 	}
 }

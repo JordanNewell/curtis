@@ -14,6 +14,7 @@ export class EditFactModal extends Modal {
 
 	constructor(app: App, fact: MemoryFact, onSave: (content: string, category: string) => void) {
 		super(app);
+		this.modalEl.addClass('curtis-modal');
 		this.onSave = onSave;
 		this.content = fact.content;
 		this.category = fact.category || '';

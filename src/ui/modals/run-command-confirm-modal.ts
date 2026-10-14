@@ -11,6 +11,7 @@ export class RunCommandConfirmModal extends Modal {
 
 	constructor(app: App, command: string, cwd: string, settle: (choice: CommandApproval) => void) {
 		super(app);
+		this.modalEl.addClass('curtis-modal');
 		this.command = command;
 		this.cwd = cwd;
 		this.settle = settle;

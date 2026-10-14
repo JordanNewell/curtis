@@ -30,7 +30,7 @@ const DEBUG_PORT = 9334;
 
 const OBSIDIAN_EXE =
 	process.env.OBSIDIAN_EXE ||
-	resolve(process.env.USERPROFILE ?? process.env.HOME, 'scoop/apps/obsidian/current/Obsidian.exe');
+	'C:/tmp/obsidian-smoke/ObsidianSmoke.exe'; // smoke clone — never touches the live app
 
 const REVIEW_NOTE = 'Projects/Weekly Review 2026-10-02.md';
 
@@ -71,7 +71,7 @@ function bootstrapVault() {
 let originalLaunchVault = null;
 
 function registerDemoVault() {
-	const p = resolve(process.env.APPDATA, 'obsidian', 'obsidian.json');
+	const p = resolve(process.env.APPDATA, 'obsidian-smoke', 'obsidian.json');
 	let d = {};
 	try { d = JSON.parse(readFileSync(p, 'utf8')); } catch { /* fresh */ }
 	if (!d || typeof d !== 'object' || Array.isArray(d)) d = {};
@@ -93,7 +93,7 @@ function registerDemoVault() {
 
 function restoreLaunchVault() {
 	try {
-		const p = resolve(process.env.APPDATA, 'obsidian', 'obsidian.json');
+		const p = resolve(process.env.APPDATA, 'obsidian-smoke', 'obsidian.json');
 		const d = JSON.parse(readFileSync(p, 'utf8'));
 		const vaults = d.vaults || {};
 		for (const v of Object.values(vaults)) {
@@ -158,7 +158,7 @@ async function waitForVaultPage(ctx, timeoutMs) {
 	mkdirSync(resolve(OUT, 'transcripts'), { recursive: true });
 	bootstrapVault();
 	registerDemoVault();
-	try { execSync('taskkill /IM Obsidian.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
+	try { execSync('taskkill /IM ObsidianSmoke.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
 	await sleep(2500);
 
 	const child = spawn(OBSIDIAN_EXE, [
@@ -171,7 +171,7 @@ async function waitForVaultPage(ctx, timeoutMs) {
 
 	const hardExit = (msg) => {
 		console.error(`[demo] fatal: ${msg}`);
-		try { execSync('taskkill /IM Obsidian.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
+		try { execSync('taskkill /IM ObsidianSmoke.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
 		restoreLaunchVault();
 		process.exit(1);
 	};
@@ -444,7 +444,7 @@ async function waitForVaultPage(ctx, timeoutMs) {
 main().catch(async (e) => {
 	console.error('[demo] fatal:', e);
 	if (page) await page.screenshot({ path: resolve(OUT, 'fatal.png') }).catch(() => undefined);
-	try { execSync('taskkill /IM Obsidian.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
+	try { execSync('taskkill /IM ObsidianSmoke.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
 	restoreLaunchVault();
 	process.exit(1);
 });

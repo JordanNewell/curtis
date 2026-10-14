@@ -21,6 +21,7 @@ export class HarnessEditorModal extends Modal {
 		existing?: HarnessProfile
 	) {
 		super(app);
+		this.modalEl.addClass('curtis-modal');
 		this.onSubmit = onSubmit;
 		this.existing = existing;
 		if (existing) {

@@ -57,5 +57,28 @@ if (!howDark || !howLight || !howAvatarDark || !howAvatarLight || !howBadge || !
   console.error(`could not inline dark=${howDark} light=${howLight} avatarDark=${howAvatarDark} avatarLight=${howAvatarLight} badge=${howBadge} about=${howAbout} — check src/styles.css`);
   process.exit(1);
 }
+
+// Inline the bundled IBM Plex woff2 files as @font-face data URIs between
+// the __CURTIS_FONTS__ markers. Obsidian only ships main.js/manifest.json/
+// styles.css from releases, so a fonts/ folder would 404 in production —
+// data URIs are the only install-proof delivery. Idempotent: the block
+// between the markers is regenerated from assets/fonts on every run.
+const START = '/* __CURTIS_FONTS_START__ */';
+const END = '/* __CURTIS_FONTS_END__ */';
+const startIdx = css.indexOf(START);
+const endIdx = css.indexOf(END);
+if (startIdx === -1 || endIdx === -1 || endIdx < startIdx) {
+  console.error(`could not inline fonts — ${START}/${END} markers missing from src/styles.css`);
+  process.exit(1);
+}
+const fontFaces = [
+  ['IBM Plex Sans', 400, 'plex-sans-latin.woff2'],
+  ['IBM Plex Sans', 600, 'plex-sans-latin.woff2'],
+  ['IBM Plex Mono', 500, 'plex-mono-500-latin.woff2'],
+]
+  .map(([family, weight, file]) => `@font-face {\n\tfont-family: '${family}';\n\tfont-style: normal;\n\tfont-weight: ${weight};\n\tfont-display: swap;\n\tsrc: url(data:font/woff2;base64,${readFileSync(`assets/fonts/${file}`).toString('base64')}) format('woff2');\n\tunicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;\n}`)
+  .join('\n');
+css = css.slice(0, startIdx) + START + '\n' + fontFaces + '\n' + END + css.slice(endIdx + END.length);
+
 writeFileSync('src/styles.css', css);
-console.log(`inlined dark (${howDark}) + light (${howLight}) + avatar dark (${howAvatarDark}) + avatar light (${howAvatarLight}) + badge (${howBadge}) + about (${howAbout}); styles.css now ${css.length} bytes`);
+console.log(`inlined dark (${howDark}) + light (${howLight}) + avatar dark (${howAvatarDark}) + avatar light (${howAvatarLight}) + badge (${howBadge}) + about (${howAbout}) + fonts; styles.css now ${css.length} bytes`);

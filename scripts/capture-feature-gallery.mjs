@@ -2,8 +2,10 @@
 // categorized into assets/feature-gallery/, across themes, desktop + phone.
 //
 // Boot contract is the same as capture-screenshots.mjs:
-// real Obsidian on the demo vault over CDP; the running Obsidian is closed for
-// the duration and relaunched at the end. Two boots: desktop (1680x1050), then
+// Runs the SMOKE CLONE of Obsidian (C:/tmp/obsidian-smoke/ObsidianSmoke.exe — a
+// renamed copy with its own userData dir), so the user's live Obsidian is
+// never touched: smokes kill only the ObsidianSmoke.exe process name.
+// Two boots: desktop (1680x1050), then
 // a phone-emulated pass (390x844 @2x DPR).
 //
 // Streaming scenes are driven by a local OpenAI-compatible MOCK server
@@ -40,7 +42,7 @@ const MANIFEST_PATH = resolve(GALLERY, 'shots-manifest.json');
 
 const OBSIDIAN_EXE =
 	process.env.OBSIDIAN_EXE ||
-	resolve(process.env.USERPROFILE ?? process.env.HOME, 'scoop/apps/obsidian/current/Obsidian.exe');
+	'C:/tmp/obsidian-smoke/ObsidianSmoke.exe'; // smoke clone — never touches the live app
 
 const PORT = Number(process.env.PORT || 9250);
 const MOCK_KEY = 'gallery-mock-key';
@@ -64,7 +66,8 @@ const PHONE_THEMES = ['Minimal', 'Royal Velvet'];
 mkdirSync(GALLERY, { recursive: true });
 let manifest;
 try { manifest = JSON.parse(readFileSync(MANIFEST_PATH, 'utf8')); } catch { manifest = { runs: [], steps: {} }; }
-manifest.runs.push({ startedAt: new Date().toISOString(), host: process.env.COMPUTERNAME || '?' });
+// No host field — machine hostnames are OPSEC-flagged and add nothing here.
+manifest.runs.push({ startedAt: new Date().toISOString() });
 const saveManifest = () => writeFileSync(MANIFEST_PATH, JSON.stringify(manifest, null, 2));
 
 // ---------------------------------------------------------------------------
@@ -406,7 +409,7 @@ function restoreSettings() {
 
 let originalLaunchVault = null;
 function registerDemoVault() {
-	const p = resolve(process.env.APPDATA, 'obsidian', 'obsidian.json');
+	const p = resolve(process.env.APPDATA, 'obsidian-smoke', 'obsidian.json');
 	let d = {};
 	try { d = JSON.parse(readFileSync(p, 'utf8')); } catch { /* fresh */ }
 	if (!d || typeof d !== 'object' || Array.isArray(d)) d = {};
@@ -428,7 +431,7 @@ function registerDemoVault() {
 
 function restoreLaunchVault() {
 	try {
-		const p = resolve(process.env.APPDATA, 'obsidian', 'obsidian.json');
+		const p = resolve(process.env.APPDATA, 'obsidian-smoke', 'obsidian.json');
 		const d = JSON.parse(readFileSync(p, 'utf8'));
 		const vaults = d.vaults || {};
 		for (const v of Object.values(vaults)) {
@@ -496,7 +499,7 @@ async function waitForAnyPage(ctx, pred, timeoutMs, label) {
 }
 
 async function killObsidian() {
-	try { execSync('taskkill /IM Obsidian.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
+	try { execSync('taskkill /IM ObsidianSmoke.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
 	await sleep(2500);
 }
 
@@ -964,7 +967,7 @@ async function openPluginSettings(ctx) {
 	});
 	return waitForAnyPage(
 		ctx,
-		() => document.body.innerText.includes('Provider configuration') || document.body.innerText.includes('Active provider'),
+		() => /provider configuration|active provider/i.test(document.body.innerText),
 		20000,
 		'settings open'
 	);
@@ -2443,7 +2446,7 @@ async function main() {
 		console.error('[gallery] watchdog: 50 minutes exceeded — aborting, writing index');
 		restoreLaunchVault();
 		writeIndex();
-		try { execSync('taskkill /IM Obsidian.exe /F', { stdio: 'ignore' }); } catch { /* */ }
+		try { execSync('taskkill /IM ObsidianSmoke.exe /F', { stdio: 'ignore' }); } catch { /* */ }
 		process.exit(9);
 	}, 50 * 60 * 1000);
 	watchdog.unref?.();
@@ -2472,13 +2475,6 @@ async function main() {
 		console.error('[gallery] finished with failures — assets kept, manifest + INDEX.md written');
 		process.exit(2);
 	}
-	console.log('[gallery] done — gallery in assets/feature-gallery/, relaunching Obsidian…');
-	// Skip when stdout is piped: on Windows the detached child inherits the
-	// pipe's write end and holds it open after we exit — downstream readers
-	// (tail, tee) then wait on EOF forever.
-	if (process.stdout.isTTY) {
-		spawn(OBSIDIAN_EXE, [], { detached: true, stdio: 'ignore' }).unref();
-	}
 	process.exit(0);
 }
 
@@ -2486,6 +2482,6 @@ main().catch((e) => {
 	console.error('[gallery] fatal:', e);
 	restoreSettings();
 	restoreLaunchVault();
-	try { execSync('taskkill /IM Obsidian.exe /F', { stdio: 'ignore' }); } catch { /* */ }
+	try { execSync('taskkill /IM ObsidianSmoke.exe /F', { stdio: 'ignore' }); } catch { /* */ }
 	process.exit(1);
 });

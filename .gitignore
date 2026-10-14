@@ -52,3 +52,4 @@ assets/screenshots/desktop-chat-bounds.json
 # Personal homepage scratch (never part of the plugin)
 /index.html
 /webwall.png
+.vite/

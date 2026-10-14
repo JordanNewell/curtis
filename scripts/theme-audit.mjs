@@ -27,7 +27,7 @@ const DEBUG_PORT = 9335;
 
 const OBSIDIAN_EXE =
 	process.env.OBSIDIAN_EXE ||
-	resolve(process.env.USERPROFILE ?? process.env.HOME, 'scoop/apps/obsidian/current/Obsidian.exe');
+	'C:/tmp/obsidian-smoke/ObsidianSmoke.exe'; // smoke clone — never touches the live app
 
 // name → candidate raw URLs (tried in order).
 const THEMES = [
@@ -107,7 +107,7 @@ async function main() {
 
 	// register + open the demo vault
 	let registry = {};
-	const regPath = resolve(process.env.APPDATA, 'obsidian', 'obsidian.json');
+	const regPath = resolve(process.env.APPDATA, 'obsidian-smoke', 'obsidian.json');
 	try { registry = JSON.parse(readFileSync(regPath, 'utf8')); } catch { /* fresh */ }
 	const vaults = (registry.vaults ??= {});
 	let id = Object.keys(vaults).find((k) => vaults[k]?.path === VAULT);
@@ -119,7 +119,7 @@ async function main() {
 	vaults[id].open = true;
 	writeFileSync(regPath, JSON.stringify(registry, null, 2));
 
-	try { execSync('taskkill /IM Obsidian.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
+	try { execSync('taskkill /IM ObsidianSmoke.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
 	await sleep(2500);
 
 	const child = spawn(OBSIDIAN_EXE, [
@@ -143,7 +143,7 @@ async function main() {
 
 	setTimeout(() => {
 		console.error('[audit] fatal: watchdog timeout (4 min)');
-		try { execSync('taskkill /IM Obsidian.exe /F', { stdio: 'ignore' }); } catch { /* */ }
+		try { execSync('taskkill /IM ObsidianSmoke.exe /F', { stdio: 'ignore' }); } catch { /* */ }
 		process.exit(1);
 	}, 240000);
 
@@ -432,6 +432,6 @@ async function main() {
 
 main().catch((e) => {
 	console.error('[audit] fatal:', e.message);
-	try { execSync('taskkill /IM Obsidian.exe /F', { stdio: 'ignore' }); } catch { /* */ }
+	try { execSync('taskkill /IM ObsidianSmoke.exe /F', { stdio: 'ignore' }); } catch { /* */ }
 	process.exit(1);
 });

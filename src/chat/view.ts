@@ -95,7 +95,7 @@ function friendlyError(error: Error, hasImages = false): { message: string; caus
 
 	if (/(image|vision|multimodal|unsupported.*media)/.test(msg) && hasImages) {
 		return {
-			message: `This model rejected the image. Switch to a vision-capable model via the picker (look for the 👁 icon), or remove the image and resend.`,
+			message: `This model rejected the image. Switch to a vision-capable model via the picker (look for the [image] tag), or remove the image and resend.`,
 		};
 	}
 	if (MODEL_UNAVAILABLE_RE.test(msg) || ((MODEL_GONE_WEAK_RE.test(msg) || has404) && mentionsModel)) {
@@ -3297,7 +3297,7 @@ export class ChatView extends ItemView {
 					console.error('[Curtis] Stream error:', error);
 					const friendly = friendlyError(error, this.currentSendHasImages);
 					new Notice(friendly.message, 8000);
-					this.streamingContent += `\n\n*⚠️ ${friendly.message}*`;
+					this.streamingContent += `\n\n*error: ${friendly.message}*`;
 					this.renderer.renderStreamedMessage(assistantContent, this.streamingContent);
 				},
 				signal: this.abortController.signal,
@@ -3839,7 +3839,7 @@ export class ChatView extends ItemView {
 					const friendly = friendlyError(error, this.currentSendHasImages);
 					responseEl.createDiv({
 						cls: 'ai-arena-column-error',
-						text: `⚠️ ${friendly.message}`,
+						text: `error: ${friendly.message}`,
 					});
 				},
 			});
@@ -3866,7 +3866,7 @@ export class ChatView extends ItemView {
 				console.error(`[Curtis] Arena call failed (${sel.providerName}/${sel.modelName}):`, e);
 				responseEl.createDiv({
 					cls: 'ai-arena-column-error',
-					text: `⚠️ ${(e as Error).message || 'Request failed'}`,
+					text: `error: ${(e as Error).message || 'Request failed'}`,
 				});
 			}
 		} finally {
