@@ -14,6 +14,12 @@ updates:
       prefix: "chore(deps)"
     labels:
       - dependencies
+    ignore:
+      # typescript 7 (native/Go) is unsupported by ts-api-utils/
+      # typescript-estree — eslint crashes at require time. Re-enable when
+      # typescript-eslint ships TS7 support.
+      - dependency-name: "typescript"
+        versions: [">=7"]
     groups:
       # Runtime deps get bundled into main.js by esbuild — keep them in a
       # separate group so a bad bump is easy to spot and revert on its own.
