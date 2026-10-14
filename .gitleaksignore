@@ -5,3 +5,5 @@ src/gcp/auth.test.ts:private-key:37
 src/gcp/auth.test.ts:private-key:97
 src/gcp/auth.test.ts:private-key:43
 src/gcp/auth.test.ts:private-key:103
+src/core/sensitive-scan.test.ts:jwt:73
+src/core/sensitive-scan.test.ts:generic-api-key:67
