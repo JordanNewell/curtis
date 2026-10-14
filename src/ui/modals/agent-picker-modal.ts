@@ -6,7 +6,7 @@
 // onChoose, so a create-from-picker flow binds the fresh agent immediately.
 
 import { App, FuzzySuggestModal, setIcon } from 'obsidian';
-import type { Agent } from '@curtis/shared';
+import type { Agent } from '@curtisai/shared';
 import type CurtisPlugin from '../../main';
 import { AgentEditorModal } from './agent-editor-modal';
 

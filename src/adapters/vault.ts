@@ -1,5 +1,5 @@
 // Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
-// ObsidianVaultAdapter — bridges the @curtis/core VaultLike port to the
+// ObsidianVaultAdapter — bridges the @curtisai/core VaultLike port to the
 // Obsidian vault. Follows the port's documented semantics:
 //   - `read` REJECTS when the path is missing or a folder.
 //   - `write`/`append` create missing parent folders; reject when a parent
@@ -14,7 +14,7 @@
 // older callers can't slip a leading slash or backslash through.
 
 import { TFile, TFolder, type App } from 'obsidian';
-import { normalizeVaultPath, type VaultEntry, type VaultLike } from '@curtis/core';
+import { normalizeVaultPath, type VaultEntry, type VaultLike } from '@curtisai/core';
 
 export class ObsidianVaultAdapter implements VaultLike {
 	constructor(private readonly app: App) {}

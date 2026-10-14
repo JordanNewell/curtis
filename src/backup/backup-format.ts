@@ -13,7 +13,7 @@
 // transforms and unit-testable under node (see backup-format.test.ts).
 
 import { zipSync, strToU8, strFromU8 } from 'fflate';
-import type { Conversation, CurtisSettings, HarnessProfile, PromptLibraryEntry } from '@curtis/shared';
+import type { Conversation, CurtisSettings, HarnessProfile, PromptLibraryEntry } from '@curtisai/shared';
 import { serializeCurt, parseCurt, curtZipEntryName } from '../import/curt-format';
 
 const BACKUP_MAGIC = 'curtis-backup';

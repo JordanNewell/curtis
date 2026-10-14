@@ -6,7 +6,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { TFile } from '../test/obsidian-stub';
-import type { Agent } from '@curtis/shared';
+import type { Agent } from '@curtisai/shared';
 import { SettingsAgentStore, VaultClaimsFilePort } from './agent-store';
 
 const makeAgent = (name: string): Agent => ({

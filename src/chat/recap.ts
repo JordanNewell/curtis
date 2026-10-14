@@ -6,8 +6,8 @@
 
 import { Notice } from 'obsidian';
 import type CurtisPlugin from '../main';
-import type { AIMessage, ConversationMessage } from '@curtis/shared';
-import { ThinkingStreamSplitter } from '@curtis/llms';
+import type { AIMessage, ConversationMessage } from '@curtisai/shared';
+import { ThinkingStreamSplitter } from '@curtisai/llms';
 
 const RECAP_SYSTEM_PROMPT =
 	'You are Curtis, an AI assistant integrated into Obsidian. Summarize the conversation below in 2-3 terse bullet points: what was worked on, what was decided, and what was left open. No preamble, no headings, no emoji — just the bullets, written as durable notes a future session could pick up from.';

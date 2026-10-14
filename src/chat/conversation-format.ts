@@ -8,7 +8,7 @@
 // YamlPort — the Obsidian host passes { parse: parseYaml, dump: stringifyYaml };
 // node hosts pass js-yaml directly.
 
-import type { Conversation, ConversationMessage, TokenUsage } from '@curtis/shared';
+import type { Conversation, ConversationMessage, TokenUsage } from '@curtisai/shared';
 import { slugify } from '../utils/download';
 
 /** YAML codec for conversation frontmatter. */

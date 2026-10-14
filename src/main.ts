@@ -3,7 +3,7 @@
 
 import { Editor, Notice, Platform, Plugin, addIcon, requestUrl, TFile, debounce } from 'obsidian';
 import { CURTIS_ICON_ID, CURTIS_ICON_SVG } from './icons';
-import type { CurtisSettings, AIMessage, TokenUsage, AIProvider, AIRequestOptions, ProviderConfig, ToolCall, ToolDefinition, MemoryProposal } from '@curtis/shared';
+import type { CurtisSettings, AIMessage, TokenUsage, AIProvider, AIRequestOptions, ProviderConfig, ToolCall, ToolDefinition, MemoryProposal } from '@curtisai/shared';
 import {
 	JournalStore,
 	MemoryStore,
@@ -12,10 +12,10 @@ import {
 	SkillManager,
 	SWARM_TOOL_NAME,
 	SwarmManager,
-} from '@curtis/core';
-import type { VaultLike } from '@curtis/core';
-import { ProviderRegistry, chatStream, flattenHeaders, getReasoningWire } from '@curtis/llms';
-import type { ChatGPTTokens, ChatGPTProvider } from '@curtis/llms';
+} from '@curtisai/core';
+import type { VaultLike } from '@curtisai/core';
+import { ProviderRegistry, chatStream, flattenHeaders, getReasoningWire } from '@curtisai/llms';
+import type { ChatGPTTokens, ChatGPTProvider } from '@curtisai/llms';
 import { DEFAULT_SETTINGS, CurtisSettingTab } from './settings';
 import { ChatGPTTokenManager, signInWithChatGPT } from './integrations/chatgpt-signin';
 import { EventBus } from './core/events';
@@ -31,8 +31,8 @@ import type { SettingsData } from './core/migration';
 import { migrateSecretsToKeychain, resolveApiKey, resolveGcpServiceAccount } from './core/secrets';
 import { ConversationStore } from './chat/conversation-store';
 import { VaultConversationFiles, vaultYamlPort } from './chat/conversation-files';
-import { AgentManager } from '@curtis/agents';
-import type { ResolvedAgent } from '@curtis/agents';
+import { AgentManager } from '@curtisai/agents';
+import type { ResolvedAgent } from '@curtisai/agents';
 import { ObsidianHttpAdapter } from './adapters/http';
 import { ObsidianVaultAdapter } from './adapters/vault';
 import { SettingsAgentStore, VaultClaimsFilePort } from './adapters/agent-store';
@@ -91,7 +91,7 @@ export default class CurtisPlugin extends Plugin {
 	 *  (src/webhook/dispatcher.ts). */
 	webhooks!: WebhookDispatcher;
 	mcpServerManager!: McpServerManager;
-	/** VaultLike over the Obsidian vault — the seam every @curtis/core
+	/** VaultLike over the Obsidian vault — the seam every @curtisai/core
 	 *  store (memory, journal, skills) is built on. */
 	vaultAdapter!: ObsidianVaultAdapter;
 	/** Buffered network port (requestUrl) — model discovery + the

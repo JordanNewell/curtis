@@ -11,9 +11,9 @@
 // def.models arrays, and removeCustomProvider's keepDiscoveredCache flag.
 
 import { strict as assert } from 'node:assert/strict';
-import { ProviderRegistry, PROVIDER_DEFINITIONS } from '@curtis/llms';
-import type { HttpPort } from '@curtis/llms';
-import type { AIModel, ProviderConfig, ProviderDefinition } from '@curtis/shared';
+import { ProviderRegistry, PROVIDER_DEFINITIONS } from '@curtisai/llms';
+import type { HttpPort } from '@curtisai/llms';
+import type { AIModel, ProviderConfig, ProviderDefinition } from '@curtisai/shared';
 import { __setRequestRouter, requestsSeen, requestUrl, type StubRequest } from './obsidian-stub-models';
 
 // The package registry speaks the HttpPort; route it through the stubbed

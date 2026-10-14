@@ -61,7 +61,7 @@ const context = await esbuild.context({
 	plugins: [copyStyles, syncDemoVault],
 	entryPoints: ['src/main.ts'],
 	bundle: true,
-	// @curtis/llms imports node:module at top level for its streaming-transport
+	// @curtisai/llms imports node:module at top level for its streaming-transport
 	// probe; alias it to a lazy window.require shim so the bundled main.js
 	// never executes a bare require() at load (mobile-safe).
 	alias: {

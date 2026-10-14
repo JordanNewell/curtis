@@ -10,7 +10,7 @@ import {
 	composeSystemPrompt,
 	resolveHarnessPrompt,
 } from './system-prompt';
-import type { HarnessProfile } from '@curtis/shared';
+import type { HarnessProfile } from '@curtisai/shared';
 
 describe('resolveHarnessPrompt', () => {
 	it('resolves the curtis built-in to the core prompt', () => {

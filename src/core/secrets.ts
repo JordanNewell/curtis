@@ -8,7 +8,7 @@
 // async half: called from onload() AFTER loadSettings + migrations.
 
 import type { App } from 'obsidian';
-import type { ProviderConfig, CurtisSettings } from '@curtis/shared';
+import type { ProviderConfig, CurtisSettings } from '@curtisai/shared';
 
 /** Key prefix for all secrets we own in the keychain. */
 export const SECRET_PREFIX = 'curtis-api-key-';

@@ -1,14 +1,14 @@
 // Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // SecretStore adapter over Obsidian's app.secretStorage (OS keychain).
 //
-// get/set/delete follow the @curtis/core SecretStore port. Obsidian's
+// get/set/delete follow the @curtisai/core SecretStore port. Obsidian's
 // SecretStorage has no deleteSecret, so `delete` is an empty overwrite —
 // the strongest removal the API offers (same idiom core/secrets.ts uses).
 // get() normalizes '' back to null so the port's "absent after delete"
 // contract holds even though the key physically remains in the keychain.
 
 import type { App } from 'obsidian';
-import type { SecretStore } from '@curtis/core';
+import type { SecretStore } from '@curtisai/core';
 import { getSecretStorage } from '../core/secrets';
 
 export class ObsidianSecretStore implements SecretStore {

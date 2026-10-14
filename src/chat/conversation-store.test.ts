@@ -23,7 +23,7 @@ vi.stubGlobal('window', {
 });
 });
 import type { ConversationFileMeta, ConversationFileWatchers, ConversationFiles } from './conversation-files';
-import type { Conversation } from '@curtis/shared';
+import type { Conversation } from '@curtisai/shared';
 import { EventBus } from '../core/events';
 
 // The conversation frontmatter is flat scalars plus one string array

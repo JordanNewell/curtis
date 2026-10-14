@@ -1,10 +1,10 @@
 // Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
-// SchedulerHost adapter for @curtis/core's SchedulerService. Everything the
+// SchedulerHost adapter for @curtisai/core's SchedulerService. Everything the
 // old in-tree scheduler reached through `plugin.*` is a member here.
 
 import { Notice } from 'obsidian';
-import type { ScheduledJob } from '@curtis/shared';
-import type { RunNoteRequest, SchedulerHost, ScheduledRunEvent } from '@curtis/core';
+import type { ScheduledJob } from '@curtisai/shared';
+import type { RunNoteRequest, SchedulerHost, ScheduledRunEvent } from '@curtisai/core';
 import type CurtisPlugin from '../main';
 import { createNote } from '../vault/notes';
 
