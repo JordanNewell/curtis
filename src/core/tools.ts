@@ -8,6 +8,7 @@ import type { RagIndexManager } from '../rag/index-manager';
 import type CurtisPlugin from '../main';
 import type { JsonSchemaObject, ToolParameter } from './tool-schema';
 import { buildToolParametersSchema } from './tool-schema';
+import { folderInterleaved } from '../mcp/server/vault-tools';
 
 // The pure schema-builder half lives in ./tool-schema (Obsidian-free, so
 // providers and their tests can import it under node). Re-exported here to
@@ -356,7 +357,10 @@ export class ToolRegistry {
 			execute: async (params) => {
 				const query = str(params.query).toLowerCase();
 				const max = num(params.max_results) || 25;
-				const files = this.app.vault.getMarkdownFiles();
+				// Folder-interleaved so the first-N cap can't hide duplicate-era
+				// folders ("Hollis, Robert" vs "Hollis_R") behind whichever
+				// folder the vault's file order happens to list first.
+				const files = folderInterleaved(this.app.vault.getMarkdownFiles());
 				const results: string[] = [];
 
 				for (const file of files) {
