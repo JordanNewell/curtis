@@ -1,11 +1,11 @@
 // Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
-// SkillsHost adapter for @curtis/core's SkillManager. Getter closures read
+// SkillsHost adapter for @curtisai/core's SkillManager. Getter closures read
 // the plugin's LIVE settings so a settings edit takes effect on the next
 // access without a reload.
 
 import { Notice, parseYaml } from 'obsidian';
-import type { SkillsHost, VaultLike } from '@curtis/core';
-import type { SkillOverride } from '@curtis/shared';
+import type { SkillsHost, VaultLike } from '@curtisai/core';
+import type { SkillOverride } from '@curtisai/shared';
 import type CurtisPlugin from '../main';
 
 export class PluginSkillsHost implements SkillsHost {

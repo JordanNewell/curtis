@@ -1,6 +1,6 @@
 // Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 import { App, TFile } from 'obsidian';
-import { asStringArray, isRecord } from '@curtis/shared';
+import { asStringArray, isRecord } from '@curtisai/shared';
 import { getActiveNoteFile } from '../vault/active-note';
 import { WEB_SEARCH_TOOL, READ_URL_TOOL } from './web-tools';
 import { RUN_COMMAND_TOOL } from './command-tools';

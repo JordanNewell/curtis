@@ -1,11 +1,11 @@
 // Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
-// SwarmHost adapter for @curtis/core's SwarmManager. Composes the plugin's
+// SwarmHost adapter for @curtisai/core's SwarmManager. Composes the plugin's
 // conversation store, AgentManager, SkillManager, pane opener, and the
 // callAgentLoop nested loop into the package's host seam.
 
-import type { AIMessage } from '@curtis/shared';
-import type { AgentManager } from '@curtis/agents';
-import type { SkillManager, SwarmHost, SwarmLoopCallbacks } from '@curtis/core';
+import type { AIMessage } from '@curtisai/shared';
+import type { AgentManager } from '@curtisai/agents';
+import type { SkillManager, SwarmHost, SwarmLoopCallbacks } from '@curtisai/core';
 import type { ConversationStore } from '../chat/conversation-store';
 import type CurtisPlugin from '../main';
 

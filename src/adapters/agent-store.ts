@@ -1,6 +1,6 @@
 // Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // AgentStore + ClaimsFilePort adapters over the plugin's settings (data.json)
-// and the vault/workspace, for @curtis/agents' AgentManager.
+// and the vault/workspace, for @curtisai/agents' AgentManager.
 //
 // CRITICAL: SettingsAgentStore.getAgents() must return the LIVE
 // settings.agents array BY REFERENCE — the manager pushes created agents
@@ -8,8 +8,8 @@
 // but silently drops creates and updates.
 
 import { TFile, type App } from 'obsidian';
-import type { Agent } from '@curtis/shared';
-import type { AgentStore, ClaimsFilePort } from '@curtis/agents';
+import type { Agent } from '@curtisai/shared';
+import type { AgentStore, ClaimsFilePort } from '@curtisai/agents';
 import type CurtisPlugin from '../main';
 
 export class SettingsAgentStore implements AgentStore {

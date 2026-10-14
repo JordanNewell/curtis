@@ -1,7 +1,7 @@
 // Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Conversation export — format as markdown + trigger a browser download.
 
-import type { Conversation } from '@curtis/shared';
+import type { Conversation } from '@curtisai/shared';
 import { downloadBlob, sanitizeFilename } from '../utils/download';
 
 /** Optional resolver: provider id → human-readable display name.

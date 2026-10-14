@@ -16,7 +16,7 @@
 //
 // Keep every profile tight. Every line should earn its place.
 
-import type { HarnessProfile } from '@curtis/shared';
+import type { HarnessProfile } from '@curtisai/shared';
 
 export const CORE_SYSTEM_PROMPT = `You are Curtis, an AI agent integrated into Obsidian. You help with writing, analysis, coding, and knowledge management inside the user's vault.
 

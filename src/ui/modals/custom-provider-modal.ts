@@ -4,7 +4,7 @@
 // Helicone, self-hosted llama.cpp, and any future OpenAI-compat service.
 
 import { App, Modal, Setting } from 'obsidian';
-import type { ProviderDefinition, AuthType } from '@curtis/shared';
+import type { ProviderDefinition, AuthType } from '@curtisai/shared';
 
 export interface CustomProviderResult {
 	definition: ProviderDefinition;

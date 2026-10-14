@@ -21,9 +21,9 @@
 
 import { Platform, requestUrl } from 'obsidian';
 import type { App } from 'obsidian';
-import type { CurtisSettings } from '@curtis/shared';
-import type { ChatGPTTokens, ChatGPTTokenStore } from '@curtis/llms';
-import { parseTokenBlob } from '@curtis/llms';
+import type { CurtisSettings } from '@curtisai/shared';
+import type { ChatGPTTokens, ChatGPTTokenStore } from '@curtisai/llms';
+import { parseTokenBlob } from '@curtisai/llms';
 import { resolveOAuthBlob, storeOAuthBlob } from '../core/secrets';
 import { toBase64Url } from '../utils/base64';
 

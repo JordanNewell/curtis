@@ -5,7 +5,7 @@
 // uniqueness set).
 
 import { App, Modal, Setting } from 'obsidian';
-import type { CustomSelectionAction } from '@curtis/shared';
+import type { CustomSelectionAction } from '@curtisai/shared';
 import { SELECTION_TEMPLATE_TOKEN, sanitizeCustomActionId } from '../../commands/selection';
 
 export class CustomActionEditorModal extends Modal {

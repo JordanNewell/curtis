@@ -15,7 +15,7 @@ import {
 	type ClaudeFsPort,
 	type ClaudeYamlParse,
 } from './claude-setup';
-import type { Agent } from '@curtis/shared';
+import type { Agent } from '@curtisai/shared';
 
 /** Split flow-collection body on top-level commas (commas inside quotes
  *  don't split). */

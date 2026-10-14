@@ -14,7 +14,7 @@
 
 import { requestUrl } from 'obsidian';
 import type { ToolDefinition } from './tools';
-import { isRecord } from '@curtis/shared';
+import { isRecord } from '@curtisai/shared';
 
 const DDG_ENDPOINT = 'https://html.duckduckgo.com/html/';
 const JINA_ENDPOINT = 'https://r.jina.ai/';

@@ -8,7 +8,7 @@
 // question this feature will generate.
 
 import { App, Modal, Setting } from 'obsidian';
-import type { McpServerConfig } from '@curtis/shared';
+import type { McpServerConfig } from '@curtisai/shared';
 
 /** Parse the headers textarea — one `Name: value` per line, `#` comments. */
 export function parseHeaderLines(text: string): { name: string; value: string }[] {

@@ -30,7 +30,7 @@
 //     it to the vault via VaultConversationFiles; a node host binds node:fs).
 //   - YamlPort — frontmatter codec (Obsidian: parseYaml/stringifyYaml).
 
-import type { Conversation, ConversationMessage, ConversationStats } from '@curtis/shared';
+import type { Conversation, ConversationMessage, ConversationStats } from '@curtisai/shared';
 import type { ConversationChangeKind, EventBus } from '../core/events';
 import {
 	parseConversationMarkdown,

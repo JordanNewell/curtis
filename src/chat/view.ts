@@ -2,7 +2,7 @@
 // Sidebar Chat View — persistent ItemView for AI chat
 
 import { ItemView, Menu, Notice, Platform, WorkspaceLeaf, setIcon, TFile, debounce } from 'obsidian';
-import type { Agent, Conversation, ConversationMessage, AIMessage, AIProvider, MessageContent, TokenUsage, ToolCall, MemoryProposal } from '@curtis/shared';
+import type { Agent, Conversation, ConversationMessage, AIMessage, AIProvider, MessageContent, TokenUsage, ToolCall, MemoryProposal } from '@curtisai/shared';
 import { toBase64 } from '../utils/base64';
 import { MessageRenderer } from './message-renderer';
 import { CURTIS_ICON_ID } from '../icons';
@@ -39,8 +39,8 @@ import type { TTSBackend } from './tts-backends';
 import { TTSController, splitIntoSentences, splitSentencesWithOffsets } from './tts-controller';
 import type { TTSConfig, TTSState } from './tts-controller';
 import { notifyResponse, responsePreview } from './notifications';
-import { providerColor } from '@curtis/llms';
-import { setAnthropicThinkingHints, ThinkingStreamSplitter } from '@curtis/llms';
+import { providerColor } from '@curtisai/llms';
+import { setAnthropicThinkingHints, ThinkingStreamSplitter } from '@curtisai/llms';
 import type CurtisPlugin from '../main';
 
 export const CHAT_VIEW_TYPE = 'curtis-chat';
