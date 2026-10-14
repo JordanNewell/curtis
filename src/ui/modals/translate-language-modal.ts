@@ -12,6 +12,7 @@ export class TranslateLanguageModal extends Modal {
 
 	constructor(app: App, initial: string, onResult: (language: string | null) => void) {
 		super(app);
+		this.modalEl.addClass('curtis-modal');
 		this.language = initial;
 		this.onResult = onResult;
 		this.setTitle('Translate to…');

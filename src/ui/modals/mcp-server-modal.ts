@@ -47,6 +47,7 @@ export class McpServerModal extends Modal {
 		existing?: McpServerConfig
 	) {
 		super(app);
+		this.modalEl.addClass('curtis-modal');
 		this.onSubmit = onSubmit;
 		this.existing = existing;
 		if (existing) {

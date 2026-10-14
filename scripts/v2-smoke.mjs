@@ -29,10 +29,11 @@
 // shares them.
 //
 // Usage: npm run smoke:v2
-// Env:   OBSIDIAN_EXE (default: scoop obsidian current)
+// Env:   OBSIDIAN_EXE (default: the smoke clone)
 //
-// The user's running Obsidian is closed for the duration and relaunched at
-// the end (same contract as npm run shots).
+// Runs the SMOKE CLONE of Obsidian (C:/tmp/obsidian-smoke/ObsidianSmoke.exe — a
+// renamed copy with its own userData dir), so the user's live Obsidian is
+// never touched: smokes kill only the ObsidianSmoke.exe process name.
 
 import { spawn, execSync } from 'node:child_process';
 import { cpSync, mkdirSync, existsSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
@@ -51,7 +52,7 @@ const DEBUG_PORT = 9333;
 
 const OBSIDIAN_EXE =
 	process.env.OBSIDIAN_EXE ||
-	resolve(process.env.USERPROFILE ?? process.env.HOME, 'scoop/apps/obsidian/current/Obsidian.exe');
+	'C:/tmp/obsidian-smoke/ObsidianSmoke.exe'; // smoke clone — never touches the live app
 
 let pass = 0, fail = 0;
 const ok = (cond, name, detail = '') => {
@@ -129,7 +130,7 @@ function bootstrapVault() {
 let originalLaunchVault = null;
 
 function registerDemoVault() {
-	const p = resolve(process.env.APPDATA, 'obsidian', 'obsidian.json');
+	const p = resolve(process.env.APPDATA, 'obsidian-smoke', 'obsidian.json');
 	let d = {};
 	try { d = JSON.parse(readFileSync(p, 'utf8')); } catch { /* fresh */ }
 	if (!d || typeof d !== 'object' || Array.isArray(d)) d = {};
@@ -151,7 +152,7 @@ function registerDemoVault() {
 
 function restoreLaunchVault() {
 	try {
-		const p = resolve(process.env.APPDATA, 'obsidian', 'obsidian.json');
+		const p = resolve(process.env.APPDATA, 'obsidian-smoke', 'obsidian.json');
 		const d = JSON.parse(readFileSync(p, 'utf8'));
 		const vaults = d.vaults || {};
 		for (const v of Object.values(vaults)) {
@@ -283,7 +284,7 @@ async function main() {
 
 	bootstrapVault();
 	registerDemoVault();
-	try { execSync('taskkill /IM Obsidian.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
+	try { execSync('taskkill /IM ObsidianSmoke.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
 	await sleep(2500);
 
 	const child = spawn(OBSIDIAN_EXE, [
@@ -325,7 +326,7 @@ async function main() {
 	// Hard ceiling: nothing in this suite should take 4 minutes.
 	setTimeout(() => {
 		console.error('[smoke] fatal: watchdog timeout (4 min) — aborting');
-		try { execSync('taskkill /IM Obsidian.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
+		try { execSync('taskkill /IM ObsidianSmoke.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
 		restoreLaunchVault();
 		process.exit(1);
 	}, 240000);
@@ -642,19 +643,12 @@ async function main() {
 	await browser.close();
 	child.kill();
 	restoreLaunchVault();
-	// Relaunch the user's Obsidian on their original vault, as the harness took it over.
-	// Skip when stdout is piped: libuv spawns with bInheritHandles=TRUE on Windows,
-	// so this detached child inherits the stdout pipe's write end and keeps it open
-	// after we exit — downstream readers (tail, cat) then wait on EOF forever.
-	if (process.stdout.isTTY) {
-		try { spawn(OBSIDIAN_EXE, [], { detached: true, stdio: 'ignore' }).unref(); } catch { /* best effort */ }
-	}
 	process.exit(fail > 0 || pluginErrors.length > 0 ? 1 : 0);
 }
 
 main().catch((e) => {
 	console.error('[smoke] fatal:', e.message);
 	restoreLaunchVault();
-	try { execSync('taskkill /IM Obsidian.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
+	try { execSync('taskkill /IM ObsidianSmoke.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
 	process.exit(1);
 });

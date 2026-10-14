@@ -21,10 +21,11 @@
 //     and retrieval excerpts never wander into a shot.
 //
 // Usage:  node scripts/capture-arena-shots.mjs
-// Env:    OBSIDIAN_EXE (default: scoop obsidian current)
+// Env:    OBSIDIAN_EXE (default: the smoke clone)
 //
-// The user's running Obsidian is closed for the duration and relaunched at
-// the end (same contract as npm run shots).
+// Runs the SMOKE CLONE of Obsidian (C:/tmp/obsidian-smoke/ObsidianSmoke.exe — a
+// renamed copy with its own userData dir), so the user's live Obsidian is
+// never touched: smokes kill only the ObsidianSmoke.exe process name.
 
 import { spawn, execSync } from 'node:child_process';
 import { cpSync, mkdirSync, writeFileSync, existsSync, readFileSync, rmSync } from 'node:fs';
@@ -43,7 +44,7 @@ const OUT_DIR = resolve(ROOT, 'assets/screenshots');
 
 const OBSIDIAN_EXE =
 	process.env.OBSIDIAN_EXE ||
-	resolve(process.env.USERPROFILE ?? process.env.HOME, 'scoop/apps/obsidian/current/Obsidian.exe');
+	'C:/tmp/obsidian-smoke/ObsidianSmoke.exe'; // smoke clone — never touches the live app
 
 // The arena pair — two deepseek models. z.ai throttles under repeated
 // capture runs (big GLMs answer too slowly to catch mid-flight; flash
@@ -136,7 +137,7 @@ function bootstrapVault() {
 let originalLaunchVault = null;
 
 function registerDemoVault() {
-	const p = resolve(process.env.APPDATA, 'obsidian', 'obsidian.json');
+	const p = resolve(process.env.APPDATA, 'obsidian-smoke', 'obsidian.json');
 	let d = {};
 	try { d = JSON.parse(readFileSync(p, 'utf8')); } catch { /* fresh */ }
 	if (!d || typeof d !== 'object' || Array.isArray(d)) d = {};
@@ -158,7 +159,7 @@ function registerDemoVault() {
 
 function restoreLaunchVault() {
 	try {
-		const p = resolve(process.env.APPDATA, 'obsidian', 'obsidian.json');
+		const p = resolve(process.env.APPDATA, 'obsidian-smoke', 'obsidian.json');
 		const d = JSON.parse(readFileSync(p, 'utf8'));
 		const vaults = d.vaults || {};
 		for (const v of Object.values(vaults)) {
@@ -210,7 +211,7 @@ async function waitForVaultPage(ctx, pred, timeoutMs, label) {
 
 async function killObsidian() {
 	try {
-		execSync('taskkill /IM Obsidian.exe /F', { stdio: 'ignore' });
+		execSync('taskkill /IM ObsidianSmoke.exe /F', { stdio: 'ignore' });
 	} catch { /* not running */ }
 	await new Promise((r) => setTimeout(r, 2500));
 }
@@ -967,7 +968,7 @@ async function main() {
 	const watchdog = setTimeout(() => {
 		console.error('[arena] watchdog: exceeded 15 minutes — aborting');
 		restoreLaunchVault();
-		try { execSync('taskkill /IM Obsidian.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
+		try { execSync('taskkill /IM ObsidianSmoke.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
 		process.exit(9);
 	}, 15 * 60 * 1000);
 	watchdog.unref?.();
@@ -998,13 +999,6 @@ async function main() {
 
 	restoreLaunchVault();
 	console.log('[arena] done — shots in assets/screenshots/');
-	console.log('[arena] relaunching your Obsidian session…');
-	// Skip when stdout is piped: on Windows the detached child inherits the
-	// pipe's write end and holds it open after we exit — downstream readers
-	// (tail, tee) then wait on EOF forever.
-	if (process.stdout.isTTY) {
-		spawn(OBSIDIAN_EXE, [], { detached: true, stdio: 'ignore' }).unref();
-	}
 	clearTimeout(watchdog);
 	process.exit(0);
 }
@@ -1012,6 +1006,6 @@ async function main() {
 main().catch((e) => {
 	console.error('[arena] failed:', e);
 	restoreLaunchVault();
-	try { execSync('taskkill /IM Obsidian.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
+	try { execSync('taskkill /IM ObsidianSmoke.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
 	process.exit(1);
 });

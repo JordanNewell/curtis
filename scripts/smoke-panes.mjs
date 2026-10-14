@@ -1,6 +1,6 @@
 // Multi-pane + notifications smoke test — drives the real plugin inside real
-// Obsidian (same harness contract as v2-smoke, minus the relaunch: the user's
-// running Obsidian is closed for the duration and NOT reopened afterwards).
+// Obsidian (same harness contract as v2-smoke). Runs the smoke clone — the
+// user's live Obsidian is never touched.
 //
 //   P1  baseline send on pane one
 //   P2  "Open new chat tab" → two distinct ChatViews, new tab starts fresh
@@ -35,7 +35,7 @@ const DEBUG_PORT = 9334;
 
 const OBSIDIAN_EXE =
 	process.env.OBSIDIAN_EXE ||
-	resolve(process.env.USERPROFILE ?? process.env.HOME, 'scoop/apps/obsidian/current/Obsidian.exe');
+	'C:/tmp/obsidian-smoke/ObsidianSmoke.exe'; // smoke clone — never touches the live app
 
 let pass = 0, fail = 0;
 const ok = (cond, name, detail = '') => {
@@ -87,7 +87,7 @@ function bootstrapVault() {
 let originalLaunchVault = null;
 
 function registerDemoVault() {
-	const p = resolve(process.env.APPDATA, 'obsidian', 'obsidian.json');
+	const p = resolve(process.env.APPDATA, 'obsidian-smoke', 'obsidian.json');
 	let d = {};
 	try { d = JSON.parse(readFileSync(p, 'utf8')); } catch { /* fresh */ }
 	if (!d || typeof d !== 'object' || Array.isArray(d)) d = {};
@@ -109,7 +109,7 @@ function registerDemoVault() {
 
 function restoreLaunchVault() {
 	try {
-		const p = resolve(process.env.APPDATA, 'obsidian', 'obsidian.json');
+		const p = resolve(process.env.APPDATA, 'obsidian-smoke', 'obsidian.json');
 		const d = JSON.parse(readFileSync(p, 'utf8'));
 		const vaults = d.vaults || {};
 		for (const v of Object.values(vaults)) {
@@ -258,7 +258,7 @@ const INSTALL_HELPERS = `(() => {
 async function main() {
 	bootstrapVault();
 	registerDemoVault();
-	try { execSync('taskkill /IM Obsidian.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
+	try { execSync('taskkill /IM ObsidianSmoke.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
 	await sleep(2500);
 
 	const child = spawn(OBSIDIAN_EXE, [
@@ -296,7 +296,7 @@ async function main() {
 	});
 	setTimeout(() => {
 		console.error('[smoke] fatal: watchdog timeout (4 min) — aborting');
-		try { execSync('taskkill /IM Obsidian.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
+		try { execSync('taskkill /IM ObsidianSmoke.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
 		restoreLaunchVault();
 		process.exit(1);
 	}, 240000);
@@ -678,6 +678,6 @@ async function main() {
 main().catch((e) => {
 	console.error('[smoke] fatal:', e.message);
 	restoreLaunchVault();
-	try { execSync('taskkill /IM Obsidian.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
+	try { execSync('taskkill /IM ObsidianSmoke.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
 	process.exit(1);
 });

@@ -11,10 +11,12 @@
 // is the only reliable way to get a phone-width layout).
 //
 // Usage:  npm run shots
-// Env:    OBSIDIAN_EXE (default: scoop obsidian current)
+// Env:    OBSIDIAN_EXE (default: the smoke clone)
 //
-// The user's running Obsidian is closed for the duration (nothing is lost —
-// Obsidian autosaves) and relaunched at the end.
+// Runs the SMOKE CLONE of Obsidian (C:/tmp/obsidian-smoke/ObsidianSmoke.exe — a
+// renamed copy with its own userData dir), so the user's live Obsidian is
+// never touched: smokes kill only the ObsidianSmoke.exe process name.
+
 
 import { spawn, execSync } from 'node:child_process';
 import { cpSync, mkdirSync, writeFileSync, existsSync, readFileSync, rmSync } from 'node:fs';
@@ -33,7 +35,7 @@ const OUT_DIR = resolve(ROOT, 'assets/screenshots');
 
 const OBSIDIAN_EXE =
 	process.env.OBSIDIAN_EXE ||
-	resolve(process.env.USERPROFILE ?? process.env.HOME, 'scoop/apps/obsidian/current/Obsidian.exe');
+	'C:/tmp/obsidian-smoke/ObsidianSmoke.exe'; // smoke clone — never touches the live app
 
 // ---------------------------------------------------------------------------
 // Vault bootstrap
@@ -109,7 +111,7 @@ let originalLaunchVault = null;
  * restored at the end of the run.
  */
 function registerDemoVault() {
-	const p = resolve(process.env.APPDATA, 'obsidian', 'obsidian.json');
+	const p = resolve(process.env.APPDATA, 'obsidian-smoke', 'obsidian.json');
 	let d = {};
 	try { d = JSON.parse(readFileSync(p, 'utf8')); } catch { /* fresh */ }
 	if (!d || typeof d !== 'object' || Array.isArray(d)) d = {};
@@ -134,7 +136,7 @@ function registerDemoVault() {
 /** Put the user's original launch-vault selection back. */
 function restoreLaunchVault() {
 	try {
-		const p = resolve(process.env.APPDATA, 'obsidian', 'obsidian.json');
+		const p = resolve(process.env.APPDATA, 'obsidian-smoke', 'obsidian.json');
 		const d = JSON.parse(readFileSync(p, 'utf8'));
 		const vaults = d.vaults || {};
 		for (const v of Object.values(vaults)) {
@@ -321,7 +323,7 @@ async function waitForAnyPage(ctx, pred, timeoutMs, label) {
 
 async function killObsidian() {
 	try {
-		execSync('taskkill /IM Obsidian.exe /F', { stdio: 'ignore' });
+		execSync('taskkill /IM ObsidianSmoke.exe /F', { stdio: 'ignore' });
 	} catch { /* not running */ }
 	await new Promise((r) => setTimeout(r, 2500));
 }
@@ -427,7 +429,7 @@ async function main() {
 	const watchdog = setTimeout(() => {
 		console.error('[shots] watchdog: exceeded 6 minutes — aborting');
 		restoreLaunchVault();
-		try { execSync('taskkill /IM Obsidian.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
+		try { execSync('taskkill /IM ObsidianSmoke.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
 		process.exit(9);
 	}, 6 * 60 * 1000);
 	watchdog.unref?.();
@@ -483,7 +485,7 @@ async function main() {
 		});
 		const settingsPage = await waitForAnyPage(
 			ctx,
-			() => document.body.innerText.includes('Provider configuration'),
+			() => /provider configuration/i.test(document.body.innerText),
 			20000,
 			'settings open'
 		);
@@ -543,17 +545,38 @@ async function main() {
 			15000,
 			'command registration (phone)'
 		);
-		await page.evaluate(selectLatestConversation);
+		// The conversation store hydrates from disk async (file index first) —
+		// selecting before it lands leaves currentConversation null and the
+		// empty-state view up.
+		const mobSelDeadline = Date.now() + 45000;
+		while (Date.now() < mobSelDeadline) {
+			const id = await page.evaluate(selectLatestConversation);
+			if (id) break;
+			await page.waitForTimeout(1000);
+		}
 		await page.evaluate(() => {
 			window.app.workspace.getLeavesOfType('curtis-chat').forEach((l) => l.detach());
 		});
 		await page.evaluate(openChatAndRender);
-		page = await waitForVaultPage(
-			ctx,
-			() => document.body.innerText.includes('Week of Sep 28'),
-			30000,
-			'phone chat rendered'
-		);
+		try {
+			page = await waitForVaultPage(
+				ctx,
+				() => document.body.innerText.includes('Week of Sep 28'),
+				30000,
+				'phone chat rendered'
+			);
+		} catch (e) {
+			const dump = await page.evaluate(() => ({
+				leaf: !!document.querySelector('.workspace-leaf-content[data-type="curtis-chat"]'),
+				vault: window.app?.vault?.getName?.() ?? null,
+				convId: window.app?.plugins?.plugins?.curtis?.conversationStore?.getCurrentConversation()?.id ?? null,
+				msgCount: window.app?.plugins?.plugins?.curtis?.conversationStore?.getCurrentConversation()?.messages?.length ?? -1,
+				firstMsg: window.app?.plugins?.plugins?.curtis?.conversationStore?.getCurrentConversation()?.messages?.[0]?.content?.slice(0, 60) ?? null,
+				head: document.body.innerText.replace(/\s+/g, ' ').slice(0, 300),
+			})).catch((err) => ({ dumpFailed: String(err).slice(0, 120) }));
+			console.log(`[shots] phone-pass dump: ${JSON.stringify(dump)}`);
+			throw e;
+		}
 		// Strip desktop chrome so the emulated viewport is pure app surface.
 		await page.addStyleTag({
 			content: `
@@ -594,7 +617,7 @@ async function main() {
 		});
 		const settingsPage = await waitForAnyPage(
 			ctx,
-			() => document.body.innerText.includes('Provider configuration'),
+			() => /provider configuration/i.test(document.body.innerText),
 			20000,
 			'settings open'
 		);
@@ -615,13 +638,6 @@ async function main() {
 
 	restoreLaunchVault();
 	console.log('[shots] done — assets in assets/screenshots/');
-	console.log('[shots] relaunching your Obsidian session…');
-	// Skip when stdout is piped: on Windows the detached child inherits the
-	// pipe's write end and holds it open after we exit — downstream readers
-	// (tail, tee) then wait on EOF forever.
-	if (process.stdout.isTTY) {
-		spawn(OBSIDIAN_EXE, [], { detached: true, stdio: 'ignore' }).unref();
-	}
 	clearTimeout(watchdog);
 	process.exit(0);
 }
@@ -629,6 +645,6 @@ async function main() {
 main().catch((e) => {
 	console.error('[shots] failed:', e);
 	restoreLaunchVault();
-	try { execSync('taskkill /IM Obsidian.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
+	try { execSync('taskkill /IM ObsidianSmoke.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
 	process.exit(1);
 });

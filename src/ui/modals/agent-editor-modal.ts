@@ -37,6 +37,7 @@ export class AgentEditorModal extends Modal {
 		onSave: (agent: Agent) => void
 	) {
 		super(app);
+		this.modalEl.addClass('curtis-modal');
 		this.plugin = plugin;
 		this.existing = existing;
 		this.onSave = onSave;

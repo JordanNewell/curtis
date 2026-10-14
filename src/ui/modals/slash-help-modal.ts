@@ -9,6 +9,7 @@ export class SlashHelpModal extends Modal {
 
 	constructor(app: App) {
 		super(app);
+		this.modalEl.addClass('curtis-modal');
 	}
 
 	onOpen(): void {

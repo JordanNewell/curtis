@@ -28,6 +28,7 @@ export class ClaudeSetupImportModal extends Modal {
 
 	constructor(app: App, plugin: CurtisPlugin) {
 		super(app);
+		this.modalEl.addClass('curtis-modal');
 		this.plugin = plugin;
 	}
 

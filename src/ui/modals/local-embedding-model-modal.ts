@@ -34,6 +34,7 @@ export class LocalEmbeddingModelModal extends Modal {
 
 	constructor(app: App, current: string, onPick: (repoId: string) => void) {
 		super(app);
+		this.modalEl.addClass('curtis-modal');
 		this.current = current;
 		this.onPick = onPick;
 		this.modalEl.addClass('curtis-local-model-modal');

@@ -23,7 +23,7 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const VAULT = resolve(ROOT, 'demo-vault');
 const CONVS = resolve(VAULT, 'AI/Conversations');
 const PLUGIN_DIR = resolve(VAULT, '.obsidian/plugins/curtis');
-const EXE = process.env.OBSIDIAN_EXE || resolve(process.env.USERPROFILE ?? process.env.HOME, 'scoop/apps/obsidian/current/Obsidian.exe');
+const EXE = process.env.OBSIDIAN_EXE || 'C:/tmp/obsidian-smoke/ObsidianSmoke.exe'; // smoke clone — never touches the live app
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const { cpSync } = await import('node:fs');

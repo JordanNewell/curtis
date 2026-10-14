@@ -33,6 +33,7 @@ export class ScheduledJobModal extends Modal {
 		existing?: ScheduledJob
 	) {
 		super(plugin.app);
+		this.modalEl.addClass('curtis-modal');
 		this.plugin = plugin;
 		this.onSubmit = onSubmit;
 		this.existing = existing;
