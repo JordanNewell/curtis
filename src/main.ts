@@ -391,7 +391,7 @@ export default class CurtisPlugin extends Plugin {
 			read: async (path) => {
 				try {
 					return await this.vaultAdapter.read(path);
-				} catch (e) {
+				} catch {
 					// The vault index can lag the filesystem on a cold boot — the
 					// in-tree store read filesystem truth before giving up, and
 					// vault.create() would otherwise throw "File already exists".
