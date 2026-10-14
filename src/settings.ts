@@ -72,7 +72,10 @@ export const DEFAULT_SETTINGS: CurtisSettings = {
 	customProviders: [],
 
 	temperature: 0.7,
-	maxTokens: 4096,
+	// 4096 is a silent trap for reasoning models — thinking tokens draw from
+	// the same budget, and a deep-thinking turn can spend the entire cap on
+	// reasoning and return empty content with finish_reason: length.
+	maxTokens: 16384,
 	// User-defined extension layered under the active harness profile (the
 	// 'curtis' built-in lives in src/core/system-prompt.ts, selectable and
 	// extendable via Settings → Generation). Empty by default — fresh installs

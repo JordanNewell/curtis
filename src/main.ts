@@ -60,6 +60,13 @@ import { AUTOCOMPLETE_MAX_TOKENS, AUTOCOMPLETE_STOP_SEQUENCES } from './autocomp
 type ElectronRequire = (id: string) => unknown;
 const nodeRequire = (window as unknown as { require?: ElectronRequire }).require;
 
+/** Lower bound for max_tokens when a reasoning effort is active. Reasoning
+ *  tokens draw from the same completion budget as the answer — a 57KB tool
+ *  result can push deep thinking past a small cap, returning empty content
+ *  with finish_reason: length. Applies to user-set values too: it's a floor,
+ *  not a default. */
+const REASONING_MAX_TOKENS_FLOOR = 32768;
+
 /** Bind intent for a freshly opened chat pane: the literal opens a new
  *  conversation; any other string is an existing conversation id carried
  *  over (a popout opening a pane's current chat). */
@@ -913,7 +920,7 @@ export default class CurtisPlugin extends Plugin {
 		// lower layer — a "don't send temperature" must stay sticky.
 		const omitTemperature = m.omitTemperature === true || p.omitTemperature === true;
 		const temperature = pick(m.temperature, p.temperature, this.settings.temperature);
-		const maxTokens = pick(m.maxTokens, p.maxTokens) ?? this.settings.maxTokens;
+		let maxTokens = pick(m.maxTokens, p.maxTokens) ?? this.settings.maxTokens;
 		const topP = pick(m.topP, p.topP);
 		const topK = pick(m.topK, p.topK);
 		const minP = pick(m.minP, p.minP);
@@ -957,6 +964,12 @@ export default class CurtisPlugin extends Plugin {
 		const effort = pick(m.reasoningEffort, p.reasoningEffort);
 		if (effort) {
 			options.reasoningEffort = effort;
+			if (effort !== 'off') {
+				// Thinking shares the completion budget — keep it out of the
+				// answer's way (see REASONING_MAX_TOKENS_FLOOR).
+				maxTokens = Math.max(maxTokens, REASONING_MAX_TOKENS_FLOOR);
+				options.maxTokens = maxTokens;
+			}
 			const wire = getReasoningWire(providerId, effort, maxTokens);
 			if (wire.body) options.reasoningBody = wire.body;
 			for (const key of wire.dropSampling) {
