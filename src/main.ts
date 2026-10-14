@@ -1294,6 +1294,10 @@ export default class CurtisPlugin extends Plugin {
 			// the last stored message to be the assistant answer) would never run.
 			let usageTotal: TokenUsage | null = null;
 
+			// Consecutive empty provider responses (no content, no tool calls)
+			// — reasoning models hitting the max_tokens ceiling mid-thought.
+			let emptyStreak = 0;
+
 			let turns = 0;
 			while (turns < maxTurns) {
 				if (callbacks.signal?.aborted) return;
@@ -1324,6 +1328,28 @@ export default class CurtisPlugin extends Plugin {
 				}
 
 				if (!direct.toolCalls || direct.toolCalls.length === 0) {
+					// Empty terminal response: reasoning models with a small
+					// max_tokens burn the whole budget on reasoning and emit
+					// nothing (finish_reason 'length', empty content). Nudge
+					// once; if it happens again the no-tools synthesis below
+					// is the recovery — silently returning here resolves the
+					// whole run as an empty answer.
+					if (!direct.content) {
+						if (emptyStreak === 0 && turns < maxTurns - 1) {
+							console.warn('[Curtis] Provider returned an empty response with no tool calls — nudging');
+							emptyStreak++;
+							working = [...working, {
+								role: 'user' as const,
+								content: '[system] Your previous response was empty (possibly out of response tokens). Respond now — briefly, from what you already have. Do not redo analysis.',
+							}];
+							turns++;
+							continue;
+						}
+						console.warn('[Curtis] Empty response persisted — falling back to sentinel');
+						if (usageTotal) callbacks.onUsage?.(usageTotal);
+						callbacks.onChunk?.('\n\n*[The model returned an empty response — try again, or raise Settings → Max tokens.]*');
+						return;
+					}
 					// Final answer — deliver as one chunk. The view's streaming
 					// renderer handles a single large delta fine.
 					if (usageTotal) callbacks.onUsage?.(usageTotal);
@@ -1333,6 +1359,7 @@ export default class CurtisPlugin extends Plugin {
 
 				// v1: execute the first tool call only.
 				const call = direct.toolCalls[0];
+				emptyStreak = 0;
 				callbacks.onToolCall?.(call);
 
 				// Append the assistant message (with tool_calls) to working set.
@@ -1401,12 +1428,34 @@ export default class CurtisPlugin extends Plugin {
 				turns++;
 			}
 
-			// Hit the loop cap without a final answer. Usage still must be
-			// delivered — the final-answer branch returned above, so this
-			// runs exactly once per run.
-			console.warn(`[Curtis] Agent hit max turns (${maxTurns}) without a final response`);
+			// Hit the loop cap without a final answer. Everything the loop
+			// gathered is already in `working` — one last no-tools call forces
+			// synthesis from it. Discarding the findings (the old behavior)
+			// wasted the entire run for the user.
+			console.warn(`[Curtis] Agent hit max turns (${maxTurns}) without a final response — synthesizing from gathered results`);
+			if (callbacks.signal?.aborted) return;
+			const synthesis = await this.callProviderOnce(provider, [...working, {
+				role: 'user' as const,
+				content: 'You have used all your tool calls. Do not search further — answer the user now from what you have already found.',
+			}], modelId, [], callbacks.signal);
+			if (synthesis.usage) {
+				usageTotal = usageTotal
+					? {
+						promptTokens: usageTotal.promptTokens + synthesis.usage.promptTokens,
+						completionTokens: usageTotal.completionTokens + synthesis.usage.completionTokens,
+						totalTokens: usageTotal.totalTokens + synthesis.usage.totalTokens,
+						cachedTokens: (usageTotal.cachedTokens ?? 0) + (synthesis.usage.cachedTokens ?? 0) || undefined,
+					}
+					: synthesis.usage;
+			}
+			// Usage still must be delivered — the final-answer branch returned
+			// above, so this runs exactly once per run.
 			if (usageTotal) callbacks.onUsage?.(usageTotal);
-			callbacks.onChunk?.('\n\n*[Agent stopped: reached max tool calls limit]*');
+			if (synthesis.content) {
+				callbacks.onChunk?.(synthesis.content);
+			} else {
+				callbacks.onChunk?.('\n\n*[Agent stopped: reached max tool calls limit]*');
+			}
 		} finally {
 			if (isLeader && conversationId) {
 				this.swarm.endGeneration(conversationId);
