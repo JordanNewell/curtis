@@ -50,15 +50,15 @@
   "author": "Jordan Newell",
   "license": "BUSL-1.1",
   "devDependencies": {
-    "@codemirror/state": "6.5.0",
-    "@codemirror/view": "^6.38.6",
-    "@types/node": "^20.11.0",
-    "esbuild": "^0.25.0",
-    "eslint": "^9.39.5",
-    "eslint-plugin-obsidianmd": "^0.4.1",
-    "obsidian": "^1.13.1",
+    "@codemirror/state": "^6.7.6",
+    "@codemirror/view": "^6.43.13",
+    "@types/node": "^26.6.5",
+    "esbuild": "^0.28.2",
+    "eslint": "^10.12.0",
+    "eslint-plugin-obsidianmd": "^0.4.2",
+    "obsidian": "^1.14.4",
     "playwright-core": "^1.63.0",
-    "typescript": "^5.3.3",
+    "typescript": "^5.9.3",
     "vitest": "^4.1.11"
   },
   "dependencies": {
@@ -68,8 +68,5 @@
     "@curtisai/shared": "^0.1.2",
     "@huggingface/transformers": "^4.3.1",
     "fflate": "^0.8.3"
-  },
-  "overrides": {
-    "moment": "2.31.0"
   }
 }
