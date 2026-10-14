@@ -15,11 +15,12 @@ updates:
     labels:
       - dependencies
     ignore:
-      # typescript 7 (native/Go) is unsupported by ts-api-utils/
-      # typescript-estree — eslint crashes at require time. Re-enable when
-      # typescript-eslint ships TS7 support.
+      # typescript 6/7: TS7 unsupported by ts-api-utils/typescript-estree
+      # (eslint crashes at require time); TS6 breaks tsc on 4 real type sites
+      # (event-bus generics, @curtisai/shared ToolContext) — migration is a
+      # scoped follow-up, not a Dependabot bump.
       - dependency-name: "typescript"
-        versions: [">=7"]
+        versions: [">=6"]
       # obsidian pins exact codemirror peers (see its package.json), so any
       # @codemirror/view newer than what obsidian pins can never resolve —
       # every bump PR dies on ERESOLVE. Re-enable when obsidian lifts the
