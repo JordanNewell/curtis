@@ -351,11 +351,11 @@ export class ToolRegistry {
 			description: 'Search for notes in the vault by filename or content. Returns a list of matching notes.',
 			parameters: {
 				query: { type: 'string', description: 'Search query to match against note filenames and content', required: true },
-				max_results: { type: 'number', description: 'Maximum number of results (default: 10)', default: 10 },
+				max_results: { type: 'number', description: 'Maximum number of results (default: 25)', default: 25 },
 			},
 			execute: async (params) => {
 				const query = str(params.query).toLowerCase();
-				const max = num(params.max_results) || 10;
+				const max = num(params.max_results) || 25;
 				const files = this.app.vault.getMarkdownFiles();
 				const results: string[] = [];
 
@@ -370,11 +370,16 @@ export class ToolRegistry {
 				}
 
 				if (results.length === 0) {
-					// Content fallback used to read EVERY vault file per miss —
-					// cap the scan (newest 300 files, ~2MB read) so a large vault
-					// can't stall the agent loop.
-					const MAX_SCAN_FILES = 300;
-					const MAX_SCAN_CHARS = 2_000_000;
+					// Content fallback reads files newest-first under a cap so a
+					// large vault can't stall the agent loop. Exhaustive-looking
+					// queries (counts, "all", "every") get full-vault coverage;
+					// quick lookups stop at the base tier.
+					const BASE_SCAN_FILES = 2000;
+					const BASE_SCAN_CHARS = 10_000_000;
+					const EXHAUSTIVE_SCAN_CHARS = 50_000_000;
+					const exhaustive = /\ball\b|\bevery\b|\bcount\b|how many|\btotal\b/.test(query);
+					const MAX_SCAN_FILES = exhaustive ? files.length : BASE_SCAN_FILES;
+					const MAX_SCAN_CHARS = exhaustive ? EXHAUSTIVE_SCAN_CHARS : BASE_SCAN_CHARS;
 					const scanList = [...files]
 						.sort((a, b) => b.stat.mtime - a.stat.mtime)
 						.slice(0, MAX_SCAN_FILES);
@@ -397,8 +402,9 @@ export class ToolRegistry {
 						} catch { /* skip unreadable files */ }
 					}
 
+					const cappedFiles = scanList.length < files.length;
 					const capNote = capHit
-						? ` (content scan capped at the ${MAX_SCAN_FILES} most recently modified files / ~2 MB)`
+						? ` (content scan capped at ~${Math.round(MAX_SCAN_CHARS / 1_000_000)} MB of reads${cappedFiles ? ` across the ${scanList.length} most recently modified files` : ''})`
 						: '';
 
 					if (contentMatches.length > 0) {

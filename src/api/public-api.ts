@@ -253,7 +253,7 @@ export function createPublicApi(plugin: CurtisPlugin): CurtisPublicApi {
 		async searchNotes(query, limit = 20) {
 			const trimmed = query.trim();
 			if (!trimmed) return [];
-			const hits = await findTextHits(buildVaultToolPort(plugin), trimmed, Math.min(100, Math.max(1, limit)));
+			const hits = await findTextHits(buildVaultToolPort(plugin), trimmed, Math.min(500, Math.max(1, limit)));
 			return hits.flatMap((hit) =>
 				hit.lines.map((l) => ({ path: hit.path, line: l.line, excerpt: l.text }))
 			);
