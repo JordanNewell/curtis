@@ -26,6 +26,7 @@ import { createPublicApi } from './api/public-api';
 import type { CurtisPublicApi } from './api/public-api';
 import { WebhookDispatcher, type AuditRecorder } from './webhook/dispatcher';
 import { RagIndexManager } from './rag';
+import { ensureGitignoreCoversArtifacts } from './vault/gitignore';
 import { runMigrations } from './core/migration';
 import type { SettingsData } from './core/migration';
 import { migrateSecretsToKeychain, resolveApiKey, resolveGcpServiceAccount } from './core/secrets';
@@ -182,6 +183,15 @@ export default class CurtisPlugin extends Plugin {
 			yaml: vaultYamlPort,
 			notifyError: (message) => new Notice(message),
 		});
+		// The memory/conversation stores just ensured the AI/ folder tree. If
+		// the vault root is git-curated (a .gitignore already exists), append a
+		// marked AI/ block so plugin churn never dirties `git status`. No
+		// .gitignore → create nothing. Never blocks or breaks boot.
+		void ensureGitignoreCoversArtifacts(this.app, [
+			this.settings.memoryFilePath,
+			this.settings.journalFilePath,
+			this.settings.conversationsFolder,
+		]);
 		// Named agents — persona + model routing + tool ACL per conversation.
 		// The store hands the manager the LIVE settings.agents array (by
 		// reference) — see SettingsAgentStore.
