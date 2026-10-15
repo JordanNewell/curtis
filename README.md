@@ -463,7 +463,7 @@ All feedback is public and lives on GitHub:
 - **Love it?** [Share in Show & Tell](https://github.com/JordanNewell/curtis/discussions/categories/show-and-tell)
 - **Stuck?** [Ask in Q&A](https://github.com/JordanNewell/curtis/discussions/categories/q-a)
 
-No GitHub account? Email [hello@jordannewell.com](mailto:hello@jordannewell.com) and it gets posted publicly for you.
+No GitHub account? Email [info@curtisai.tech](mailto:info@curtisai.tech) and it gets posted publicly for you.
 
 ---
 
