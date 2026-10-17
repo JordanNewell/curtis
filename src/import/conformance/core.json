@@ -1,0 +1,71 @@
+{
+	"level": "L1",
+	"name": "CORE",
+	"vectors": [
+		{
+			"name": "accept-basic",
+			"expect": "accept",
+			"body": "{\n\t\"curt\": \"curtis-conversation\",\n\t\"version\": 1,\n\t\"generator\": \"vectors@1\",\n\t\"conversation\": {\n\t\t\"id\": \"conv_001\",\n\t\t\"title\": \"Fixture conversation\",\n\t\t\"createdAt\": 1760000000000,\n\t\t\"updatedAt\": 1760000100000,\n\t\t\"messages\": [\n\t\t\t{\n\t\t\t\t\"id\": \"m1\",\n\t\t\t\t\"role\": \"user\",\n\t\t\t\t\"content\": \"hello\",\n\t\t\t\t\"timestamp\": 1760000000000\n\t\t\t}\n\t\t]\n\t}\n}"
+		},
+		{
+			"name": "accept-utf8-bom",
+			"expect": "accept",
+			"body": "﻿{\n\t\"curt\": \"curtis-conversation\",\n\t\"version\": 1,\n\t\"conversation\": {\n\t\t\"id\": \"c\",\n\t\t\"title\": \"\",\n\t\t\"createdAt\": 0,\n\t\t\"updatedAt\": 0,\n\t\t\"messages\": []\n\t}\n}"
+		},
+		{
+			"name": "accept-unknown-fields-everywhere",
+			"expect": "accept",
+			"body": "{\n\t\"curt\": \"curtis-conversation\",\n\t\"version\": 1,\n\t\"extraTop\": { \"deep\": [1, 2] },\n\t\"conversation\": {\n\t\t\"id\": \"c\",\n\t\t\"title\": \"\",\n\t\t\"createdAt\": 0,\n\t\t\"updatedAt\": 0,\n\t\t\"swarmRole\": \"leader\",\n\t\t\"messages\": [\n\t\t\t{\n\t\t\t\t\"id\": \"m1\",\n\t\t\t\t\"role\": \"assistant\",\n\t\t\t\t\"content\": \"data:image/png;base64,AAAA\",\n\t\t\t\t\"timestamp\": 1760000000.5,\n\t\t\t\t\"tokens\": { \"input\": 1, \"output\": 2 }\n\t\t\t}\n\t\t]\n\t}\n}"
+		},
+		{
+			"name": "accept-all-roles-and-empty-messages",
+			"expect": "accept",
+			"body": "{\n\t\"curt\": \"curtis-conversation\",\n\t\"version\": 1,\n\t\"conversation\": {\n\t\t\"id\": \"c\",\n\t\t\"title\": \"\",\n\t\t\"createdAt\": -5,\n\t\t\"updatedAt\": 0.25,\n\t\t\"messages\": [\n\t\t\t{ \"id\": \"a\", \"role\": \"user\", \"content\": \"\", \"timestamp\": 0 },\n\t\t\t{ \"id\": \"b\", \"role\": \"assistant\", \"content\": \"\", \"timestamp\": 0 },\n\t\t\t{ \"id\": \"d\", \"role\": \"system\", \"content\": \"\", \"timestamp\": 0 },\n\t\t\t{ \"id\": \"e\", \"role\": \"tool\", \"content\": \"\", \"timestamp\": 0 }\n\t\t]\n\t}\n}"
+		},
+		{
+			"name": "reject-wrong-magic",
+			"expect": "reject",
+			"body": "{\n\t\"curt\": \"curt-conversation\",\n\t\"version\": 1,\n\t\"conversation\": { \"id\": \"c\", \"title\": \"\", \"createdAt\": 0, \"updatedAt\": 0, \"messages\": [] }\n}"
+		},
+		{
+			"name": "reject-version-as-string",
+			"expect": "reject",
+			"body": "{\n\t\"curt\": \"curtis-conversation\",\n\t\"version\": \"1\",\n\t\"conversation\": { \"id\": \"c\", \"title\": \"\", \"createdAt\": 0, \"updatedAt\": 0, \"messages\": [] }\n}"
+		},
+		{
+			"name": "reject-version-2",
+			"expect": "reject",
+			"body": "{\n\t\"curt\": \"curtis-conversation\",\n\t\"version\": 2,\n\t\"conversation\": { \"id\": \"c\", \"title\": \"\", \"createdAt\": 0, \"updatedAt\": 0, \"messages\": [] }\n}"
+		},
+		{
+			"name": "reject-missing-title",
+			"expect": "reject",
+			"body": "{\n\t\"curt\": \"curtis-conversation\",\n\t\"version\": 1,\n\t\"conversation\": { \"id\": \"c\", \"createdAt\": 0, \"updatedAt\": 0, \"messages\": [] }\n}"
+		},
+		{
+			"name": "reject-bad-role",
+			"expect": "reject",
+			"body": "{\n\t\"curt\": \"curtis-conversation\",\n\t\"version\": 1,\n\t\"conversation\": {\n\t\t\"id\": \"c\",\n\t\t\"title\": \"\",\n\t\t\"createdAt\": 0,\n\t\t\"updatedAt\": 0,\n\t\t\"messages\": [{ \"id\": \"m\", \"role\": \"user2\", \"content\": \"\", \"timestamp\": 0 }]\n\t}\n}"
+		},
+		{
+			"name": "reject-message-missing-timestamp",
+			"expect": "reject",
+			"body": "{\n\t\"curt\": \"curtis-conversation\",\n\t\"version\": 1,\n\t\"conversation\": {\n\t\t\"id\": \"c\",\n\t\t\"title\": \"\",\n\t\t\"createdAt\": 0,\n\t\t\"updatedAt\": 0,\n\t\t\"messages\": [{ \"id\": \"m\", \"role\": \"user\", \"content\": \"\" }]\n\t}\n}"
+		},
+		{
+			"name": "reject-truncated-json",
+			"expect": "reject",
+			"body": "{\n\t\"curt\": \"curtis-conversation\",\n\t\"version\": 1,\n\t\"conv"
+		},
+		{
+			"name": "reject-conversation-not-object",
+			"expect": "reject",
+			"body": "{\n\t\"curt\": \"curtis-conversation\",\n\t\"version\": 1,\n\t\"conversation\": \"nope\"\n}"
+		},
+		{
+			"name": "reject-messages-not-array",
+			"expect": "reject",
+			"body": "{\n\t\"curt\": \"curtis-conversation\",\n\t\"version\": 1,\n\t\"conversation\": { \"id\": \"c\", \"title\": \"\", \"createdAt\": 0, \"updatedAt\": 0, \"messages\": {} }\n}"
+		}
+	]
+}

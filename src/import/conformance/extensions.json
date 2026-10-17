@@ -1,0 +1,37 @@
+{
+	"level": "L4",
+	"name": "EXTENSIONS",
+	"note": "All cases are accept: extension presence — even malformation — must never cause rejection.",
+	"vectors": [
+		{
+			"name": "images-inline",
+			"expect": "accept",
+			"body": "{\n\t\"curt\": \"curtis-conversation\",\n\t\"version\": 1,\n\t\"extensions\": [\"images-inline\"],\n\t\"conversation\": {\n\t\t\"id\": \"c\",\n\t\t\"title\": \"\",\n\t\t\"createdAt\": 0,\n\t\t\"updatedAt\": 0,\n\t\t\"messages\": [{ \"id\": \"m\", \"role\": \"user\", \"content\": \"data:image/png;base64,iVBORw0KGgoAAAANSUhEUg==\", \"timestamp\": 0, \"kind\": \"image\" }]\n\t}\n}"
+		},
+		{
+			"name": "usage-metadata",
+			"expect": "accept",
+			"body": "{\n\t\"curt\": \"curtis-conversation\",\n\t\"version\": 1,\n\t\"extensions\": [\"usage-metadata\"],\n\t\"conversation\": {\n\t\t\"id\": \"c\",\n\t\t\"title\": \"\",\n\t\t\"createdAt\": 0,\n\t\t\"updatedAt\": 0,\n\t\t\"messages\": [{ \"id\": \"m\", \"role\": \"assistant\", \"content\": \"hi\", \"timestamp\": 0, \"provider\": \"zai\", \"tokens\": { \"input\": 10, \"output\": 3 }, \"cost\": 0.0002 }]\n\t}\n}"
+		},
+		{
+			"name": "tool-linkage",
+			"expect": "accept",
+			"body": "{\n\t\"curt\": \"curtis-conversation\",\n\t\"version\": 1,\n\t\"extensions\": [\"tool-linkage\"],\n\t\"conversation\": {\n\t\t\"id\": \"c\",\n\t\t\"title\": \"\",\n\t\t\"createdAt\": 0,\n\t\t\"updatedAt\": 0,\n\t\t\"messages\": [\n\t\t\t{ \"id\": \"m1\", \"role\": \"assistant\", \"content\": \"\", \"timestamp\": 0, \"toolCalls\": [{ \"id\": \"t1\", \"name\": \"search\", \"arguments\": { \"q\": \"x\" } }] },\n\t\t\t{ \"id\": \"m2\", \"role\": \"tool\", \"content\": \"{\\\"result\\\":1}\", \"timestamp\": 0, \"toolCallId\": \"t1\" }\n\t\t]\n\t}\n}"
+		},
+		{
+			"name": "agent-context",
+			"expect": "accept",
+			"body": "{\n\t\"curt\": \"curtis-conversation\",\n\t\"version\": 1,\n\t\"extensions\": [\"agent-context\"],\n\t\"conversation\": {\n\t\t\"id\": \"c\",\n\t\t\"title\": \"\",\n\t\t\"createdAt\": 0,\n\t\t\"updatedAt\": 0,\n\t\t\"agentId\": \"agent_01\",\n\t\t\"skillIds\": [\"calendar\", \"mail\"],\n\t\t\"swarmRole\": \"leader\",\n\t\t\"leaderId\": \"agent_01\",\n\t\t\"messages\": []\n\t}\n}"
+		},
+		{
+			"name": "unknown-extension-ignored",
+			"expect": "accept",
+			"body": "{\n\t\"curt\": \"curtis-conversation\",\n\t\"version\": 1,\n\t\"extensions\": [\"branching-v2\", \"not-in-registry\"],\n\t\"conversation\": { \"id\": \"c\", \"title\": \"\", \"createdAt\": 0, \"updatedAt\": 0, \"messages\": [] }\n}"
+		},
+		{
+			"name": "malformed-extensions-still-accepted",
+			"expect": "accept",
+			"body": "{\n\t\"curt\": \"curtis-conversation\",\n\t\"version\": 1,\n\t\"extensions\": \"images-inline\",\n\t\"conversation\": { \"id\": \"c\", \"title\": \"\", \"createdAt\": 0, \"updatedAt\": 0, \"messages\": [] }\n}"
+		}
+	]
+}
