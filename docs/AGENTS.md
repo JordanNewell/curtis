@@ -2,7 +2,9 @@
 
 > Every agent gets its own lane; Curtis coordinates. A lane is a persona + a model + a tool ceiling — bind it to any chat, or hand it to a swarm leader as a specialist.
 
-An agent is a **named, reusable worker config**: what the model is (persona), where it runs (provider + model), and what it may touch (tool access). Not a separate runtime — it resolves inside Curtis's normal [agent loop](AGENT.md) at send time.
+An agent is a **named, reusable worker config**: what the model is (its **persona** — a written role and voice the model plays), where it runs (provider + model), and what it may touch (tool access). Not a separate runtime — it resolves inside Curtis's normal [agent loop](AGENT.md) at send time.
+
+Why name them: different work wants different setups. Research wants a thorough persona on a strong model; private drafting might want a local model that never touches the cloud and never writes to memory. Configuring that per conversation means re-explaining yourself every time. A named agent captures the setup once, and binding it is one step.
 
 This doc is about the workers. For the tool loop itself — the thing every agent runs on — see [AGENT.md](AGENT.md).
 
@@ -28,7 +30,7 @@ This doc is about the workers. For the tool loop itself — the thing every agen
 Agent files speak the Claude Code subagent format in both directions — your existing collection becomes Curtis's roster, and Curtis agents work in Claude Code:
 
 - **Import** — one click via [Import from Claude Code](IMPORT.md#import-from-claude-code-desktop): `~/.claude/agents/*.md` become agents (body → persona, tools → coarse ceilings, everything off until you review).
-- **Export** — the agent editor's copy button writes one agent as frontmatter markdown to paste into `~/.claude/agents/`; Settings → Agents → **Export agents as Claude files** writes the whole roster into `AI/Exports/Claude agents/`. An all-on tool ceiling omits the `tools` field (Claude reads that as "all tools"); restricted ceilings export as a name allowlist.
+- **Export** — the agent editor's copy button writes one agent as frontmatter markdown to paste into `~/.claude/agents/`; Settings → Curtis.ai → Agents → **Export agents as Claude files** writes the whole roster into `AI/Exports/Claude agents/`. An all-on tool ceiling omits the `tools` field (Claude reads that as "all tools"); restricted ceilings export as a name allowlist.
 
 ## Binding an agent
 
@@ -58,7 +60,7 @@ The specialist brings its own model, persona, and tool ceilings; a vault-less le
 
 ## Claims profile
 
-Settings → Agents → **Claims profile** opens (or creates) `AI/PCP.md` — a personal context profile with one section per claim class:
+Settings → Curtis.ai → Agents → **Claims profile** opens (or creates) `AI/PCP.md` — a personal context profile with one section per claim class:
 
 ```markdown
 ## PEP-P — Personality

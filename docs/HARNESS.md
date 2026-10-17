@@ -2,6 +2,10 @@
 
 The **harness** is the base contract composed under every system prompt — before your [system-prompt extension](SLASH_COMMANDS.md#system-text) and before any [agent persona](AGENTS.md). It defines how the model sees itself and the rules it can't talk its way out of: tool-list honesty, attached-note accuracy, context precedence, destructive-change confirmation.
 
+A **system prompt** is the standing instruction set sent with every request — it shapes how the model behaves before your message is ever read. Most products hide that layer. Curtis treats it as yours to inspect and choose: the harness is the part of the instruction set Curtis controls, and profiles are the choices you get over it.
+
+Why a contract at all: a raw model will claim capabilities it doesn't have, invent note contents under pressure, and obey instructions buried in the text it reads. The harness closes those holes in a place the model can't argue its way out of — the rules ride outside the conversation, fixed in the instructions.
+
 Pick the active profile under **Settings → Curtis.ai → Generation → Harness profile**.
 
 ## The two built-ins

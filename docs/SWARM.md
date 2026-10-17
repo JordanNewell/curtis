@@ -2,6 +2,8 @@
 
 > One leader chat, many follower agents. The leader delegates; you watch the vault work.
 
+A language model works one context window at a time. A long conversation fills up, and one chat juggling four jobs gives the model four partial views instead of four clean ones. Swarm mode applies the oldest answer to that problem — divide the work — to agent chats: one conversation holds the goal and the judgment, and each subtask goes to a fresh agent whose context contains nothing but its assignment.
+
 Mark any chat as a **leader** and it gains one new tool: `spawn_agent`. Ask for parallel work and the leader spawns **follower agents** — real, separate chats that each research, read, or draft one subtask with the full vault toolset, then report back. Every follower opens in its own pane (or window) so you can watch each one work.
 
 Leaders are how you say "divide this up". Followers are how it gets done.
@@ -13,7 +15,7 @@ Either path, one step:
 - The pane's **"..." menu** → **Make leader (spawn agents)** — a crown appears by the title
 - The input box → **`/leader`** (repeat either to turn it off)
 
-A leader chat always runs with tools enabled — no other setup. The setting **Settings → Agent → Max follower agents** (1–4, default 3) caps how many followers one message may spawn.
+A leader chat always runs with tools enabled — no other setup. The setting **Settings → Curtis.ai → Agent → Max follower agents** (1–4, default 3) caps how many followers one message may spawn.
 
 ## What a follower is
 
@@ -35,7 +37,7 @@ Followers run **one at a time** — globally, across every leader chat. That kee
 
 ## Stopping
 
-**Stop on the leader stops everything** — the leader's response and every follower it started. Each follower's transcript records where it was stopped, including "before this agent started" for one still waiting in the queue. A follower's own pane is read-only while its leader owns it; the composer unlocks when the run ends. And while the leader is working, its own pane won't take a second send — one generation at a time per leader chat, so a second pane on the same leader can't tangle the transcript or reset the follower cap.
+**Stop on the leader stops everything** — the leader's response and every follower it started. Each follower's transcript records where it was stopped, including "before this agent started" for one still waiting in the queue. A follower's own pane is read-only while its leader owns it; the composer takes input again when the run ends. And while the leader is working, its own pane won't take a second send — one generation at a time per leader chat, so a second pane on the same leader can't tangle the transcript or reset the follower cap.
 
 ## Where the transcripts live
 

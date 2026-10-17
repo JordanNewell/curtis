@@ -8,6 +8,8 @@ The Curtis Agent lets the AI call **tools** during a conversation. Instead of on
 
 When the agent is enabled, every chat message can trigger tool calls. The model decides which tool to invoke based on your prompt, the plugin executes the tool locally against your vault, and the result is fed back to the model. This loop continues until the model produces a final answer or hits the `agentMaxTurns` cap.
 
+The mechanism underneath is **tool calling** (also called function calling): instead of writing prose, the model emits a structured request — run `search_notes` with this query — and the plugin runs it and returns the result as another message. The model never touches your files itself. It asks, Curtis executes, and the answer comes back as text.
+
 Think of it as giving the AI a small set of hands inside your vault.
 
 ## Enabling the agent
@@ -139,7 +141,7 @@ The agent is powerful but bounded:
 
 ### Disabling the agent
 
-Toggle it off at **Settings → Agent → Enable**. When disabled, the plugin never advertises tools to the model — function-calling is fully inert.
+Toggle it off at **Settings → Curtis.ai → Agent → Enable**. When disabled, the plugin never advertises tools to the model — function-calling is fully inert.
 
 ## Privacy
 
@@ -174,7 +176,7 @@ When you attach notes via [@-mentions](MENTIONS.md), those notes are prepended t
 1. The attached note contents (from `@`)
 2. Whatever it reads via `read_note` / `search_notes` / `get_current_note`
 
-There's no conflict resolution — the model just sees more context. If attachments and tool reads disagree, the model decides what to trust.
+There's no conflict resolution — the model only sees more context. If attachments and tool reads disagree, the model decides what to trust.
 
 ## Roadmap
 

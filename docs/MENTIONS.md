@@ -4,6 +4,8 @@
 
 The `@`-mention feature was deferred early on and finally shipped in v1.0. It's the fastest way to give the AI specific vault context without copy-pasting.
 
+A model knows nothing about your vault unless the content reaches its prompt. @-mention is the *manual* route: you pick the exact note, and its full text is prepended to your message. That is the opposite of [vault retrieval](VAULT_RETRIEVAL.md), where an index picks excerpts for you. Manual attachment is the right tool when you know which note matters and want all of it, verbatim — retrieval is the right tool when you don't know (or care) where the answer lives.
+
 ## What it does
 
 When you type `@` in the chat input (preceded by whitespace or at the start of the input), a fuzzy-search dropdown opens with your vault's notes. Click a result to attach it. The note's content is prepended to your message as invisible context when you send.

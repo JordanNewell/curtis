@@ -2,6 +2,10 @@
 
 > Type in any note, pause, and a dimmed continuation appears after the cursor. Tab accepts.
 
+Ghost text is a suggestion, not an edit. After you pause typing, Curtis sends the text around your cursor to the configured provider and renders the continuation dimmed, exactly where you would have typed it — but it doesn't become part of your note until you press Tab. Escape or further typing removes it, and one undo step removes an accepted suggestion.
+
+It ships off by default because every suggestion is a network request: the same provider round-trip a chat message makes, scaled down. The cost guards and the privacy section below say exactly what is sent and how the traffic is capped. For suggestions with none of that traffic, point the autocomplete model at a local Ollama model.
+
 ## What it does
 
 Ghost-text suggestions while you write. After a short pause in typing, Curtis sends the text around your cursor to the configured provider and renders the continuation inline, dimmed, exactly where you would type it.

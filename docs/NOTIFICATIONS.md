@@ -2,6 +2,10 @@
 
 > Curtis pings you when a response lands — even after you've moved on.
 
+A chat response can finish long after you've switched to another window, another pane, or another task. Notifications close that gap: Curtis watches each request and pings the OS only when the pane that made it is no longer visible. The design goal is that you can walk away from a running request and be pulled back at the exact moment it lands — and clicking the notification returns you to the pane that produced it, not a vague window.
+
+Both toggles are **off by default**. That is deliberate: a notification you didn't ask for is worse than a delayed one. Turn on only the events you want interruptions for, and the fallback rules below cover the platforms where the OS won't grant them.
+
 Two toggles under **Settings → Curtis.ai → Chat UI**, both **off by default**:
 
 | Setting | What it does |

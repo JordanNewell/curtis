@@ -2,6 +2,8 @@
 
 Skills are reusable capability packages from the **open [Agent Skills](https://agentskills.io) standard** — the same format used by Claude Code, Cursor, Copilot, Gemini CLI, OpenCode, and other compatible agents. A skill is a folder with a `SKILL.md`: frontmatter metadata plus markdown instructions. Because the format is shared, skills move in both directions: drop a community skill into your vault, hand your vault skill to any other agent.
 
+Why package instructions at all: any procedure you find yourself re-explaining — how you want PDFs handled, how your weekly review runs — can be written once, kept as plain markdown in your vault, and loaded whenever a task matches. The `description` line is the index the model reads; the body is the procedure it follows.
+
 Enable them under **Settings → Curtis.ai → Skills**.
 
 ## Getting skills in
@@ -42,7 +44,7 @@ Spec rules the loader enforces: `name` (1–64 chars, lowercase letters/digits/s
 
 ## How the model gets them
 
-Progressive disclosure, in three stages:
+Loading follows **progressive disclosure**: the model always sees a one-line index, and pays the context cost of the full text only when a task calls for it. Three stages:
 
 1. **Discovery** — every enabled skill's name + description rides the system prompt as a compact index (~100 tokens per skill) in chats, arena runs, headless runs, and swarm followers. All of them, on every provider.
 2. **Activation** — the full instructions load only when needed:

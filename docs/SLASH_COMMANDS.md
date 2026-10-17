@@ -1,5 +1,7 @@
 # Slash commands
 
+Slash commands are the keyboard-first layer over Curtis's features. Actions you could otherwise reach through headers, menus, or settings — starting a new chat, switching models, saving a response as a note, recording a memory — each have a `/` form you can type without leaving the input. The menu that opens as you type doubles as discovery: the full list is visible, so you never have to memorize it, and `/help` opens the same reference any time.
+
 Type `/` in the chat input to open the autocomplete menu. Arrow keys to navigate, Enter/Tab to pick, Esc to dismiss. Or run `/help` to open a reference modal inside Obsidian.
 
 Unknown commands (e.g. `/typo hello`) fall through and get sent as a literal user message — useful when you actually want to send text starting with `/`.

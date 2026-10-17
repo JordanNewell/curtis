@@ -2,6 +2,8 @@
 
 Curtis.ai supports vision — drag a screenshot in, paste a photo, or pick from a file. The model reads it and responds.
 
+Most language models read text only. A smaller set are **multimodal** — trained on images and text together — and can look at a screenshot or photo you include in the prompt. When you attach an image, Curtis encodes it as base64 and sends it alongside your message; the model's answer depends entirely on whether the provider you configured can read images. That is why the vision pill in the model picker matters, and why a non-vision model gets your text with the image stripped rather than a hallucinated description.
+
 ## Three ways to attach
 
 | Method | How |

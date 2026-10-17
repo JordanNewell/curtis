@@ -2,6 +2,10 @@
 
 > External links grow a favicon; vault paths the assistant mentions become tappable.
 
+Rendered chat is where links appear, and links are one of the few places a plugin can make network calls on your behalf. The favicon feature fetches one icon per external domain — from DuckDuckGo's icon service, referrer-free — so you can see where a link leads before following it. The fetch happens when the message renders, not when you click, which is why it exists as a toggle: it is the difference between chat rendering that is fully local and chat rendering that contacts a third party per domain seen.
+
+Vault-path linkify is the inverse. The assistant mentions a note by path, and Curtis checks that mention against your local vault index — no network involved. The verification step is the point: a path-shaped string that doesn't resolve to a real note stays plain text instead of becoming a wrong link.
+
 Two rendering touches on finished assistant messages. A message that is still streaming renders as plain text — both behaviors apply once the final render lands.
 
 ## External links
