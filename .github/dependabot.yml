@@ -1,0 +1,39 @@
+# Weekly dependency-update PRs. Patch/minor bumps are grouped and auto-merged
+# by .github/workflows/dependabot-auto-merge.yml once CI passes; majors are
+# excluded from the groups, so they arrive as individual PRs and wait for
+# manual review.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(deps)"
+    labels:
+      - dependencies
+    groups:
+      # Runtime deps get bundled into main.js by esbuild — keep them in a
+      # separate group so a bad bump is easy to spot and revert on its own.
+      runtime:
+        dependency-type: "production"
+        update-types:
+          - "minor"
+          - "patch"
+      dev:
+        dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
+
+  - package-ecosystem: github-actions
+    directory: "/.github/workflows"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(ci)"
+    labels:
+      - dependencies

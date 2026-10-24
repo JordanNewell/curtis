@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  /* Curtis Records Office tokens — bg #0A0A0A · green-500 #0E7A45 · surface #0F0F0F · border #1F1F1F */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1200px; height: 630px; overflow: hidden; }
+  body {
+    background:
+      radial-gradient(ellipse 800px 500px at 85% 15%, rgba(14, 122, 69, 0.12), transparent 70%),
+      linear-gradient(160deg, #0F0F0F 0%, #0A0A0A 55%, #070707 100%);
+    color: #EDEDED;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 96px;
+    position: relative;
+  }
+  body::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(14, 122, 69, 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(14, 122, 69, 0.035) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+  }
+  .content { position: relative; z-index: 2; }
+  .logo-row { display: flex; align-items: center; gap: 18px; margin-bottom: 28px; }
+  .logo { width: 64px; height: 64px; filter: drop-shadow(0 0 14px rgba(14, 122, 69, 0.45)); border-radius: 14px; }
+  .eyebrow {
+    font-family: 'JetBrains Mono', Consolas, 'Cascadia Code', monospace;
+    color: #0E7A45;
+    font-size: 15px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  h1 {
+    font-size: 92px;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1;
+    margin-bottom: 24px;
+    background: linear-gradient(180deg, #FFFFFF 0%, #A8A8A8 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .lede {
+    font-size: 40px;
+    font-weight: 300;
+    line-height: 1.2;
+    margin-bottom: 14px;
+    color: #FFFFFF;
+  }
+  .lede strong { font-weight: 600; color: #0E7A45; }
+  .tagline {
+    color: #9A9A9A;
+    font-size: 24px;
+    line-height: 1.5;
+    margin-bottom: 34px;
+  }
+  .tagline b { color: #EDEDED; font-weight: 600; }
+  .chips { display: flex; gap: 12px; }
+  .chip {
+    font-family: 'JetBrains Mono', Consolas, 'Cascadia Code', monospace;
+    font-size: 15px;
+    font-weight: 600;
+    padding: 9px 16px;
+    border: 1px solid rgba(14, 122, 69, 0.4);
+    border-radius: 4px;
+    background: rgba(14, 122, 69, 0.08);
+    color: #EDEDED;
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    letter-spacing: 0.05em;
+  }
+  .chip::before {
+    content: '';
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #0E7A45;
+    box-shadow: 0 0 6px #0E7A45;
+  }
+</style>
+</head>
+<body>
+  <div class="content">
+    <div class="logo-row">
+      <img class="logo" src="logo-mark.png" alt="">
+      <div class="eyebrow">Open-source · MIT · v2.0.0</div>
+    </div>
+    <h1>Curtis.ai</h1>
+    <div class="lede">The agent layer for Obsidian. <strong>Every provider, one sidebar.</strong></div>
+    <div class="tagline"><b>53 providers</b> from OpenAI to Ollama. Your vault stays yours.</div>
+    <div class="chips">
+      <span class="chip">53 providers</span>
+      <span class="chip">12 agent tools</span>
+      <span class="chip">MIT</span>
+    </div>
+  </div>
+</body>
+</html>

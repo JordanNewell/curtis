@@ -1,0 +1,83 @@
+name: Lint
+
+# Runs the scorecard-matching ESLint ruleset (eslint-plugin-obsidianmd +
+# type-checked @typescript-eslint) on every push to master and every PR.
+# `npm run lint` reproduces the Obsidian plugin directory's automated review —
+# if this passes, the scorecard should pass too. Fails the build on warnings.
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Docs tree hygiene
+        # Branch-based Pages publishes everything under docs/ to
+        # curtisai.jordannewell.com. Only site assets belong there; internal
+        # planning, design, and launch docs live in internal/ at the root.
+        run: |
+          offenders=$(find docs -mindepth 1 -maxdepth 1 -type d ! -name assets ! -name metrics)
+          if [ -n "$offenders" ]; then
+            echo "::error::Unexpected directories under docs/ (everything there is published to the website). Move them under internal/ instead:"
+            echo "$offenders"
+            exit 1
+          fi
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type-check (tsc)
+        run: npx tsc -noEmit -skipLibCheck
+
+      - name: Lint (scorecard ruleset)
+        run: npm run lint
+
+  test:
+    # Full suite on all three OSes: node-based and fast (~8s), so the matrix
+    # is nearly free and catches path separator, case-sensitivity, and
+    # timezone/locale bugs that ubuntu alone never sees.
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test (vitest)
+        # Dual reporter: human-readable log plus test-results.json, which
+        # ci-annotate-tests.mjs turns into error annotations so a red matrix
+        # leg names its failing tests without downloading run logs. If vitest
+        # crashes before writing the report, the captured output tail is
+        # annotated instead.
+        shell: bash
+        run: |
+          set +e
+          npx vitest run --reporter=default --reporter=json --outputFile=test-results.json 2>&1 | tee vitest-output.log
+          status=${PIPESTATUS[0]}
+          if [ "$status" -ne 0 ]; then
+            node scripts/ci-annotate-tests.mjs test-results.json vitest-output.log || true
+          fi
+          exit $status

@@ -1,0 +1,64 @@
+{
+	"name": "curtis-ai-chat",
+	"version": "1.0.0",
+	"description": "Curtis AI Chat — your polyglot AI chat for Obsidian. 53 providers, image attachments, memory, slash commands.",
+	"main": "main.js",
+	"engines": {
+		"node": ">=18"
+	},
+	"scripts": {
+		"dev": "node esbuild.config.mjs",
+		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
+		"lint": "eslint src --max-warnings 0",
+		"test": "vitest run",
+		"version": "node version-bump.mjs && git add manifest.json versions.json",
+		"site:sync": "node scripts/site-sync.mjs",
+		"shots": "node scripts/capture-screenshots.mjs",
+		"smoke:v2": "node scripts/v2-smoke.mjs",
+		"smoke:panes": "node scripts/smoke-panes.mjs",
+		"smoke:terminal": "node scripts/smoke-terminal.mjs",
+		"smoke:providers": "node scripts/smoke-providers.mjs",
+		"smoke:mock": "node scripts/smoke-mock.mjs",
+		"smoke:store": "node scripts/smoke-store.mjs",
+		"smoke:gcp": "node scripts/gcp-smoke.mjs",
+		"probe:providers": "node scripts/provider-probe.mjs",
+		"check:mobile": "node scripts/mobile-css-check.mjs",
+		"demo:swarm": "node scripts/demo-swarm.mjs",
+		"shots:themes": "node scripts/theme-audit.mjs",
+		"mockups": "python scripts/phone_mockup.py assets/screenshots/phone-chat.png assets/screenshots/phone-chat-framed.png && python scripts/phone_mockup.py assets/screenshots/ollama-provider-settings.png assets/screenshots/phone-settings-framed.png",
+		"marketplace": "python scripts/marketplace_shots.py"
+	},
+	"keywords": [
+		"obsidian",
+		"plugin",
+		"ai",
+		"chatgpt",
+		"claude",
+		"gemini",
+		"ollama",
+		"openai",
+		"llm",
+		"assistant",
+		"rag",
+		"agnostic",
+		"multi-provider"
+	],
+	"author": "Jordan Newell",
+	"license": "BUSL-1.1",
+	"devDependencies": {
+		"@codemirror/state": "6.5.0",
+		"@codemirror/view": "^6.38.6",
+		"@types/node": "^20.11.0",
+		"esbuild": "^0.19.11",
+		"eslint": "^9.39.5",
+		"eslint-plugin-obsidianmd": "^0.4.1",
+		"obsidian": "^1.13.1",
+		"playwright-core": "^1.63.0",
+		"typescript": "^5.3.3",
+		"vitest": "^1.6.1"
+	},
+	"dependencies": {
+		"@huggingface/transformers": "^4.3.1",
+		"fflate": "^0.8.3"
+	}
+}

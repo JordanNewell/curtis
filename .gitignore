@@ -1,0 +1,54 @@
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Obsidian
+*.log
+main.js
+main.js.map
+*.bkp
+# Plugin-local state — may contain plaintext API keys on Obsidian < 1.11.4
+# (keychain migration is attempted on load, but never trust it).
+data.json
+# ZCode session artifacts (never commit — may contain live API keys)
+.zcode/
+# Reference plugin research (large, not part of source)
+_research/
+# Provider research scrapes (docs/OpenAPI/sitemap dumps, probe responses)
+rep*.json
+rep*.html
+l.txt
+rl.txt
+gpt5.html
+sitemap*.xml
+probe.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+
+# Local test vault
+demo-vault/
+# Swarm test vault
+demo-swarm/
+# ZCode superpowers session state
+.superpowers/
+# Capture scratch — playwright logs, crops, old-shot comparisons, theme-audit output
+_preview/
+shots/
+# Screenshot intermediate (bounds dump for crop tooling) — regenerated per run
+assets/screenshots/desktop-chat-bounds.json
+# Personal homepage scratch (never part of the plugin)
+/index.html
+/webwall.png

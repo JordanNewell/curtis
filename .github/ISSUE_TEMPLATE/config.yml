@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Usage question or setup help
+    url: https://github.com/JordanNewell/curtis-ai-chat/discussions/categories/q-a
+    about: Ask how to configure providers, keys, agent mode, retrieval, etc. — Q&A keeps the issue tracker for bugs
+  - name: Security report (private)
+    url: https://github.com/JordanNewell/curtis-ai-chat/security/advisories/new
+    about: Report security vulnerabilities privately via GitHub Security Advisories

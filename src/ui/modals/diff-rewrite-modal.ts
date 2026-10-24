@@ -1,0 +1,47 @@
+// Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
+import { App, Modal, Setting } from 'obsidian';
+import { diffLines } from '../../utils/diff';
+
+export class DiffRewriteModal extends Modal {
+	private original: string;
+	private modified: string;
+	private onAccept: (modified: string) => void;
+
+	constructor(app: App, original: string, modified: string, onAccept: (modified: string) => void, title = 'AI rewrite — review changes') {
+		super(app);
+		this.original = original;
+		this.modified = modified;
+		this.onAccept = onAccept;
+		this.setTitle(title);
+		// Size the modal via CSS class (avoids direct style assignment per
+		// Obsidian lint rule obsidianmd/no-static-style-assignment).
+		this.modalEl.addClass('ai-diff-rewrite-modal');
+	}
+
+	onOpen(): void {
+		const { contentEl } = this;
+		contentEl.empty();
+
+		const diffContainer = contentEl.createDiv({ cls: 'ai-diff-container' });
+		const diff = diffLines(this.original, this.modified);
+
+		// Group consecutive added/removed pairs into diff blocks
+		for (const line of diff) {
+			const row = diffContainer.createDiv({ cls: `ai-diff-line ai-diff-${line.type}` });
+			const prefix = line.type === 'added' ? '+' : line.type === 'removed' ? '-' : ' ';
+			row.createSpan({ cls: 'ai-diff-prefix', text: prefix });
+			row.createSpan({ cls: 'ai-diff-text', text: line.text || ' ' });
+		}
+
+		new Setting(contentEl)
+			.addButton((btn) => btn.setButtonText('Reject').onClick(() => this.close()))
+			.addButton((btn) => btn.setButtonText('Accept').setCta().onClick(() => {
+				this.onAccept(this.modified);
+				this.close();
+			}));
+	}
+
+	onClose(): void {
+		this.contentEl.empty();
+	}
+}
