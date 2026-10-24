@@ -2,6 +2,10 @@
 
 > Talk to Curtis. Listen to Curtis. Hands-free.
 
+Voice I/O runs in two directions, and they have different privacy stories. Dictation records your microphone, uploads the recording to a transcription endpoint, and puts the text in the chat input. Read-aloud runs the other way and can stay entirely local: the voices built into your operating system speak the text with nothing leaving the machine.
+
+Both directions ask you to make the same trade once, in settings: local engines are free and offline but sound the way your OS sounds; cloud engines sound better, are billed to a key you own, and receive your audio or the message text. Everything below describes where that line sits.
+
 Two voice features, each with a choice of engines:
 
 - **Speech-to-text (STT)** — click the mic button, talk, transcribed text lands in the chat input. Transcribe on your **OpenAI key** (Whisper), on **Groq** (`whisper-large-v3-turbo`, cheaper and faster), or on any **custom OpenAI-compatible endpoint**.
@@ -75,7 +79,7 @@ If a neural request fails (network, quota, bad key), Curtis Notices once and **f
 | **Dictation endpoint / base URL / API key / model** | Where recordings are transcribed (see STT above). |
 | **Auto-send after dictation** | Send the message as soon as a dictation lands. |
 
-A system voice stored on one machine that doesn't exist on another (voices are platform-specific) simply falls back to auto — no error, and the settings dropdown shows "System default (auto)".
+A system voice stored on one machine that doesn't exist on another (voices are platform-specific) falls back to auto — no error, and the settings dropdown shows "System default (auto)".
 
 ### Player controls
 
@@ -113,7 +117,7 @@ When there's no rendered DOM to walk (programmatic playback), the message conten
 - Code fences (` ```...``` `) become "code block"
 - Inline code (`` `code` ``) is read as-is without backticks
 - Bold/italic markers (`**`, `*`) are stripped
-- Markdown links `[text](url)` become just the link text
+- Markdown links `[text](url)` become the link text
 - Headings (`#`) and list markers (`-`, `*`) are stripped
 - Image syntax (`![alt](url)`) is removed entirely
 
@@ -134,7 +138,7 @@ Sentence boundaries are decided by a regex split on `.`, `!`, `?` followed by wh
 ## Mobile considerations
 
 - **`MediaRecorder` support varies** on older Android WebViews. If the mic button doesn't respond, your device may not support it. iOS 16+ and modern Android are fine.
-- **`speechSynthesis` quality varies** — mobile voices are often lower-quality than desktop. Auto-speak can also be cut off by mobile background-process limits; keep Obsidian in the foreground while listening. The neural engine sidesteps mobile voice quality entirely (it's just audio playback).
+- **`speechSynthesis` quality varies** — mobile voices are often lower-quality than desktop. Auto-speak can also be cut off by mobile background-process limits; keep Obsidian in the foreground while listening. The neural engine sidesteps mobile voice quality entirely — its audio arrives as a finished recording, so OS speech quality doesn't apply.
 - **Mic permission** — iOS Safari-based WebViews require explicit per-app permission. If granted once, it persists.
 
 ## Roadmap

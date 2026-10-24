@@ -2,6 +2,16 @@
 
 Curtis.ai ships with 53 built-in providers and supports any OpenAI-compatible endpoint as a custom provider. This doc covers what's built-in, how each one authenticates, per-provider setup quirks, agent compatibility, and the advanced request parameters each card exposes.
 
+## Bring your own key
+
+Curtis doesn't sell model access. It's a bring-your-own-key (BYOK) app: you open an account with a provider, generate an API key, and paste it into Curtis. Requests go from your machine straight to the provider you chose, and the bill is the provider's bill — token pricing at the provider's published rates, no markup, because there is no middleman.
+
+An API key is a long random string that identifies you to a provider's servers. Whoever holds it can spend your credits, so treat it like a password. Curtis stores keys in your OS keychain (Obsidian 1.13+); they live on your machine and ride along on each request. Curtis runs no server in between, so there is no third party logging or reselling your usage.
+
+Most of these providers — and every local server — accept the same request shape, known as an OpenAI-compatible endpoint. A shared shape is a lingua franca: one chat app can talk to dozens of backends without custom code for each. The table below notes the places where a provider deviates — a different auth header, a pinned field, a rejected parameter.
+
+Local providers close the loop. Ollama and LM Studio run on your own hardware and are reached at localhost, so nothing leaves your network — not the prompt, not the notes, and no key, because none is needed.
+
 > [!TIP]
 > Look for the **👁 vision** marker next to a model in the picker — that model can read images. The **🔧 tools** marker means the model supports function calling (required for the [Curtis Agent](AGENT.md)).
 
@@ -120,7 +130,7 @@ Some vendors sell subscriptions whose allowance can be used outside their own ap
 
 ## Local providers (Ollama, LM Studio)
 
-**No API key required.** Just enable the provider and ensure the server is running:
+**No API key required.** Enable the provider and ensure the server is running:
 
 ```bash
 # Ollama
@@ -166,7 +176,7 @@ Custom providers are agent-compatible as long as the upstream server implements 
 
 ## Switching providers mid-conversation
 
-Click the **model picker button** at the top of the chat. The picker shows every enabled provider and their models. Switching is instant — the next message uses the new model. The conversation continues seamlessly.
+Click the **model picker button** at the top of the chat. The picker shows every enabled provider and their models. Switching is instant — the next message uses the new model, and the conversation history carries over.
 
 ## Per-conversation provider tracking
 

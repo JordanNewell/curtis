@@ -12,6 +12,7 @@ class ConfirmModal extends Modal {
 		private settle: (ok: boolean) => void
 	) {
 		super(app);
+		this.modalEl.addClass('curtis-modal');
 	}
 
 	onOpen(): void {

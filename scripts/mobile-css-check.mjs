@@ -23,7 +23,7 @@ const VAULT = resolve(ROOT, 'demo-vault');
 const DEBUG_PORT = 9336;
 const OBSIDIAN_EXE =
 	process.env.OBSIDIAN_EXE ||
-	resolve(process.env.USERPROFILE ?? process.env.HOME, 'scoop/apps/obsidian/current/Obsidian.exe');
+	'C:/tmp/obsidian-smoke/ObsidianSmoke.exe'; // smoke clone — never touches the live app
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -50,7 +50,7 @@ const check = (name, ok, detail) => {
 };
 
 try {
-	try { execSync('taskkill /IM Obsidian.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
+	try { execSync('taskkill /IM ObsidianSmoke.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
 	await sleep(2500);
 
 	const child = spawn(OBSIDIAN_EXE, [
@@ -82,7 +82,7 @@ try {
 	try { await page.getByRole('button', { name: /trust/i }).click({ timeout: 5000 }); } catch { /* trusted */ }
 
 	await page.evaluate(async () => {
-		try { await window.app.plugins.enablePlugin('curtis-ai-chat'); } catch { /* on */ }
+		try { await window.app.plugins.enablePlugin('curtis'); } catch { /* on */ }
 	});
 	await sleep(1500);
 
@@ -95,7 +95,7 @@ try {
 	await cdp.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 5 });
 
 	// Open a chat pane.
-	await page.evaluate(() => window.app.commands.executeCommandById('curtis-ai-chat:open-chat'));
+	await page.evaluate(() => window.app.commands.executeCommandById('curtis:open-chat'));
 	await sleep(2000);
 
 	const m = await page.evaluate(() => {
@@ -125,7 +125,7 @@ try {
 	check('M3 safe-area in composer padding', typeof m.areaPadBottom === 'string' && m.areaPadBottom.includes('safe-area') === false && parseFloat(m.areaPadBottom) >= 12, `resolved ${m.areaPadBottom} (calc with env() resolves when inset is 0 on desktop)`);
 
 	await browser.close();
-	execSync('taskkill /IM Obsidian.exe /F', { stdio: 'ignore' });
+	execSync('taskkill /IM ObsidianSmoke.exe /F', { stdio: 'ignore' });
 	await sleep(1500);
 	relaunch();
 

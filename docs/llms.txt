@@ -20,8 +20,8 @@
 
 ## Install
 
-- Deep link: obsidian://show-plugin?id=curtis-ai-chat
-- Manual: download main.js, manifest.json, and styles.css from the latest GitHub release into .obsidian/plugins/curtis-ai-chat/, then enable under Settings -> Community plugins.
+- Deep link: obsidian://show-plugin?id=curtis
+- Manual: download main.js, manifest.json, and styles.css from the latest GitHub release into .obsidian/plugins/curtis/, then enable under Settings -> Community plugins.
 
 ## Facts
 
@@ -33,5 +33,5 @@
 ## Links
 
 - Site: https://curtisai.tech/chat/
-- Source: https://github.com/JordanNewell/curtis-ai-chat
-- Releases: https://github.com/JordanNewell/curtis-ai-chat/releases
+- Source: https://github.com/JordanNewell/curtis
+- Releases: https://github.com/JordanNewell/curtis/releases

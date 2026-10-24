@@ -1,5 +1,9 @@
 # Plugin API
 
+An Obsidian plugin that wants AI features has two bad options: bundle its own API keys and inference plumbing, or ask every user to configure providers all over again inside it. A plugin API surface avoids both. The app that already holds the keys, the memory, and the tools exposes a small set of callable functions, and everything else builds on top.
+
+That is the idea here, and it's the vault-as-platform idea in miniature. Your vault holds your notes; Curtis turns those notes into something an AI agent can read, search, and act on; this API turns Curtis into something other plugins can build on. One provider configuration, one memory store, one tool set — many consumers.
+
 Curtis exposes a small programmatic surface so **other Obsidian plugins** can use it as the vault's AI layer — one place configures the providers, keys, memory, and tools; every integration inherits them.
 
 ## Access
@@ -7,7 +11,7 @@ Curtis exposes a small programmatic surface so **other Obsidian plugins** can us
 Once Curtis is loaded (enabled in Community plugins):
 
 ```ts
-const curtis = (window as any).app.plugins.plugins['curtis-ai-chat'];
+const curtis = (window as any).app.plugins.plugins['curtis'];
 if (curtis?.api) {
 	const reply = await curtis.api.chat('Summarize the note the user is editing');
 }
@@ -66,7 +70,7 @@ Resolves with the named agent's final answer as text. Throws on an unknown agent
 
 ```ts
 // A plugin that turns meeting notes into action items
-const curtis = app.plugins.plugins['curtis-ai-chat'];
+const curtis = app.plugins.plugins['curtis'];
 const items = await curtis.api.chat(
 	'Extract action items as a markdown checklist.',
 	{

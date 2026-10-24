@@ -4,7 +4,7 @@
 // User actions: copy, edit-resend (loads text back into input for re-send).
 
 import { App, Notice, setIcon, TFile } from 'obsidian';
-import type { ConversationMessage } from '../types';
+import type { ConversationMessage } from '@curtisai/shared';
 import { saveMessageAsNote } from '../vault/notes';
 import { getActiveNoteView } from '../vault/active-note';
 

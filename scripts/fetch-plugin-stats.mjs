@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * fetch-plugin-stats.mjs — append one snapshot of marketplace downloads for
- * this plugin (id: curtis-ai-chat) to docs/metrics/downloads.csv.
+ * this plugin (id: curtis) to docs/metrics/downloads.csv.
  *
  * Data source (verified empirically 2026-10-08):
  *   https://raw.githubusercontent.com/obsidianmd/obsidian-releases/master/community-plugin-stats.json
@@ -28,7 +28,7 @@ import { fileURLToPath } from 'node:url';
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const STATS_URL = 'https://raw.githubusercontent.com/obsidianmd/obsidian-releases/master/community-plugin-stats.json';
-const PLUGIN_ID = 'curtis-ai-chat';
+const PLUGIN_ID = 'curtis';
 const CSV_DIR = path.join(REPO_ROOT, 'docs', 'metrics');
 const CSV_PATH = path.join(CSV_DIR, 'downloads.csv');
 const CSV_HEADER = 'date,downloads,version_downloads,plugin_version,plugin_updated_utc';

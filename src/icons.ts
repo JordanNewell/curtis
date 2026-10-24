@@ -1,16 +1,16 @@
 // Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Curtis — Custom icon registry.
 //
-// The Curtis.ai mark: monoline C with round terminals, aperture right, and
-// two dots seated in the mouth (the C+two-dots lockup from the Curtis.ai
-// identity masters, assets/brand/mark-on-black.png and mark-on-white.png).
-// The C carries currentColor so the mark follows the theme in the ribbon
-// and tab strip, like every built-in Lucide icon; the dots fill currentColor
-// for the same reason. Branded lockups (.curtis-mark-title in styles.css)
-// repaint the mark with the identity green #0E7A45 on both themes.
-// scripts/render-mark.mjs regenerates the transparent PNG variants from
-// this geometry — keep the two in sync.
+// The Curtis.ai mark (2026-10 rebrand): the ringed C with four stripe
+// cutouts, canonical source assets/brand/mark.svg (ink = mood-board
+// --live green #1E7A46). This 24px adaptation thickens the ring and
+// stripes so they survive ribbon/tab sizes and carries currentColor so
+// the mark follows the theme like every built-in Lucide icon; the
+// stripes are CUTOUTS (mask), not fills, so they read on both themes.
+// The identity-green lockup treatment (.curtis-mark-title in styles.css)
+// repaints it #1E7A46. scripts/render-mark.mjs regenerates the transparent
+// PNG variants from the canonical SVG — keep the two in sync.
 
 export const CURTIS_ICON_ID = 'curtis-mark';
 
-export const CURTIS_ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"><path d="M18.759375 7.265625 A 8.25 8.25 0 1 0 18.759375 16.734375" stroke="currentColor" stroke-width="3.1875" stroke-linecap="round"/><circle cx="16.75" cy="9.75" r="1.7" fill="currentColor"/><circle cx="16.75" cy="14.25" r="1.7" fill="currentColor"/></svg>`;
+export const CURTIS_ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"><defs><mask id="curtis-stripes"><rect width="24" height="24" fill="#ffffff"/><rect x="0" y="6.23" width="24" height="0.8" fill="#000000"/><rect x="0" y="8.36" width="24" height="0.8" fill="#000000"/><rect x="0" y="14.94" width="24" height="0.8" fill="#000000"/><rect x="0" y="17.07" width="24" height="0.8" fill="#000000"/></mask></defs><circle cx="12" cy="12" r="11.2" stroke="currentColor" stroke-width="1.1"/><path d="M17.81 6.19 A8.22 8.22 0 1 0 17.81 17.81 L15.3 15.3 A4.67 4.67 0 1 1 15.3 8.7 Z" fill="currentColor" mask="url(#curtis-stripes)"/></svg>`;

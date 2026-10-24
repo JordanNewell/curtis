@@ -11,10 +11,12 @@
 // is the only reliable way to get a phone-width layout).
 //
 // Usage:  npm run shots
-// Env:    OBSIDIAN_EXE (default: scoop obsidian current)
+// Env:    OBSIDIAN_EXE (default: the smoke clone)
 //
-// The user's running Obsidian is closed for the duration (nothing is lost —
-// Obsidian autosaves) and relaunched at the end.
+// Runs the SMOKE CLONE of Obsidian (C:/tmp/obsidian-smoke/ObsidianSmoke.exe — a
+// renamed copy with its own userData dir), so the user's live Obsidian is
+// never touched: smokes kill only the ObsidianSmoke.exe process name.
+
 
 import { spawn, execSync } from 'node:child_process';
 import { cpSync, mkdirSync, writeFileSync, existsSync, readFileSync, rmSync } from 'node:fs';
@@ -28,12 +30,12 @@ const { chromium } = require('playwright-core');
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const VAULT = resolve(ROOT, 'demo-vault');
-const PLUGIN_DIR = resolve(VAULT, '.obsidian/plugins/curtis-ai-chat');
+const PLUGIN_DIR = resolve(VAULT, '.obsidian/plugins/curtis');
 const OUT_DIR = resolve(ROOT, 'assets/screenshots');
 
 const OBSIDIAN_EXE =
 	process.env.OBSIDIAN_EXE ||
-	resolve(process.env.USERPROFILE ?? process.env.HOME, 'scoop/apps/obsidian/current/Obsidian.exe');
+	'C:/tmp/obsidian-smoke/ObsidianSmoke.exe'; // smoke clone — never touches the live app
 
 // ---------------------------------------------------------------------------
 // Vault bootstrap
@@ -45,7 +47,7 @@ function bootstrapVault() {
 		cpSync(resolve(ROOT, f), resolve(PLUGIN_DIR, f));
 	}
 	const obsidianDir = resolve(VAULT, '.obsidian');
-	writeFileSync(resolve(obsidianDir, 'community-plugins.json'), JSON.stringify(['curtis-ai-chat']));
+	writeFileSync(resolve(obsidianDir, 'community-plugins.json'), JSON.stringify(['curtis']));
 	if (!existsSync(resolve(obsidianDir, 'app.json'))) {
 		writeFileSync(resolve(obsidianDir, 'app.json'), JSON.stringify({ livePreview: true, readableLineLength: true }));
 	}
@@ -109,7 +111,7 @@ let originalLaunchVault = null;
  * restored at the end of the run.
  */
 function registerDemoVault() {
-	const p = resolve(process.env.APPDATA, 'obsidian', 'obsidian.json');
+	const p = resolve(process.env.APPDATA, 'obsidian-smoke', 'obsidian.json');
 	let d = {};
 	try { d = JSON.parse(readFileSync(p, 'utf8')); } catch { /* fresh */ }
 	if (!d || typeof d !== 'object' || Array.isArray(d)) d = {};
@@ -134,7 +136,7 @@ function registerDemoVault() {
 /** Put the user's original launch-vault selection back. */
 function restoreLaunchVault() {
 	try {
-		const p = resolve(process.env.APPDATA, 'obsidian', 'obsidian.json');
+		const p = resolve(process.env.APPDATA, 'obsidian-smoke', 'obsidian.json');
 		const d = JSON.parse(readFileSync(p, 'utf8'));
 		const vaults = d.vaults || {};
 		for (const v of Object.values(vaults)) {
@@ -203,7 +205,7 @@ const SEED_MESSAGES = [
 ];
 
 const seedConversation = (messages) => {
-	const plugin = window.app.plugins.plugins['curtis-ai-chat'];
+	const plugin = window.app.plugins.plugins['curtis'];
 	if (!plugin) throw new Error('plugin not loaded');
 	const store = plugin.conversationStore;
 	const conv = store.createConversation('ollama', 'qwen2.5:7b-instruct');
@@ -213,14 +215,14 @@ const seedConversation = (messages) => {
 };
 
 const selectLatestConversation = () => {
-	const plugin = window.app.plugins.plugins['curtis-ai-chat'];
+	const plugin = window.app.plugins.plugins['curtis'];
 	const convs = plugin.conversationStore.getAllConversations();
 	if (convs.length > 0) plugin.conversationStore.setCurrentConversation(convs[0].id);
 	return convs[0]?.id ?? null;
 };
 
 const enableOllama = () => {
-	const plugin = window.app.plugins.plugins['curtis-ai-chat'];
+	const plugin = window.app.plugins.plugins['curtis'];
 	plugin.settings.providerConfigs.ollama = Object.assign(
 		{ enabled: true },
 		plugin.settings.providerConfigs.ollama || {}
@@ -231,7 +233,7 @@ const enableOllama = () => {
 };
 
 const openChatAndRender = async () => {
-	window.app.commands.executeCommandById('curtis-ai-chat:open-chat');
+	window.app.commands.executeCommandById('curtis:open-chat');
 	// Wait for the view's DOM to exist before forcing a re-render —
 	// refreshChatViews on a half-constructed view is a no-op at best.
 	const deadline = Date.now() + 10000;
@@ -243,13 +245,13 @@ const openChatAndRender = async () => {
 	// to whatever was current THEN (often null — nothing sets a current
 	// conversation at boot), and setViewState reuses that view instance.
 	// Rebind the pane to the seeded conversation explicitly.
-	const plugin = window.app.plugins.plugins['curtis-ai-chat'];
+	const plugin = window.app.plugins.plugins['curtis'];
 	const view = window.app.workspace.getLeavesOfType('curtis-chat')[0]?.view;
 	const current = plugin.conversationStore.getCurrentConversation();
 	if (view && current && typeof view.switchConversation === 'function') {
 		view.switchConversation(current.id);
 	}
-	window.app.plugins.plugins['curtis-ai-chat'].refreshChatViews?.();
+	window.app.plugins.plugins['curtis'].refreshChatViews?.();
 };
 
 const scrollChatToTop = () => {
@@ -321,7 +323,7 @@ async function waitForAnyPage(ctx, pred, timeoutMs, label) {
 
 async function killObsidian() {
 	try {
-		execSync('taskkill /IM Obsidian.exe /F', { stdio: 'ignore' });
+		execSync('taskkill /IM ObsidianSmoke.exe /F', { stdio: 'ignore' });
 	} catch { /* not running */ }
 	await new Promise((r) => setTimeout(r, 2500));
 }
@@ -390,14 +392,14 @@ async function bootInstance(port, extraArgs = []) {
 	// plugin can end up loaded-but-disabled (restricted mode) with no modal
 	// shown. Enable programmatically; no-op when already enabled.
 	await page.evaluate(async () => {
-		try { await window.app.plugins.enablePlugin('curtis-ai-chat'); } catch { /* restricted or already on */ }
+		try { await window.app.plugins.enablePlugin('curtis'); } catch { /* restricted or already on */ }
 	});
 
 	// conversationStore is created in onload step 3 (after settings, before
 	// commands) — its presence means the full init sequence completed.
 	page = await waitForVaultPage(
 		ctx,
-		() => !!window.app?.plugins?.plugins?.['curtis-ai-chat']?.conversationStore,
+		() => !!window.app?.plugins?.plugins?.['curtis']?.conversationStore,
 		45000,
 		'plugin onload'
 	);
@@ -405,7 +407,7 @@ async function bootInstance(port, extraArgs = []) {
 	// no-ops.
 	await waitForVaultPage(
 		ctx,
-		() => !!window.app?.commands?.commands?.['curtis-ai-chat:open-chat'],
+		() => !!window.app?.commands?.commands?.['curtis:open-chat'],
 		15000,
 		'command registration'
 	);
@@ -427,7 +429,7 @@ async function main() {
 	const watchdog = setTimeout(() => {
 		console.error('[shots] watchdog: exceeded 6 minutes — aborting');
 		restoreLaunchVault();
-		try { execSync('taskkill /IM Obsidian.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
+		try { execSync('taskkill /IM ObsidianSmoke.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
 		process.exit(9);
 	}, 6 * 60 * 1000);
 	watchdog.unref?.();
@@ -479,11 +481,11 @@ async function main() {
 
 		await page.evaluate(() => {
 			window.app.setting.open();
-			window.app.setting.openTabById('curtis-ai-chat');
+			window.app.setting.openTabById('curtis');
 		});
 		const settingsPage = await waitForAnyPage(
 			ctx,
-			() => document.body.innerText.includes('Provider configuration'),
+			() => /provider configuration/i.test(document.body.innerText),
 			20000,
 			'settings open'
 		);
@@ -517,7 +519,7 @@ async function main() {
 		let { page, ctx } = mob;
 		// Persisted settings: dock the chat panel on the left for phone framing.
 		await page.evaluate(() => {
-			const plugin = window.app.plugins.plugins['curtis-ai-chat'];
+			const plugin = window.app.plugins.plugins['curtis'];
 			plugin.settings.chatViewPosition = 'left';
 			plugin.saveSettings();
 		});
@@ -533,27 +535,48 @@ async function main() {
 		await page.evaluate(() => location.reload());
 		page = await waitForVaultPage(
 			ctx,
-			() => !!window.app?.plugins?.plugins?.['curtis-ai-chat']?.conversationStore,
+			() => !!window.app?.plugins?.plugins?.['curtis']?.conversationStore,
 			45000,
 			'phone reload'
 		);
 		await waitForVaultPage(
 			ctx,
-			() => !!window.app?.commands?.commands?.['curtis-ai-chat:open-chat'],
+			() => !!window.app?.commands?.commands?.['curtis:open-chat'],
 			15000,
 			'command registration (phone)'
 		);
-		await page.evaluate(selectLatestConversation);
+		// The conversation store hydrates from disk async (file index first) —
+		// selecting before it lands leaves currentConversation null and the
+		// empty-state view up.
+		const mobSelDeadline = Date.now() + 45000;
+		while (Date.now() < mobSelDeadline) {
+			const id = await page.evaluate(selectLatestConversation);
+			if (id) break;
+			await page.waitForTimeout(1000);
+		}
 		await page.evaluate(() => {
 			window.app.workspace.getLeavesOfType('curtis-chat').forEach((l) => l.detach());
 		});
 		await page.evaluate(openChatAndRender);
-		page = await waitForVaultPage(
-			ctx,
-			() => document.body.innerText.includes('Week of Sep 28'),
-			30000,
-			'phone chat rendered'
-		);
+		try {
+			page = await waitForVaultPage(
+				ctx,
+				() => document.body.innerText.includes('Week of Sep 28'),
+				30000,
+				'phone chat rendered'
+			);
+		} catch (e) {
+			const dump = await page.evaluate(() => ({
+				leaf: !!document.querySelector('.workspace-leaf-content[data-type="curtis-chat"]'),
+				vault: window.app?.vault?.getName?.() ?? null,
+				convId: window.app?.plugins?.plugins?.curtis?.conversationStore?.getCurrentConversation()?.id ?? null,
+				msgCount: window.app?.plugins?.plugins?.curtis?.conversationStore?.getCurrentConversation()?.messages?.length ?? -1,
+				firstMsg: window.app?.plugins?.plugins?.curtis?.conversationStore?.getCurrentConversation()?.messages?.[0]?.content?.slice(0, 60) ?? null,
+				head: document.body.innerText.replace(/\s+/g, ' ').slice(0, 300),
+			})).catch((err) => ({ dumpFailed: String(err).slice(0, 120) }));
+			console.log(`[shots] phone-pass dump: ${JSON.stringify(dump)}`);
+			throw e;
+		}
 		// Strip desktop chrome so the emulated viewport is pure app surface.
 		await page.addStyleTag({
 			content: `
@@ -590,11 +613,11 @@ async function main() {
 
 		await page.evaluate(() => {
 			window.app.setting.open();
-			window.app.setting.openTabById('curtis-ai-chat');
+			window.app.setting.openTabById('curtis');
 		});
 		const settingsPage = await waitForAnyPage(
 			ctx,
-			() => document.body.innerText.includes('Provider configuration'),
+			() => /provider configuration/i.test(document.body.innerText),
 			20000,
 			'settings open'
 		);
@@ -615,13 +638,6 @@ async function main() {
 
 	restoreLaunchVault();
 	console.log('[shots] done — assets in assets/screenshots/');
-	console.log('[shots] relaunching your Obsidian session…');
-	// Skip when stdout is piped: on Windows the detached child inherits the
-	// pipe's write end and holds it open after we exit — downstream readers
-	// (tail, tee) then wait on EOF forever.
-	if (process.stdout.isTTY) {
-		spawn(OBSIDIAN_EXE, [], { detached: true, stdio: 'ignore' }).unref();
-	}
 	clearTimeout(watchdog);
 	process.exit(0);
 }
@@ -629,6 +645,6 @@ async function main() {
 main().catch((e) => {
 	console.error('[shots] failed:', e);
 	restoreLaunchVault();
-	try { execSync('taskkill /IM Obsidian.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
+	try { execSync('taskkill /IM ObsidianSmoke.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
 	process.exit(1);
 });

@@ -5,7 +5,7 @@
 // on submit, hand the record back — settings owns persistence and ids.
 
 import { App, Modal, Setting } from 'obsidian';
-import type { HarnessProfile } from '../../types';
+import type { HarnessProfile } from '@curtisai/shared';
 
 export class HarnessEditorModal extends Modal {
 	private name = '';
@@ -21,6 +21,7 @@ export class HarnessEditorModal extends Modal {
 		existing?: HarnessProfile
 	) {
 		super(app);
+		this.modalEl.addClass('curtis-modal');
 		this.onSubmit = onSubmit;
 		this.existing = existing;
 		if (existing) {

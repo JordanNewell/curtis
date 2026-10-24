@@ -30,7 +30,7 @@
 //     it to the vault via VaultConversationFiles; a node host binds node:fs).
 //   - YamlPort — frontmatter codec (Obsidian: parseYaml/stringifyYaml).
 
-import type { Conversation, ConversationMessage, ConversationStats } from '../types';
+import type { Conversation, ConversationMessage, ConversationStats } from '@curtisai/shared';
 import type { ConversationChangeKind, EventBus } from '../core/events';
 import {
 	parseConversationMarkdown,
@@ -310,8 +310,8 @@ export class ConversationStore {
 		return this.conversations.get(this.currentConversationId);
 	}
 
-	setCurrentConversation(id: string): void {
-		if (this.conversations.has(id)) {
+	setCurrentConversation(id: string | undefined): void {
+		if (id && this.conversations.has(id)) {
 			this.currentConversationId = id;
 		}
 	}

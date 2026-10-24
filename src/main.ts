@@ -3,33 +3,44 @@
 
 import { Editor, Notice, Platform, Plugin, addIcon, requestUrl, TFile, debounce } from 'obsidian';
 import { CURTIS_ICON_ID, CURTIS_ICON_SVG } from './icons';
-import type { CurtisSettings, AIMessage, TokenUsage, AIProvider, AIRequestOptions, ToolCall, ToolDefinition, MemoryProposal } from './types';
+import type { CurtisSettings, AIMessage, TokenUsage, AIProvider, AIRequestOptions, ProviderConfig, ToolCall, ToolDefinition, MemoryProposal } from '@curtisai/shared';
+import {
+	JournalStore,
+	MemoryStore,
+	McpManager,
+	SchedulerService,
+	SkillManager,
+	SWARM_TOOL_NAME,
+	SwarmManager,
+} from '@curtisai/core';
+import type { VaultLike } from '@curtisai/core';
+import { ProviderRegistry, chatStream, flattenHeaders, getReasoningWire } from '@curtisai/llms';
+import type { ChatGPTTokens, ChatGPTProvider } from '@curtisai/llms';
 import { DEFAULT_SETTINGS, CurtisSettingTab } from './settings';
-import { ProviderRegistry, getReasoningWire } from './providers/registry';
-import { ChatGPTTokenManager, signInWithChatGPT } from './providers/chatgpt-signin';
-import type { ChatGPTTokens } from './providers/chatgpt';
-import { ChatGPTProvider } from './providers/chatgpt';
-import { chatStream, flattenHeaders } from './providers/transport';
+import { ChatGPTTokenManager, signInWithChatGPT } from './integrations/chatgpt-signin';
 import { EventBus } from './core/events';
 import { ToolRegistry } from './core/tools';
-import { McpManager } from './mcp/manager';
 import { McpServerManager } from './mcp/server/manager';
 import { GcpManager } from './gcp/manager';
 import { createPublicApi } from './api/public-api';
 import type { CurtisPublicApi } from './api/public-api';
-import { SchedulerService } from './scheduler/service';
 import { WebhookDispatcher, type AuditRecorder } from './webhook/dispatcher';
 import { RagIndexManager } from './rag';
+import { ensureGitignoreCoversArtifacts } from './vault/gitignore';
 import { runMigrations } from './core/migration';
 import type { SettingsData } from './core/migration';
 import { migrateSecretsToKeychain, resolveApiKey, resolveGcpServiceAccount } from './core/secrets';
-import { MemoryStore } from './memory';
 import { ConversationStore } from './chat/conversation-store';
 import { VaultConversationFiles, vaultYamlPort } from './chat/conversation-files';
-import { SwarmManager, SWARM_TOOL_NAME } from './swarm';
-import { AgentManager } from './agents';
-import { SkillManager } from './skills/manager';
-import type { ResolvedAgent } from './agents';
+import { AgentManager } from '@curtisai/agents';
+import type { ResolvedAgent } from '@curtisai/agents';
+import { ObsidianHttpAdapter } from './adapters/http';
+import { ObsidianVaultAdapter } from './adapters/vault';
+import { SettingsAgentStore, VaultClaimsFilePort } from './adapters/agent-store';
+import { PluginSkillsHost } from './adapters/skills-host';
+import { PluginSchedulerHost } from './adapters/scheduler-host';
+import { PluginSwarmHost } from './adapters/swarm-host';
+import { obsidianHttpSender } from './adapters/mcp-sender';
 import { ChatSearchModal } from './ui/modals/chat-search-modal';
 import { DiffRewriteModal } from './ui/modals/diff-rewrite-modal';
 import { CHAT_VIEW_TYPE, ChatView } from './chat/view';
@@ -45,6 +56,17 @@ import type { SelectionAction } from './commands/selection';
 import { TranslateLanguageModal } from './ui/modals/translate-language-modal';
 import { createAutocompleteExtension } from './autocomplete/editor-extension';
 import { AUTOCOMPLETE_MAX_TOKENS, AUTOCOMPLETE_STOP_SEQUENCES } from './autocomplete/completion';
+
+/** Minimal shape of the Electron `window.require` (Node builtin loader). */
+type ElectronRequire = (id: string) => unknown;
+const nodeRequire = (window as unknown as { require?: ElectronRequire }).require;
+
+/** Lower bound for max_tokens when a reasoning effort is active. Reasoning
+ *  tokens draw from the same completion budget as the answer — a 57KB tool
+ *  result can push deep thinking past a small cap, returning empty content
+ *  with finish_reason: length. Applies to user-set values too: it's a floor,
+ *  not a default. */
+const REASONING_MAX_TOKENS_FLOOR = 32768;
 
 /** Bind intent for a freshly opened chat pane: the literal opens a new
  *  conversation; any other string is an existing conversation id carried
@@ -68,7 +90,7 @@ export default class CurtisPlugin extends Plugin {
 	/** Vault-backed Agent Skills (src/skills/, the open Agent Skills
 	 *  standard) — shared injection point for every inference arena. */
 	skills!: SkillManager;
-	/** Public plugin API — `app.plugins.plugins['curtis-ai-chat'].api`. */
+	/** Public plugin API — `app.plugins.plugins['curtis'].api`. */
 	api!: CurtisPublicApi;
 	/** Scheduled runs — fires persisted job prompts headlessly on a cadence
 	 *  while the app is open (src/scheduler/, docs/SCHEDULED_RUNS.md). */
@@ -77,6 +99,12 @@ export default class CurtisPlugin extends Plugin {
 	 *  (src/webhook/dispatcher.ts). */
 	webhooks!: WebhookDispatcher;
 	mcpServerManager!: McpServerManager;
+	/** VaultLike over the Obsidian vault — the seam every @curtisai/core
+	 *  store (memory, journal, skills) is built on. */
+	vaultAdapter!: ObsidianVaultAdapter;
+	/** Buffered network port (requestUrl) — model discovery + the
+	 *  non-streaming chat fallback. Streaming bypasses it via node https. */
+	httpPort!: ObsidianHttpAdapter;
 
 	async onload(): Promise<void> {
 		// 1. Load settings with migration
@@ -105,10 +133,11 @@ export default class CurtisPlugin extends Plugin {
 			enableCommands: this.settings.enableCommands,
 			ragIndex: this.ragIndex,
 		});
-		// Swarm — the spawn_agent tool is registered for every conversation but
-		// only ever advertised to leader chats (filtered in callAgentLoop).
-		this.swarm = new SwarmManager(this);
-		this.toolRegistry.register(this.swarm.buildSpawnTool());
+		// Shared vault adapter — every package port (memory, journal, skills,
+		// agent claims) rides the same VaultLike over the Obsidian vault.
+		this.vaultAdapter = new ObsidianVaultAdapter(this.app);
+		this.httpPort = new ObsidianHttpAdapter();
+
 		// MCP: connect user-configured servers in the background — a slow or
 		// dead server must never delay plugin boot. Tools join the registry
 		// via onToolsChanged as connections come up.
@@ -116,6 +145,7 @@ export default class CurtisPlugin extends Plugin {
 			getServers: () => this.settings.mcpServers,
 			isEnabled: () => this.settings.enableMcp,
 			clientVersion: this.manifest.version,
+			sender: obsidianHttpSender,
 		});
 		this.mcpManager.onToolsChanged = () => this.mcpManager.syncTools(this.toolRegistry);
 		this.mcpManager.syncTools(this.toolRegistry);
@@ -131,9 +161,13 @@ export default class CurtisPlugin extends Plugin {
 		this.gcpManager.onToolsChanged = () => this.gcpManager.syncTools(this.toolRegistry);
 		this.gcpManager.syncTools(this.toolRegistry);
 		if (this.settings.enableGcp) void this.gcpManager.connect();
-		this.memoryStore = new MemoryStore(this.app);
+		// No notify: the package's clear() would toast a generic "Memory
+		// cleared" on top of the specific notices the call sites already show.
+		this.memoryStore = new MemoryStore(this.memoryVault(), {
+			path: this.settings.memoryFilePath?.trim() || 'AI/Curtis Memory.md',
+		});
 		try {
-			await this.memoryStore.load(this);
+			await this.memoryStore.load();
 		} catch (e) {
 			// A bad memory-file path (or a read-only vault) must not kill the
 			// whole plugin — degrade to an empty in-memory store instead.
@@ -149,22 +183,40 @@ export default class CurtisPlugin extends Plugin {
 			yaml: vaultYamlPort,
 			notifyError: (message) => new Notice(message),
 		});
+		// The memory/conversation stores just ensured the AI/ folder tree. If
+		// the vault root is git-curated (a .gitignore already exists), append a
+		// marked AI/ block so plugin churn never dirties `git status`. No
+		// .gitignore → create nothing. Never blocks or breaks boot.
+		void ensureGitignoreCoversArtifacts(this.app, [
+			this.settings.memoryFilePath,
+			this.settings.journalFilePath,
+			this.settings.conversationsFolder,
+		]);
 		// Named agents — persona + model routing + tool ACL per conversation.
-		this.agents = new AgentManager(this);
+		// The store hands the manager the LIVE settings.agents array (by
+		// reference) — see SettingsAgentStore.
+		this.agents = new AgentManager(
+			new SettingsAgentStore(this),
+			new VaultClaimsFilePort(this.app),
+			(msg) => new Notice(msg)
+		);
 
 		// Skills — vault-backed Agent Skills (AI/Skills/), injected into every
 		// arena's system prompt via skillBlocks(); the load_skill tool joins
 		// the registry when the master toggle is on.
-		this.skills = new SkillManager(this);
+		this.skills = new SkillManager(new PluginSkillsHost(this, this.vaultAdapter));
 		this.skills.syncTools(this.toolRegistry);
 
 		// Public plugin API — other plugins reach Curtis through
-		// app.plugins.plugins['curtis-ai-chat'].api (docs/PLUGIN_API.md).
+		// app.plugins.plugins['curtis'].api (docs/PLUGIN_API.md).
 		this.api = createPublicApi(this);
 
 		// Scheduled runs — ticks 30s after boot, so starting it here is safe
 		// even though it reads this.api lazily at run time.
-		this.scheduler = new SchedulerService(this);
+		this.scheduler = new SchedulerService(new PluginSchedulerHost(this), {
+			tickMs: 30_000,
+			firstTickDelayMs: 20_000,
+		});
 		this.scheduler.start();
 
 		// Outbound events — receipts to curtis-ai-audit when installed, plus
@@ -189,6 +241,16 @@ export default class CurtisPlugin extends Plugin {
 			},
 		});
 
+		// Swarm host wiring — the package SwarmManager needs the conversation
+		// store, the agent manager, and the skill manager, all constructed
+		// above; the plugin supplies the pane opener + nested loop. The
+		// spawn_agent tool is registered for every conversation but only ever
+		// advertised to leader chats (filtered in callAgentLoop).
+		this.swarm = new SwarmManager(
+			new PluginSwarmHost(this, this.conversationStore, this.agents, this.skills)
+		);
+		this.toolRegistry.register(this.swarm.buildSpawnTool());
+
 		// MCP server mode — serve the vault to external MCP clients. Desktop
 		// only (mobile has no listening sockets); a bind failure must not
 		// break boot, so it surfaces as a notice and the plugin loads on.
@@ -200,7 +262,7 @@ export default class CurtisPlugin extends Plugin {
 		}
 
 		// 4. Initialize provider registry (with keychain-aware key resolver)
-		const resolveKey = (_providerId: string, config?: import('./types').ProviderConfig): string => {
+		const resolveKey = (_providerId: string, config?: ProviderConfig): string => {
 			return resolveApiKey(this.app, config);
 		};
 		// Sign in with ChatGPT — keychain-backed OAuth token store; the
@@ -211,6 +273,7 @@ export default class CurtisPlugin extends Plugin {
 			() => this.saveSettings()
 		);
 		this.providerRegistry = new ProviderRegistry(
+			this.httpPort,
 			this.settings.providerConfigs,
 			this.settings.customProviders,
 			resolveKey,
@@ -309,6 +372,81 @@ export default class CurtisPlugin extends Plugin {
 		});
 	}
 
+	/**
+	 * The journal store over the CURRENT journal-file path. JournalStore is
+	 * stateless, so constructing per access keeps the settings path change
+	 * handler live without any reload dance.
+	 */
+	get journal(): JournalStore {
+		return new JournalStore(this.vaultAdapter, {
+			path: this.settings.journalFilePath?.trim() || 'AI/Curtis Journal.md',
+		});
+	}
+
+	/**
+	 * Rebuild the memory store against the CURRENT memory-file path. The
+	 * package MemoryStore pins its path at construction (the old in-tree
+	 * one re-resolved settings on every call), so the settings edit flow
+	 * calls this instead of a reload().
+	 */
+	/**
+	 * VaultLike wrapper for the memory store that flags its own writes. The
+	 * modify listener below re-reads the memory file on EVERY Obsidian
+	 * 'modify' — including the ones the store itself triggers while
+	 * persisting, which would re-parse what was just written and swap every
+	 * MemoryFact identity. Same self-write guard the pre-package store
+	 * carried internally, now at the host layer.
+	 */
+	private memorySelfWrite = false;
+	private memoryVault(): VaultLike {
+		const releaseSoon = () => {
+			// The modify event fires synchronously after the write resolves —
+			// hold the guard until the next macrotask, like the old store did.
+			window.setTimeout(() => { this.memorySelfWrite = false; }, 0);
+		};
+		return {
+			read: async (path) => {
+				try {
+					return await this.vaultAdapter.read(path);
+				} catch {
+					// The vault index can lag the filesystem on a cold boot — the
+					// in-tree store read filesystem truth before giving up, and
+					// vault.create() would otherwise throw "File already exists".
+					// Keep that parity: fall back to the adapter before failing.
+					return await this.app.vault.adapter.read(path);
+				}
+			},
+			exists: async (path) =>
+				(await this.vaultAdapter.exists(path)) || (await this.app.vault.adapter.exists(path)),
+			list: (path) => this.vaultAdapter.list(path),
+			write: async (path, data) => {
+				this.memorySelfWrite = true;
+				try {
+					await this.vaultAdapter.write(path, data);
+				} finally {
+					releaseSoon();
+				}
+			},
+			append: async (path, data) => {
+				this.memorySelfWrite = true;
+				try {
+					await this.vaultAdapter.append(path, data);
+				} finally {
+					releaseSoon();
+				}
+			},
+		};
+	}
+
+	async reloadMemoryStore(): Promise<void> {
+		// No notify: the package's clear() would toast a generic "Memory
+		// cleared" on top of the specific notices the call sites already show.
+		this.memoryStore = new MemoryStore(this.memoryVault(), {
+			path: this.settings.memoryFilePath?.trim() || 'AI/Curtis Memory.md',
+		});
+		await this.memoryStore.load();
+	}
+
 	onunload(): void {
 		// Abort in-flight scheduled runs and stop the tick before anything
 		// they might call tears down underneath them.
@@ -317,7 +455,6 @@ export default class CurtisPlugin extends Plugin {
 		// mutation already schedules its own write 200ms out). Guarded: onload
 		// may have aborted before a service was constructed.
 		this.conversationStore?.save();
-		void this.memoryStore?.save(this);
 		void this.mcpManager?.disconnectAll();
 		void this.gcpManager?.disconnect();
 		void this.mcpServerManager?.stop();
@@ -337,6 +474,17 @@ export default class CurtisPlugin extends Plugin {
 		this.registerEvent(
 			this.app.vault.on('modify', (file) => {
 				if (file instanceof TFile && file.extension === 'md') this.ragIndex.scheduleFileUpdate(file);
+				// Hand edits to the memory file re-read it into the store (the
+				// package MemoryStore ships no watcher — the host is the
+				// watcher). The store's OWN persists also fire this event; the
+				// memoryVault() guard skips those so we never re-parse what we
+				// just wrote (which would swap every MemoryFact identity).
+				if (this.memorySelfWrite) return;
+				if (this.memoryStore && file.path === this.memoryStore.getPath()) {
+					void this.memoryStore.load().catch((e: unknown) => {
+						console.error('[Curtis] Memory file re-read failed:', e);
+					});
+				}
 			})
 		);
 		this.registerEvent(
@@ -782,7 +930,7 @@ export default class CurtisPlugin extends Plugin {
 		// lower layer — a "don't send temperature" must stay sticky.
 		const omitTemperature = m.omitTemperature === true || p.omitTemperature === true;
 		const temperature = pick(m.temperature, p.temperature, this.settings.temperature);
-		const maxTokens = pick(m.maxTokens, p.maxTokens) ?? this.settings.maxTokens;
+		let maxTokens = pick(m.maxTokens, p.maxTokens) ?? this.settings.maxTokens;
 		const topP = pick(m.topP, p.topP);
 		const topK = pick(m.topK, p.topK);
 		const minP = pick(m.minP, p.minP);
@@ -826,6 +974,12 @@ export default class CurtisPlugin extends Plugin {
 		const effort = pick(m.reasoningEffort, p.reasoningEffort);
 		if (effort) {
 			options.reasoningEffort = effort;
+			if (effort !== 'off') {
+				// Thinking shares the completion budget — keep it out of the
+				// answer's way (see REASONING_MAX_TOKENS_FLOOR).
+				maxTokens = Math.max(maxTokens, REASONING_MAX_TOKENS_FLOOR);
+				options.maxTokens = maxTokens;
+			}
 			const wire = getReasoningWire(providerId, effort, maxTokens);
 			if (wire.body) options.reasoningBody = wire.body;
 			for (const key of wire.dropSampling) {
@@ -942,9 +1096,10 @@ export default class CurtisPlugin extends Plugin {
 		let receivedAnyChunk = false;
 
 		const result = await chatStream(
+			this.httpPort,
 			provider,
 			requestInit,
-			{ stream },
+			{ stream, nodeRequire },
 			{
 				onChunk: (delta) => {
 					receivedAnyChunk = true;
@@ -993,9 +1148,10 @@ export default class CurtisPlugin extends Plugin {
 				new Notice('This endpoint rejected the image — retrying as text only. Try a different provider for vision.', 6000);
 				streamError = null;
 				const retry = await chatStream(
+					this.httpPort,
 					provider,
 					strippedRequest,
-					{ stream },
+					{ stream, nodeRequire },
 					{
 						onChunk: (delta) => callbacks?.onChunk?.(delta),
 						onUsage,
@@ -1161,6 +1317,10 @@ export default class CurtisPlugin extends Plugin {
 			// the last stored message to be the assistant answer) would never run.
 			let usageTotal: TokenUsage | null = null;
 
+			// Consecutive empty provider responses (no content, no tool calls)
+			// — reasoning models hitting the max_tokens ceiling mid-thought.
+			let emptyStreak = 0;
+
 			let turns = 0;
 			while (turns < maxTurns) {
 				if (callbacks.signal?.aborted) return;
@@ -1191,6 +1351,28 @@ export default class CurtisPlugin extends Plugin {
 				}
 
 				if (!direct.toolCalls || direct.toolCalls.length === 0) {
+					// Empty terminal response: reasoning models with a small
+					// max_tokens burn the whole budget on reasoning and emit
+					// nothing (finish_reason 'length', empty content). Nudge
+					// once; if it happens again the no-tools synthesis below
+					// is the recovery — silently returning here resolves the
+					// whole run as an empty answer.
+					if (!direct.content) {
+						if (emptyStreak === 0 && turns < maxTurns - 1) {
+							console.warn('[Curtis] Provider returned an empty response with no tool calls — nudging');
+							emptyStreak++;
+							working = [...working, {
+								role: 'user' as const,
+								content: '[system] Your previous response was empty (possibly out of response tokens). Respond now — briefly, from what you already have. Do not redo analysis.',
+							}];
+							turns++;
+							continue;
+						}
+						console.warn('[Curtis] Empty response persisted — falling back to sentinel');
+						if (usageTotal) callbacks.onUsage?.(usageTotal);
+						callbacks.onChunk?.('\n\n*[The model returned an empty response — try again, or raise Settings → Max tokens.]*');
+						return;
+					}
 					// Final answer — deliver as one chunk. The view's streaming
 					// renderer handles a single large delta fine.
 					if (usageTotal) callbacks.onUsage?.(usageTotal);
@@ -1200,6 +1382,7 @@ export default class CurtisPlugin extends Plugin {
 
 				// v1: execute the first tool call only.
 				const call = direct.toolCalls[0];
+				emptyStreak = 0;
 				callbacks.onToolCall?.(call);
 
 				// Append the assistant message (with tool_calls) to working set.
@@ -1268,12 +1451,34 @@ export default class CurtisPlugin extends Plugin {
 				turns++;
 			}
 
-			// Hit the loop cap without a final answer. Usage still must be
-			// delivered — the final-answer branch returned above, so this
-			// runs exactly once per run.
-			console.warn(`[Curtis] Agent hit max turns (${maxTurns}) without a final response`);
+			// Hit the loop cap without a final answer. Everything the loop
+			// gathered is already in `working` — one last no-tools call forces
+			// synthesis from it. Discarding the findings (the old behavior)
+			// wasted the entire run for the user.
+			console.warn(`[Curtis] Agent hit max turns (${maxTurns}) without a final response — synthesizing from gathered results`);
+			if (callbacks.signal?.aborted) return;
+			const synthesis = await this.callProviderOnce(provider, [...working, {
+				role: 'user' as const,
+				content: 'You have used all your tool calls. Do not search further — answer the user now from what you have already found.',
+			}], modelId, [], callbacks.signal);
+			if (synthesis.usage) {
+				usageTotal = usageTotal
+					? {
+						promptTokens: usageTotal.promptTokens + synthesis.usage.promptTokens,
+						completionTokens: usageTotal.completionTokens + synthesis.usage.completionTokens,
+						totalTokens: usageTotal.totalTokens + synthesis.usage.totalTokens,
+						cachedTokens: (usageTotal.cachedTokens ?? 0) + (synthesis.usage.cachedTokens ?? 0) || undefined,
+					}
+					: synthesis.usage;
+			}
+			// Usage still must be delivered — the final-answer branch returned
+			// above, so this runs exactly once per run.
 			if (usageTotal) callbacks.onUsage?.(usageTotal);
-			callbacks.onChunk?.('\n\n*[Agent stopped: reached max tool calls limit]*');
+			if (synthesis.content) {
+				callbacks.onChunk?.(synthesis.content);
+			} else {
+				callbacks.onChunk?.('\n\n*[Agent stopped: reached max tool calls limit]*');
+			}
 		} finally {
 			if (isLeader && conversationId) {
 				this.swarm.endGeneration(conversationId);
@@ -1386,6 +1591,7 @@ export default class CurtisPlugin extends Plugin {
 		let text = '';
 		let tokens = 0;
 		const result = await chatStream(
+			this.httpPort,
 			provider,
 			requestInit,
 			{ stream: false },

@@ -24,6 +24,7 @@ export class GcpServiceAccountModal extends Modal {
 
 	constructor(app: App, onSubmit: (result: GcpServiceAccountResult) => void) {
 		super(app);
+		this.modalEl.addClass('curtis-modal');
 		this.onSubmit = onSubmit;
 	}
 

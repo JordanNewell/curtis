@@ -85,8 +85,8 @@ Contributions are welcome — bug reports, feature requests, and (once 2.0 stabi
 Requirements: **Node 20+**, Obsidian 1.13+, a vault for testing.
 
 ```bash
-git clone https://github.com/JordanNewell/curtis-ai-chat.git
-cd curtis-ai-chat
+git clone https://github.com/JordanNewell/curtis.git
+cd curtis
 npm install
 ```
 
@@ -98,10 +98,10 @@ npm run dev        # watch mode — rebuilds on save
 npm run lint       # ESLint with @typescript-eslint recommended-requiring-type-checking
 ```
 
-The build writes `main.js`, `styles.css` to the repo root. Copy them (plus `manifest.json`) into your vault's `.obsidian/plugins/curtis-ai-chat/` folder to test:
+The build writes `main.js`, `styles.css` to the repo root. Copy them (plus `manifest.json`) into your vault's `.obsidian/plugins/curtis/` folder to test:
 
 ```bash
-cp main.js manifest.json styles.css /path/to/vault/.obsidian/plugins/curtis-ai-chat/
+cp main.js manifest.json styles.css /path/to/vault/.obsidian/plugins/curtis/
 ```
 
 Then reload the plugin in Obsidian (Settings → Community plugins → toggle off/on).
@@ -109,9 +109,9 @@ Then reload the plugin in Obsidian (Settings → Community plugins → toggle of
 ### Recommended: symlink for fast iteration
 
 ```bash
-ln -s /path/to/repo/main.js /path/to/vault/.obsidian/plugins/curtis-ai-chat/main.js
-ln -s /path/to/repo/manifest.json /path/to/vault/.obsidian/plugins/curtis-ai-chat/manifest.json
-ln -s /path/to/repo/styles.css /path/to/vault/.obsidian/plugins/curtis-ai-chat/styles.css
+ln -s /path/to/repo/main.js /path/to/vault/.obsidian/plugins/curtis/main.js
+ln -s /path/to/repo/manifest.json /path/to/vault/.obsidian/plugins/curtis/manifest.json
+ln -s /path/to/repo/styles.css /path/to/vault/.obsidian/plugins/curtis/styles.css
 ```
 
 Now `npm run dev` rebuilds straight into the vault. Reload plugin to pick up changes.

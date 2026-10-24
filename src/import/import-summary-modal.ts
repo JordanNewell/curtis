@@ -12,6 +12,7 @@ export class ImportSummaryModal extends Modal {
 
 	constructor(app: App, summary: ImportSummary) {
 		super(app);
+		this.modalEl.addClass('curtis-modal');
 		this.summary = summary;
 	}
 

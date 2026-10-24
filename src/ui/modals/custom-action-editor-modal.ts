@@ -5,7 +5,7 @@
 // uniqueness set).
 
 import { App, Modal, Setting } from 'obsidian';
-import type { CustomSelectionAction } from '../../types';
+import type { CustomSelectionAction } from '@curtisai/shared';
 import { SELECTION_TEMPLATE_TOKEN, sanitizeCustomActionId } from '../../commands/selection';
 
 export class CustomActionEditorModal extends Modal {
@@ -25,6 +25,7 @@ export class CustomActionEditorModal extends Modal {
 		takenIds: ReadonlySet<string> = new Set()
 	) {
 		super(app);
+		this.modalEl.addClass('curtis-modal');
 		this.onSubmit = onSubmit;
 		this.existing = existing;
 		this.takenIds = takenIds;

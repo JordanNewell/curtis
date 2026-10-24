@@ -4,6 +4,12 @@ Move your chat history from other AI tools into Curtis and continue without miss
 
 Curtis chats are plain markdown files in your vault, so "importing" means writing those files — imported conversations land in `AI/Conversations/` like any other chat: searchable in Obsidian, synced across devices, and readable by the agent. Continuing an imported chat sends its full history to **whatever provider you have active** — the original provider/model is kept as display metadata on each message.
 
+## Files, not hostages
+
+In most AI tools, your chat history lives in the vendor's database. You can usually export it, but the export is a one-way snapshot in a proprietary shape — useful only to whoever can parse it. Curtis treats portable chat history as a design commitment instead of an escape hatch: every conversation is a markdown file in your vault, and the `.curt` format is one conversation, one file, with stable ids. Stable ids are what make imports idempotent — a conversation already present is recognized and skipped, never duplicated. Your history can leave Curtis as easily as it arrived, which is the point.
+
+One honest limit of the full backup: it carries your entire Curtis setup but strips API keys on purpose. See [Full backup](#full-backup).
+
 ## Import from Claude Code (desktop)
 
 Beyond chat history, Curtis can adopt your whole Claude Code setup in one pass — command palette: **"Import Claude setup"**, or Settings → Conversations → **Import from Claude**. Desktop only (it reads config files outside the vault); the scan is a pure local file read, nothing is sent anywhere.
@@ -15,7 +21,7 @@ Beyond chat history, Curtis can adopt your whole Claude Code setup in one pass �
 | Subagents | `~/.claude/agents/*.md`, `<vault>/.claude/agents/*.md` | Each frontmatter markdown file becomes a Curtis [named agent](AGENTS.md): body → persona, `description` → the agent's description, `tools` → coarse tool-ceiling mapping (unrecognized names are reported, never guessed), `model` alias → noted, routing left empty so the agent follows your active lane. Agents import with **remote invocation off**. |
 | CLAUDE.md | `~/.claude/CLAUDE.md`, `<vault>/CLAUDE.md` | Offered as a harness profile ("Claude Code (global/project)") — activate it or ignore it; nothing is auto-switched. |
 
-Everything imports disabled: nothing connects, nothing runs, until you turn it on. Existing items are never overwritten — duplicates by URL (MCP) or name (agents, skills) are skipped and reported. Re-running the import is safe. Export goes the other way too: the agent editor has "Copy as a Claude agent file", and Settings → Agents → "Export agents as Claude files" writes every agent into `AI/Exports/Claude agents/`.
+Everything imports disabled: nothing connects, nothing runs, until you turn it on. Existing items are never overwritten — duplicates by URL (MCP) or name (agents, skills) are skipped and reported. Re-running the import is safe. Export goes the other way too: the agent editor has "Copy as a Claude agent file", and Settings → Curtis.ai → Agents → "Export agents as Claude files" writes every agent into `AI/Exports/Claude agents/`.
 
 **Why [Curtis Porter](https://github.com/JordanNewell/curtis-ai-chat-porter) isn't part of this.** Porter solves a translation problem: it converts *proprietary chat exports* (ChatGPT/Claude `conversations.json`) into Curtis's conversation format, for people who aren't in Obsidian yet. The Claude Code legs need no translation — skills and subagents are already shared open formats, so "conversion" is a file copy plus a small field map that has to run where the destinations live (the vault and Curtis's settings stores). It lives in the plugin, on the far side of the install line from Porter. The mapping logic is nevertheless written to the same Obsidian-free standard as the conversation serializer, so a future Porter command could scaffold a fresh vault with skills and agents pre-staged before first launch — if that ever earns its keep.
 
@@ -66,6 +72,8 @@ The zip also feeds [Curtis Porter](https://github.com/JordanNewell/curtis-ai-cha
 ## Full backup
 
 **Export full backup (chats, prompts, harnesses, settings)** — command palette — writes `curtis-backup-<date>-<time>.zip`: every conversation plus the prompt library, your custom harness profiles (built-ins live in code and don't ride along), and settings with API keys stripped. Where the bulk `.curt` zip moves your chat history, the full backup moves your whole Curtis setup.
+
+The key-stripping is deliberate. A backup zip is exactly the kind of file that gets copied to other machines, cloud drives, and archive folders; packaging live API keys into it would turn every backup into a credential to guard. On restore, the credentials already configured on the target machine are preserved.
 
 Restore by importing the zip through any import entry point — it's auto-detected as a backup bundle and a dialog asks which sections to apply:
 

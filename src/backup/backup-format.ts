@@ -13,7 +13,7 @@
 // transforms and unit-testable under node (see backup-format.test.ts).
 
 import { zipSync, strToU8, strFromU8 } from 'fflate';
-import type { Conversation, CurtisSettings, HarnessProfile, PromptLibraryEntry } from '../types';
+import type { Conversation, CurtisSettings, HarnessProfile, PromptLibraryEntry } from '@curtisai/shared';
 import { serializeCurt, parseCurt, curtZipEntryName } from '../import/curt-format';
 
 const BACKUP_MAGIC = 'curtis-backup';
@@ -27,7 +27,7 @@ const HARNESSES_PATH = 'harnesses.json';
 export interface BackupManifest {
 	curtis: typeof BACKUP_MAGIC;
 	version: number;
-	/** Provenance only: "curtis-ai-chat@<version>". Readers ignore it. */
+	/** Provenance only: "curtis@<version>". Readers ignore it. */
 	generator?: string;
 	exportedAt: number;
 }
@@ -91,7 +91,7 @@ export function serializeBackup(input: {
 		version: BACKUP_VERSION,
 		exportedAt: Date.now(),
 	};
-	if (input.pluginVersion) manifest.generator = `curtis-ai-chat@${input.pluginVersion}`;
+	if (input.pluginVersion) manifest.generator = `curtis@${input.pluginVersion}`;
 
 	const entries: Record<string, Uint8Array> = {
 		[MANIFEST_PATH]: strToU8(JSON.stringify(manifest, null, '\t')),

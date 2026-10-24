@@ -17,6 +17,7 @@ export class BackupApplyModal extends Modal {
 
 	constructor(app: App, plugin: CurtisPlugin, bundles: BackupBundle[]) {
 		super(app);
+		this.modalEl.addClass('curtis-modal');
 		this.plugin = plugin;
 		this.bundles = bundles;
 	}

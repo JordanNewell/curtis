@@ -20,14 +20,14 @@ const { chromium } = require('playwright-core');
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const VAULT = resolve(ROOT, 'demo-vault');
-const PLUGIN_DIR = resolve(VAULT, '.obsidian/plugins/curtis-ai-chat');
+const PLUGIN_DIR = resolve(VAULT, '.obsidian/plugins/curtis');
 const THEMES_DIR = resolve(VAULT, '.obsidian/themes');
 const OUT_DIR = resolve(ROOT, 'shots', 'theme-audit');
 const DEBUG_PORT = 9335;
 
 const OBSIDIAN_EXE =
 	process.env.OBSIDIAN_EXE ||
-	resolve(process.env.USERPROFILE ?? process.env.HOME, 'scoop/apps/obsidian/current/Obsidian.exe');
+	'C:/tmp/obsidian-smoke/ObsidianSmoke.exe'; // smoke clone — never touches the live app
 
 // name → candidate raw URLs (tried in order).
 const THEMES = [
@@ -97,7 +97,7 @@ async function main() {
 		cpSync(resolve(ROOT, f), resolve(PLUGIN_DIR, f));
 	}
 	const obsidianDir = resolve(VAULT, '.obsidian');
-	writeFileSync(resolve(obsidianDir, 'community-plugins.json'), JSON.stringify(['curtis-ai-chat']));
+	writeFileSync(resolve(obsidianDir, 'community-plugins.json'), JSON.stringify(['curtis']));
 
 	console.log('[audit] downloading themes...');
 	for (const t of THEMES) {
@@ -107,7 +107,7 @@ async function main() {
 
 	// register + open the demo vault
 	let registry = {};
-	const regPath = resolve(process.env.APPDATA, 'obsidian', 'obsidian.json');
+	const regPath = resolve(process.env.APPDATA, 'obsidian-smoke', 'obsidian.json');
 	try { registry = JSON.parse(readFileSync(regPath, 'utf8')); } catch { /* fresh */ }
 	const vaults = (registry.vaults ??= {});
 	let id = Object.keys(vaults).find((k) => vaults[k]?.path === VAULT);
@@ -119,7 +119,7 @@ async function main() {
 	vaults[id].open = true;
 	writeFileSync(regPath, JSON.stringify(registry, null, 2));
 
-	try { execSync('taskkill /IM Obsidian.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
+	try { execSync('taskkill /IM ObsidianSmoke.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
 	await sleep(2500);
 
 	const child = spawn(OBSIDIAN_EXE, [
@@ -143,7 +143,7 @@ async function main() {
 
 	setTimeout(() => {
 		console.error('[audit] fatal: watchdog timeout (4 min)');
-		try { execSync('taskkill /IM Obsidian.exe /F', { stdio: 'ignore' }); } catch { /* */ }
+		try { execSync('taskkill /IM ObsidianSmoke.exe /F', { stdio: 'ignore' }); } catch { /* */ }
 		process.exit(1);
 	}, 240000);
 
@@ -184,7 +184,7 @@ async function main() {
 	resizeLog.push(await page.evaluate(() => `viewport ${window.innerWidth}x${window.innerHeight}`));
 	console.log(`[audit] resize: ${resizeLog.join(' | ')}`);
 	await page.evaluate(async () => {
-		try { await window.app.plugins.enablePlugin('curtis-ai-chat'); } catch { /* on */ }
+		try { await window.app.plugins.enablePlugin('curtis'); } catch { /* on */ }
 	});
 	await sleep(1500);
 
@@ -193,7 +193,7 @@ async function main() {
 	// code block, short and long bubbles, token counts. Rendered from the
 	// store like any other history.
 	const fixtureId = await page.evaluate(() => {
-		const p = window.app.plugins.plugins['curtis-ai-chat'];
+		const p = window.app.plugins.plugins['curtis'];
 		const store = p.conversationStore;
 		const conv = store.createConversation('ollama', 'ling-3.0-flash-vl');
 		const DAY = 86400000;
@@ -250,7 +250,7 @@ async function main() {
 	await sleep(500);
 
 	await page.evaluate(() => {
-		window.app.commands.executeCommandById('curtis-ai-chat:open-chat');
+		window.app.commands.executeCommandById('curtis:open-chat');
 	});
 	// The view binds to the current conversation on open — the fixture. Make
 	// sure it renders (onOpen may have raced the seed).
@@ -379,7 +379,7 @@ async function main() {
 	// previous run's stray current-conversation pointer would show instead
 	// if the seed raced).
 	await page.evaluate(() => {
-		const p = window.app.plugins.plugins['curtis-ai-chat'];
+		const p = window.app.plugins.plugins['curtis'];
 		p.conversationStore.setCurrentConversation(p.__auditFixtureId);
 		for (const v of window.app.workspace.getLeavesOfType('curtis-chat')) {
 			if (typeof v.renderCurrentConversation === 'function') v.renderCurrentConversation();
@@ -419,7 +419,7 @@ async function main() {
 	// Remove the fixture conversation — runs don't litter the vault.
 	// (deleteConversation clears the current pointer if the fixture is it.)
 	await page.evaluate(() => {
-		const p = window.app.plugins.plugins['curtis-ai-chat'];
+		const p = window.app.plugins.plugins['curtis'];
 		if (p.__auditFixtureId) p.conversationStore.deleteConversation(p.__auditFixtureId);
 	});
 	await sleep(300);
@@ -432,6 +432,6 @@ async function main() {
 
 main().catch((e) => {
 	console.error('[audit] fatal:', e.message);
-	try { execSync('taskkill /IM Obsidian.exe /F', { stdio: 'ignore' }); } catch { /* */ }
+	try { execSync('taskkill /IM ObsidianSmoke.exe /F', { stdio: 'ignore' }); } catch { /* */ }
 	process.exit(1);
 });

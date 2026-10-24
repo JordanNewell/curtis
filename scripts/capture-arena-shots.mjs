@@ -21,10 +21,11 @@
 //     and retrieval excerpts never wander into a shot.
 //
 // Usage:  node scripts/capture-arena-shots.mjs
-// Env:    OBSIDIAN_EXE (default: scoop obsidian current)
+// Env:    OBSIDIAN_EXE (default: the smoke clone)
 //
-// The user's running Obsidian is closed for the duration and relaunched at
-// the end (same contract as npm run shots).
+// Runs the SMOKE CLONE of Obsidian (C:/tmp/obsidian-smoke/ObsidianSmoke.exe — a
+// renamed copy with its own userData dir), so the user's live Obsidian is
+// never touched: smokes kill only the ObsidianSmoke.exe process name.
 
 import { spawn, execSync } from 'node:child_process';
 import { cpSync, mkdirSync, writeFileSync, existsSync, readFileSync, rmSync } from 'node:fs';
@@ -38,12 +39,12 @@ const { chromium } = require('playwright-core');
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const VAULT = resolve(ROOT, 'demo-vault');
-const PLUGIN_DIR = resolve(VAULT, '.obsidian/plugins/curtis-ai-chat');
+const PLUGIN_DIR = resolve(VAULT, '.obsidian/plugins/curtis');
 const OUT_DIR = resolve(ROOT, 'assets/screenshots');
 
 const OBSIDIAN_EXE =
 	process.env.OBSIDIAN_EXE ||
-	resolve(process.env.USERPROFILE ?? process.env.HOME, 'scoop/apps/obsidian/current/Obsidian.exe');
+	'C:/tmp/obsidian-smoke/ObsidianSmoke.exe'; // smoke clone — never touches the live app
 
 // The arena pair — two deepseek models. z.ai throttles under repeated
 // capture runs (big GLMs answer too slowly to catch mid-flight; flash
@@ -74,7 +75,7 @@ function bootstrapVault() {
 		cpSync(resolve(ROOT, f), resolve(PLUGIN_DIR, f));
 	}
 	const obsidianDir = resolve(VAULT, '.obsidian');
-	writeFileSync(resolve(obsidianDir, 'community-plugins.json'), JSON.stringify(['curtis-ai-chat']));
+	writeFileSync(resolve(obsidianDir, 'community-plugins.json'), JSON.stringify(['curtis']));
 	if (!existsSync(resolve(obsidianDir, 'app.json'))) {
 		writeFileSync(resolve(obsidianDir, 'app.json'), JSON.stringify({ livePreview: true, readableLineLength: true }));
 	}
@@ -136,7 +137,7 @@ function bootstrapVault() {
 let originalLaunchVault = null;
 
 function registerDemoVault() {
-	const p = resolve(process.env.APPDATA, 'obsidian', 'obsidian.json');
+	const p = resolve(process.env.APPDATA, 'obsidian-smoke', 'obsidian.json');
 	let d = {};
 	try { d = JSON.parse(readFileSync(p, 'utf8')); } catch { /* fresh */ }
 	if (!d || typeof d !== 'object' || Array.isArray(d)) d = {};
@@ -158,7 +159,7 @@ function registerDemoVault() {
 
 function restoreLaunchVault() {
 	try {
-		const p = resolve(process.env.APPDATA, 'obsidian', 'obsidian.json');
+		const p = resolve(process.env.APPDATA, 'obsidian-smoke', 'obsidian.json');
 		const d = JSON.parse(readFileSync(p, 'utf8'));
 		const vaults = d.vaults || {};
 		for (const v of Object.values(vaults)) {
@@ -210,7 +211,7 @@ async function waitForVaultPage(ctx, pred, timeoutMs, label) {
 
 async function killObsidian() {
 	try {
-		execSync('taskkill /IM Obsidian.exe /F', { stdio: 'ignore' });
+		execSync('taskkill /IM ObsidianSmoke.exe /F', { stdio: 'ignore' });
 	} catch { /* not running */ }
 	await new Promise((r) => setTimeout(r, 2500));
 }
@@ -271,18 +272,18 @@ async function bootInstance(port) {
 	} catch { /* already trusted */ }
 
 	await page.evaluate(async () => {
-		try { await window.app.plugins.enablePlugin('curtis-ai-chat'); } catch { /* restricted or already on */ }
+		try { await window.app.plugins.enablePlugin('curtis'); } catch { /* restricted or already on */ }
 	});
 
 	page = await waitForVaultPage(
 		ctx,
-		() => !!window.app?.plugins?.plugins?.['curtis-ai-chat']?.conversationStore,
+		() => !!window.app?.plugins?.plugins?.['curtis']?.conversationStore,
 		45000,
 		'plugin onload'
 	);
 	await waitForVaultPage(
 		ctx,
-		() => !!window.app?.commands?.commands?.['curtis-ai-chat:open-chat'],
+		() => !!window.app?.commands?.commands?.['curtis:open-chat'],
 		15000,
 		'command registration'
 	);
@@ -299,7 +300,7 @@ async function shutdownInstance(instance) {
 // --- page-side steps ---------------------------------------------------------
 
 const configureForCapture = () => {
-	const plugin = window.app.plugins.plugins['curtis-ai-chat'];
+	const plugin = window.app.plugins.plugins['curtis'];
 	// Deterministic shots: no memory proposals, no retrieval excerpts, no
 	// background extraction call after each turn.
 	plugin.settings.enableMemory = false;
@@ -309,18 +310,18 @@ const configureForCapture = () => {
 };
 
 const openChatAndRender = async () => {
-	window.app.commands.executeCommandById('curtis-ai-chat:open-chat');
+	window.app.commands.executeCommandById('curtis:open-chat');
 	const deadline = Date.now() + 10000;
 	while (Date.now() < deadline) {
 		if (document.querySelector('.workspace-leaf-content[data-type="curtis-chat"]')) break;
 		await new Promise((r) => setTimeout(r, 200));
 	}
-	window.app.plugins.plugins['curtis-ai-chat'].refreshChatViews?.();
+	window.app.plugins.plugins['curtis'].refreshChatViews?.();
 };
 
 /** Report which enabled providers actually pass the auth check. */
 const authReport = () => {
-	const plugin = window.app.plugins.plugins['curtis-ai-chat'];
+	const plugin = window.app.plugins.plugins['curtis'];
 	const enabled = plugin.providerRegistry.getAllEnabledProviders().map(({ id }) => id);
 	const out = [];
 	for (const id of enabled) {
@@ -333,7 +334,7 @@ const authReport = () => {
 };
 
 const storeSnapshot = () => {
-	const plugin = window.app.plugins.plugins['curtis-ai-chat'];
+	const plugin = window.app.plugins.plugins['curtis'];
 	const conv = plugin.conversationStore.getCurrentConversation();
 	if (!conv) return null;
 	return {
@@ -398,7 +399,7 @@ async function parkMouse(page) {
  *  start a clean conversation, and make sure the chat renders it. */
 async function resetRound(page, ctx, providerId, modelId) {
 	await page.evaluate(([p, m]) => {
-		const plugin = window.app.plugins.plugins['curtis-ai-chat'];
+		const plugin = window.app.plugins.plugins['curtis'];
 		plugin.settings.activeProvider = p;
 		plugin.settings.activeModel = m;
 		plugin.saveSettings();
@@ -588,7 +589,7 @@ async function pollVaultState(ctx, pred, timeoutMs) {
  *  re-patching) to send thinking:disabled per DeepSeek's API. */
 async function patchDeepseekThinking(page) {
 	await page.evaluate(() => {
-		const prov = window.app.plugins.plugins['curtis-ai-chat'].providerRegistry.getProvider('deepseek');
+		const prov = window.app.plugins.plugins['curtis'].providerRegistry.getProvider('deepseek');
 		if (!prov) throw new Error('deepseek provider not initialized');
 		if (prov.__thinkingPatched) return;
 		const orig = prov.formatRequest.bind(prov);
@@ -617,13 +618,13 @@ async function desktopPass() {
 		await page.evaluate(() => location.reload());
 		page = await waitForVaultPage(
 			ctx,
-			() => !!window.app?.plugins?.plugins?.['curtis-ai-chat']?.conversationStore,
+			() => !!window.app?.plugins?.plugins?.['curtis']?.conversationStore,
 			45000,
 			'desktop reload'
 		);
 		await waitForVaultPage(
 			ctx,
-			() => !!window.app?.commands?.commands?.['curtis-ai-chat:open-chat'],
+			() => !!window.app?.commands?.commands?.['curtis:open-chat'],
 			15000,
 			'command registration (desktop reload)'
 		);
@@ -653,7 +654,7 @@ async function desktopPass() {
 		const resolveModel = (pid, wanted) =>
 			page.evaluate(
 				([p, w]) => {
-					const prov = window.app.plugins.plugins['curtis-ai-chat'].providerRegistry.getProvider(p);
+					const prov = window.app.plugins.plugins['curtis'].providerRegistry.getProvider(p);
 					const m = prov?.models.find((x) => x.id === w) ?? prov?.models.find((x) => w && x.id.includes(w)) ?? prov?.models[0];
 					return m ? { id: m.id, name: m.name } : null;
 				},
@@ -837,7 +838,7 @@ async function phonePass() {
 		let { page, ctx } = inst;
 		await page.evaluate(configureForCapture);
 		await page.evaluate(() => {
-			const plugin = window.app.plugins.plugins['curtis-ai-chat'];
+			const plugin = window.app.plugins.plugins['curtis'];
 			plugin.settings.chatViewPosition = 'left';
 			plugin.saveSettings();
 		});
@@ -852,13 +853,13 @@ async function phonePass() {
 		await page.evaluate(() => location.reload());
 		page = await waitForVaultPage(
 			ctx,
-			() => !!window.app?.plugins?.plugins?.['curtis-ai-chat']?.conversationStore,
+			() => !!window.app?.plugins?.plugins?.['curtis']?.conversationStore,
 			45000,
 			'phone reload'
 		);
 		await waitForVaultPage(
 			ctx,
-			() => !!window.app?.commands?.commands?.['curtis-ai-chat:open-chat'],
+			() => !!window.app?.commands?.commands?.['curtis:open-chat'],
 			15000,
 			'command registration (phone)'
 		);
@@ -883,7 +884,7 @@ async function phonePass() {
 		const resolveModel = (pid, wanted) =>
 			page.evaluate(
 				([p, w]) => {
-					const prov = window.app.plugins.plugins['curtis-ai-chat'].providerRegistry.getProvider(p);
+					const prov = window.app.plugins.plugins['curtis'].providerRegistry.getProvider(p);
 					const m = prov?.models.find((x) => x.id === w) ?? prov?.models.find((x) => w && x.id.includes(w)) ?? prov?.models[0];
 					return m ? { id: m.id, name: m.name } : null;
 				},
@@ -967,7 +968,7 @@ async function main() {
 	const watchdog = setTimeout(() => {
 		console.error('[arena] watchdog: exceeded 15 minutes — aborting');
 		restoreLaunchVault();
-		try { execSync('taskkill /IM Obsidian.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
+		try { execSync('taskkill /IM ObsidianSmoke.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
 		process.exit(9);
 	}, 15 * 60 * 1000);
 	watchdog.unref?.();
@@ -998,13 +999,6 @@ async function main() {
 
 	restoreLaunchVault();
 	console.log('[arena] done — shots in assets/screenshots/');
-	console.log('[arena] relaunching your Obsidian session…');
-	// Skip when stdout is piped: on Windows the detached child inherits the
-	// pipe's write end and holds it open after we exit — downstream readers
-	// (tail, tee) then wait on EOF forever.
-	if (process.stdout.isTTY) {
-		spawn(OBSIDIAN_EXE, [], { detached: true, stdio: 'ignore' }).unref();
-	}
 	clearTimeout(watchdog);
 	process.exit(0);
 }
@@ -1012,6 +1006,6 @@ async function main() {
 main().catch((e) => {
 	console.error('[arena] failed:', e);
 	restoreLaunchVault();
-	try { execSync('taskkill /IM Obsidian.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
+	try { execSync('taskkill /IM ObsidianSmoke.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
 	process.exit(1);
 });

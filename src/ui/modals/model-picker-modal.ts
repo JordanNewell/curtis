@@ -6,8 +6,8 @@
 // badly past ~20 models and can't show capability metadata).
 
 import { App, FuzzySuggestModal, setIcon } from 'obsidian';
-import type { AIModel } from '../../types';
-import { providerColor } from '../../providers/colors';
+import type { AIModel } from '@curtisai/shared';
+import { providerColor } from '@curtisai/llms';
 import { CURTIS_ICON_ID } from '../../icons';
 
 interface ModelPickerEntry {

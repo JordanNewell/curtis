@@ -59,7 +59,7 @@ export interface WebhookEventPayload {
 	schema: 'curtis.chat.event/v1';
 	event: WebhookEventType;
 	ts: string;
-	agent: 'curtis-ai-chat';
+	agent: 'curtis';
 	status: EventStatus;
 	durationMs: number;
 	tokens?: EventTokens;
@@ -147,7 +147,7 @@ export function buildEventPayload(
 		schema: 'curtis.chat.event/v1',
 		event,
 		ts: new Date().toISOString(),
-		agent: 'curtis-ai-chat',
+		agent: 'curtis',
 		status: evt.status,
 		durationMs: Math.max(0, Math.round(evt.durationMs)),
 	};
@@ -178,7 +178,7 @@ export function buildReceiptPayload(
 	payload: WebhookEventPayload
 ): Record<string, unknown> {
 	const receipt: Record<string, unknown> = {
-		agent: 'curtis-ai-chat',
+		agent: 'curtis',
 		action: event,
 		ts: payload.ts,
 		status: evt.status,

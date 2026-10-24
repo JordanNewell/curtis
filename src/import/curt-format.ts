@@ -2,22 +2,20 @@
 // .curt pure serialization — the format contract, split from the Obsidian
 // I/O in curt.ts so node-side modules (backup-format, detect) can import it
 // without pulling in Obsidian.
+//
+// The format rules (envelope, magic/version check, per-message guard,
+// round-trip preservation, BOM tolerance) live in the canonical `curt-format`
+// npm package (dot_curt); this module is a thin adapter that keeps the
+// plugin's public surface: serializeCurt's optional "curtis@<version>"
+// generator stamp and curtZipEntryName, which are app-level conveniences,
+// not format rules.
 
-import type { Conversation, ConversationMessage } from '../types';
-
-const CURT_MAGIC = 'curtis-conversation';
-const CURT_VERSION = 1;
-
-function isMessage(v: unknown): v is ConversationMessage {
-	if (!v || typeof v !== 'object') return false;
-	const m = v as Record<string, unknown>;
-	return (
-		typeof m.id === 'string' &&
-		(m.role === 'user' || m.role === 'assistant' || m.role === 'system' || m.role === 'tool') &&
-		typeof m.content === 'string' &&
-		typeof m.timestamp === 'number'
-	);
-}
+import {
+	parseCurt as parseCurtFile,
+	serializeCurt as serializeCurtFile,
+} from 'curt-format';
+import type { CurtConversation } from 'curt-format';
+import type { Conversation } from '@curtisai/shared';
 
 /**
  * Serialize a conversation as a .curt file body. When `pluginVersion` is
@@ -26,42 +24,17 @@ function isMessage(v: unknown): v is ConversationMessage {
  * the version is never hardcoded.
  */
 export function serializeCurt(conv: Conversation, pluginVersion?: string): string {
-	const file = {
-		curt: CURT_MAGIC,
-		version: CURT_VERSION,
-		conversation: conv,
-		...(pluginVersion ? { generator: `curtis-ai-chat@${pluginVersion}` } : {}),
-	};
-	return JSON.stringify(file, null, '\t');
+	return serializeCurtFile(conv as unknown as CurtConversation, pluginVersion ? `curtis@${pluginVersion}` : undefined);
 }
 
 /**
  * Parse a .curt body. Returns null when the magic/version/shape doesn't
  * validate — callers report the file as failed rather than importing a
- * half-parsed conversation.
+ * half-parsed conversation. Delegates to curt-format, which also strips a
+ * leading UTF-8 BOM per spec 1.1.0.
  */
 export function parseCurt(raw: string): Conversation | null {
-	let data: unknown;
-	try {
-		data = JSON.parse(raw);
-	} catch {
-		return null;
-	}
-	const f = data as { curt?: string; version?: number; conversation?: Partial<Conversation> };
-	if (f?.curt !== CURT_MAGIC || f?.version !== CURT_VERSION) return null;
-	const conv = f.conversation;
-	if (
-		!conv ||
-		typeof conv.id !== 'string' ||
-		typeof conv.title !== 'string' ||
-		typeof conv.createdAt !== 'number' ||
-		typeof conv.updatedAt !== 'number' ||
-		!Array.isArray(conv.messages) ||
-		!conv.messages.every(isMessage)
-	) {
-		return null;
-	}
-	return conv as Conversation;
+	return parseCurtFile(raw) as Conversation | null;
 }
 
 /** Bulk-export filename: "<created-date> <slug> <id6>.curt" — collision-safe

@@ -47,6 +47,8 @@ With memory off, each pane keeps its own session-only history and closes without
 
 ## The command tool
 
+A shell can do anything your user account can — read files, run scripts, reach the network. Handing that to a model is the highest-trust tool Curtis offers, so it ships off by default, asks before every command, and stays bounded to the vault unless you lift the restriction.
+
 Settings → Terminal → **Enable command tool** adds `run_command` to agent mode (requires agent mode itself to be on). The model gets stdout, stderr, and the exit code — ANSI escape sequences stripped, so color-forced tools never feed garbled `[32m` text into the conversation. Long output is capped and truncated. Commands are non-interactive by design — full-screen programs and anything waiting on stdin are killed at the timeout.
 
 Every agent-initiated command passes a **confirmation dialog** first: the command and its directory, with Deny / Run once / Always this session. Denial tells the model to stop and ask. "Always this session" lasts until Obsidian reloads. Turning confirmation off is possible; leaving it on is the intended posture.
@@ -58,7 +60,7 @@ Two bounds ship on:
 
 ## Shell selection
 
-Auto by default: `cmd` on Windows, `bash` elsewhere (falls back to `sh` when bash is missing). Settings → Terminal → Shell accepts `cmd`, `powershell`, `pwsh`, or a custom executable path. There is no PTY — full-screen TUI apps (vim, htop) are not supported in the pane. Desktop only — the mobile pane ignores it and runs the vault shell.
+Auto by default: `cmd` on Windows, `bash` elsewhere (falls back to `sh` when bash is missing). Settings → Terminal → Shell accepts `cmd`, `powershell`, `pwsh`, or a custom executable path. There is no PTY — a pseudo-terminal, the interactive channel full-screen programs draw through — so full-screen TUI apps (vim, htop) are not supported in the pane. Desktop only — the mobile pane ignores it and runs the vault shell.
 
 ## Mobile: the vault shell
 

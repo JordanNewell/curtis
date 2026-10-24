@@ -12,7 +12,7 @@
 //   3. The migration runs automatically on next plugin load
 // ============================================================================
 
-import type { ProviderConfig } from '../types';
+import type { ProviderConfig } from '@curtisai/shared';
 
 export const CURRENT_VERSION = 7;
 

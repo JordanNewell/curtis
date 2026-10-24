@@ -2,6 +2,8 @@
 
 > Put an agent on a cadence. A task fires headlessly, a note lands in your vault.
 
+A chat agent waits for you to prompt it. A scheduled run inverts that: the prompt is saved, the trigger is the clock, and the result lands as a note you read later. This is what **headless** means here — no chat window, no back-and-forth; one prompt in, one note out. It turns the agent from something you consult into a routine that maintains your records.
+
 A **scheduled run** is a saved prompt — optionally run through one of your [named agents](AGENTS.md) — that Curtis fires on a schedule: **daily at a time**, or **every N minutes**. Each run executes through the same agent loop chat uses (vault tools, MCP tools, memory), touches no conversation, and writes its result as one markdown note. Nothing runs until you create a job, and each run is a fresh engagement — no history from your chats or from previous runs goes in.
 
 ## The honest constraint

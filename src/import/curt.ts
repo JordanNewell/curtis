@@ -10,14 +10,14 @@
 // The format contract itself (serialize/parse, node-safe) lives in
 // curt-format.ts; this file is the Obsidian I/O layer.
 //
-// Exports also stamp a `generator` field ("curtis-ai-chat@<version>") naming
+// Exports also stamp a `generator` field ("curtis@<version>") naming
 // the app and version that wrote the file — provenance only. Readers ignore
 // it entirely: first-party files written before the field existed and
 // third-party writers without it import identically.
 
 import { Notice, TFile, type App } from 'obsidian';
 import { zipSync, strToU8 } from 'fflate';
-import type { Conversation } from '../types';
+import type { Conversation } from '@curtisai/shared';
 import { downloadBlob, sanitizeFilename } from '../utils/download';
 import { serializeCurt, parseCurt, curtZipEntryName } from './curt-format';
 

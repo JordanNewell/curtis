@@ -16,7 +16,7 @@ const VAULT = resolve(ROOT, 'demo-vault');
 const DEBUG_PORT = 9338;
 const OBSIDIAN_EXE =
 	process.env.OBSIDIAN_EXE ||
-	resolve(process.env.USERPROFILE ?? process.env.HOME, 'scoop/apps/obsidian/current/Obsidian.exe');
+	'C:/tmp/obsidian-smoke/ObsidianSmoke.exe'; // smoke clone — never touches the live app
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -37,7 +37,7 @@ function relaunch() {
 }
 
 try {
-	try { execSync('taskkill /IM Obsidian.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
+	try { execSync('taskkill /IM ObsidianSmoke.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
 	await sleep(2500);
 
 	const child = spawn(OBSIDIAN_EXE, [
@@ -69,7 +69,7 @@ try {
 	try { await page.getByRole('button', { name: /trust/i }).click({ timeout: 5000 }); } catch { /* trusted */ }
 
 	await page.evaluate(async () => {
-		try { await window.app.plugins.enablePlugin('curtis-ai-chat'); } catch { /* on */ }
+		try { await window.app.plugins.enablePlugin('curtis'); } catch { /* on */ }
 	});
 	await sleep(1500);
 
@@ -92,7 +92,7 @@ try {
 	// 2. Settings — provider configuration card, full-res.
 	await page.evaluate(() => {
 		window.app.setting.open();
-		window.app.setting.openTabById('curtis-ai-chat');
+		window.app.setting.openTabById('curtis');
 	});
 	await sleep(2500);
 	const pages = ctx.pages();
@@ -147,7 +147,7 @@ try {
 	}
 
 	await browser.close();
-	execSync('taskkill /IM Obsidian.exe /F', { stdio: 'ignore' });
+	execSync('taskkill /IM ObsidianSmoke.exe /F', { stdio: 'ignore' });
 	await sleep(1500);
 	relaunch();
 	console.log('[probe] done');

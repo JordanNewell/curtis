@@ -9,6 +9,7 @@ export class DiffRewriteModal extends Modal {
 
 	constructor(app: App, original: string, modified: string, onAccept: (modified: string) => void, title = 'AI rewrite — review changes') {
 		super(app);
+		this.modalEl.addClass('curtis-modal');
 		this.original = original;
 		this.modified = modified;
 		this.onAccept = onAccept;

@@ -1,6 +1,6 @@
 // Multi-pane + notifications smoke test — drives the real plugin inside real
-// Obsidian (same harness contract as v2-smoke, minus the relaunch: the user's
-// running Obsidian is closed for the duration and NOT reopened afterwards).
+// Obsidian (same harness contract as v2-smoke). Runs the smoke clone — the
+// user's live Obsidian is never touched.
 //
 //   P1  baseline send on pane one
 //   P2  "Open new chat tab" → two distinct ChatViews, new tab starts fresh
@@ -30,12 +30,12 @@ const { chromium } = require('playwright-core');
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const VAULT = resolve(ROOT, 'demo-vault');
-const PLUGIN_DIR = resolve(VAULT, '.obsidian/plugins/curtis-ai-chat');
+const PLUGIN_DIR = resolve(VAULT, '.obsidian/plugins/curtis');
 const DEBUG_PORT = 9334;
 
 const OBSIDIAN_EXE =
 	process.env.OBSIDIAN_EXE ||
-	resolve(process.env.USERPROFILE ?? process.env.HOME, 'scoop/apps/obsidian/current/Obsidian.exe');
+	'C:/tmp/obsidian-smoke/ObsidianSmoke.exe'; // smoke clone — never touches the live app
 
 let pass = 0, fail = 0;
 const ok = (cond, name, detail = '') => {
@@ -44,13 +44,13 @@ const ok = (cond, name, detail = '') => {
 	cond ? pass++ : fail++;
 };
 
-// Console gate: errors whose text or source URL names plugin:curtis-ai-chat
+// Console gate: errors whose text or source URL names plugin:curtis
 // fail the run even when every assertion passes. Anything else (core Obsidian,
 // theme ENOENTs, other plugins) is surfaced but never gates.
 const pluginErrors = [];
 const watchPluginErrors = (text, url = '') => {
 	const s = `${text}\n${url}`;
-	if (!s.includes('plugin:curtis-ai-chat')) return;
+	if (!s.includes('plugin:curtis')) return;
 	if (!pluginErrors.includes(text)) pluginErrors.push(text);
 };
 const reportConsoleGate = () => {
@@ -72,7 +72,7 @@ function bootstrapVault() {
 		cpSync(resolve(ROOT, f), resolve(PLUGIN_DIR, f));
 	}
 	const obsidianDir = resolve(VAULT, '.obsidian');
-	writeFileSync(resolve(obsidianDir, 'community-plugins.json'), JSON.stringify(['curtis-ai-chat']));
+	writeFileSync(resolve(obsidianDir, 'community-plugins.json'), JSON.stringify(['curtis']));
 	// Reset the persisted layout — prior runs (terminal/pane window tests) leave
 	// floating OS windows behind, and getLeaf('tab') docks beside the most
 	// recently active split, so a stale popout would swallow the "new tab".
@@ -87,7 +87,7 @@ function bootstrapVault() {
 let originalLaunchVault = null;
 
 function registerDemoVault() {
-	const p = resolve(process.env.APPDATA, 'obsidian', 'obsidian.json');
+	const p = resolve(process.env.APPDATA, 'obsidian-smoke', 'obsidian.json');
 	let d = {};
 	try { d = JSON.parse(readFileSync(p, 'utf8')); } catch { /* fresh */ }
 	if (!d || typeof d !== 'object' || Array.isArray(d)) d = {};
@@ -109,7 +109,7 @@ function registerDemoVault() {
 
 function restoreLaunchVault() {
 	try {
-		const p = resolve(process.env.APPDATA, 'obsidian', 'obsidian.json');
+		const p = resolve(process.env.APPDATA, 'obsidian-smoke', 'obsidian.json');
 		const d = JSON.parse(readFileSync(p, 'utf8'));
 		const vaults = d.vaults || {};
 		for (const v of Object.values(vaults)) {
@@ -173,7 +173,7 @@ async function until(page, expr, timeoutMs, label) {
 const INSTALL_HELPERS = `(() => {
 	const sleepP = (ms) => new Promise((r) => setTimeout(r, ms));
 	window.__smoke = {
-		plugin: () => window.app.plugins.plugins['curtis-ai-chat'],
+		plugin: () => window.app.plugins.plugins['curtis'],
 		chatViews: () => window.app.workspace.getLeavesOfType('curtis-chat').map((l) => l.view),
 		chatView() {
 			const views = this.chatViews();
@@ -181,7 +181,7 @@ const INSTALL_HELPERS = `(() => {
 			return views[0];
 		},
 		async openChat() {
-			window.app.commands.executeCommandById('curtis-ai-chat:open-chat');
+			window.app.commands.executeCommandById('curtis:open-chat');
 			const deadline = Date.now() + 10000;
 			while (Date.now() < deadline) {
 				// Wait for the COMPOSER, not just the leaf — the leaf-content
@@ -193,7 +193,7 @@ const INSTALL_HELPERS = `(() => {
 			throw new Error('chat view never opened');
 		},
 		openNewTab() {
-			window.app.commands.executeCommandById('curtis-ai-chat:open-new-chat-tab');
+			window.app.commands.executeCommandById('curtis:open-new-chat-tab');
 		},
 		/** Deterministic offline AI. chunkDelay controls stream length so the
 		 *  abort test has a window to click Stop in. Both call paths are
@@ -258,7 +258,7 @@ const INSTALL_HELPERS = `(() => {
 async function main() {
 	bootstrapVault();
 	registerDemoVault();
-	try { execSync('taskkill /IM Obsidian.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
+	try { execSync('taskkill /IM ObsidianSmoke.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
 	await sleep(2500);
 
 	const child = spawn(OBSIDIAN_EXE, [
@@ -296,7 +296,7 @@ async function main() {
 	});
 	setTimeout(() => {
 		console.error('[smoke] fatal: watchdog timeout (4 min) — aborting');
-		try { execSync('taskkill /IM Obsidian.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
+		try { execSync('taskkill /IM ObsidianSmoke.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
 		restoreLaunchVault();
 		process.exit(1);
 	}, 240000);
@@ -308,11 +308,11 @@ async function main() {
 		await page.getByRole('button', { name: /trust/i }).click({ timeout: 8000 });
 	} catch { /* already trusted */ }
 	await page.evaluate(async () => {
-		try { await window.app.plugins.enablePlugin('curtis-ai-chat'); } catch { /* already on */ }
+		try { await window.app.plugins.enablePlugin('curtis'); } catch { /* already on */ }
 	});
 	page = await waitForVaultPage(
 		ctx,
-		() => !!window.app.plugins.plugins['curtis-ai-chat']?.conversationStore,
+		() => !!window.app.plugins.plugins['curtis']?.conversationStore,
 		30000,
 		'plugin onload complete'
 	);
@@ -331,7 +331,7 @@ async function main() {
 	});
 	await page.evaluate(() => {
 		if (window.app.workspace.getLeavesOfType('curtis-chat').length === 0) {
-			window.app.commands.executeCommandById('curtis-ai-chat:open-chat');
+			window.app.commands.executeCommandById('curtis:open-chat');
 		}
 	});
 	// The command path above doesn't wait for onOpen — hold here until the
@@ -387,7 +387,7 @@ async function main() {
 	// --- P2: open a second chat tab --------------------------------------------
 	const cmdResult = await page.evaluate(() => {
 		try {
-			const r = window.app.commands.executeCommandById('curtis-ai-chat:open-new-chat-tab');
+			const r = window.app.commands.executeCommandById('curtis:open-new-chat-tab');
 			return { ran: r !== false, leaves: __smoke.chatViews().length };
 		} catch (e) {
 			return { err: String(e) };
@@ -560,14 +560,19 @@ async function main() {
 	await page.evaluate(() => __smoke.patchHasFocus(false));
 
 	// --- N3: no notification for an aborted stream -------------------------------
+	// Scope to p1's own container: two panes each carry an .ai-chat-abort-btn,
+	// and document.querySelector would grab pane two's (idle, hidden) button.
 	await page.evaluate(() => __smoke.installFakeAI(700));
-	const sendPromise = page.evaluate(() => {
+	// sendMessage awaits the full stream (view.ts) — invoke it fire-and-forget
+	// the way the UI's click/Enter handlers do, or the abort window closes
+	// before we can poll for the stop button.
+	await page.evaluate(() => {
 		__smoke.p1.inputEl.value = 'Abort me midway';
-		return __smoke.p1.sendMessage();
+		void __smoke.p1.sendMessage();
 	});
-	await until(page, () => !document.querySelector('.ai-chat-abort-btn')?.classList.contains('is-hidden'), 5000, 'stop button visible');
-	await page.evaluate(() => document.querySelector('.ai-chat-abort-btn')?.click());
-	await sendPromise;
+	await until(page, () => !window.__smoke.p1.contentEl.querySelector('.ai-chat-abort-btn')?.classList.contains('is-hidden'), 5000, 'stop button visible');
+	await page.evaluate(() => window.__smoke.p1.contentEl.querySelector('.ai-chat-abort-btn')?.click());
+	await until(page, () => __smoke.p1.isGenerating === false, 5000, 'aborted stream settled');
 	await sleep(300);
 	const n3 = await page.evaluate(() => ({ count: window.__notifs.length, generating: __smoke.p1.isGenerating }));
 	ok(n3.count === 1 && n3.generating === false,
@@ -673,6 +678,6 @@ async function main() {
 main().catch((e) => {
 	console.error('[smoke] fatal:', e.message);
 	restoreLaunchVault();
-	try { execSync('taskkill /IM Obsidian.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
+	try { execSync('taskkill /IM ObsidianSmoke.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
 	process.exit(1);
 });

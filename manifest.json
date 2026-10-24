@@ -1,9 +1,9 @@
 {
-	"id": "curtis-ai-chat",
+	"id": "curtis",
 	"name": "Curtis.ai",
 	"version": "1.0.0",
 	"minAppVersion": "1.13.0",
-	"description": "AI chat + agent. 53 providers: ChatGPT, Claude, Gemini, DeepSeek, Ollama + local. Agent tools edit your notes, MCP client & server, skills, RAG vault search, scheduled runs, arena. Free, source-available.",
+	"description": "The agent for Obsidian. 53 providers: ChatGPT, Claude, Gemini, DeepSeek, Ollama + local. Agent tools edit your notes, MCP client & server, skills, RAG vault search, scheduled runs, multi-model arena. Free, source-available.",
 	"author": "Jordan Newell",
 	"authorUrl": "https://github.com/jordannewell",
 	"fundingUrl": {

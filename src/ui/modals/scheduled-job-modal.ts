@@ -7,8 +7,8 @@
 
 import { Modal, Setting } from 'obsidian';
 import type CurtisPlugin from '../../main';
-import type { ScheduledJob, ScheduledJobSchedule } from '../../types';
-import { parseDailyTime } from '../../scheduler/schedule';
+import type { ScheduledJob, ScheduledJobSchedule } from '@curtisai/shared';
+import { parseDailyTime } from '@curtisai/core';
 
 export type ScheduledJobResult = Omit<ScheduledJob, 'createdAt' | 'lastFiredAt' | 'lastStatus' | 'lastError' | 'lastDurationMs' | 'lastRunPath'>;
 
@@ -33,6 +33,7 @@ export class ScheduledJobModal extends Modal {
 		existing?: ScheduledJob
 	) {
 		super(plugin.app);
+		this.modalEl.addClass('curtis-modal');
 		this.plugin = plugin;
 		this.onSubmit = onSubmit;
 		this.existing = existing;

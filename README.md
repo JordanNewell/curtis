@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/JordanNewell/curtis-ai-chat/master/assets/hero.png" 'alt="Curtis.ai — the agent layer for Obsidian. Every provider, one sidebar."' width="100%">
+  <img src="https://raw.githubusercontent.com/JordanNewell/curtis/master/assets/hero.png" 'alt="Curtis.ai — the agent layer for Obsidian. Every provider, one sidebar."' width="100%">
 </div>
 
 <p align="center">
@@ -8,19 +8,19 @@
 </p>
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/JordanNewell/curtis-ai-chat/master/assets/feature-gallery/videos/arena-duel.gif" alt="The arena in motion — one prompt typed once, streamed to two models in parallel, stop either column mid-flight, then Promote-to-chat keeps the winner" width="720">
+  <img src="https://raw.githubusercontent.com/JordanNewell/curtis/master/assets/feature-gallery/videos/arena-duel.gif" alt="The arena in motion — one prompt typed once, streamed to two models in parallel, stop either column mid-flight, then Promote-to-chat keeps the winner" width="720">
 </p>
 
 <p align="center"><em>The arena, live: one prompt, two models in parallel — stop one column, promote the winner.</em></p>
 
 <p align="center">
   <a href="https://curtisai.tech/"><img src="https://img.shields.io/badge/website-live-0E7A45" alt="Live site"></a>
-  <a href="https://github.com/JordanNewell/curtis-ai-chat/releases"><img src="https://img.shields.io/github/v/release/JordanNewell/curtis-ai-chat?label=release&color=0A0A0A" alt="Latest release"></a>
+  <a href="https://github.com/JordanNewell/curtis/releases"><img src="https://img.shields.io/github/v/release/JordanNewell/curtis?label=release&color=0A0A0A" alt="Latest release"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-BUSL--1.1-1F1F1F" alt="License: BUSL-1.1"></a>
   <img src="https://img.shields.io/badge/Obsidian-1.13%2B-0A0A0A?logo=obsidian&logoColor=0E7A45" alt="Obsidian 1.13+">
   <img src="https://img.shields.io/badge/providers-53-0E7A45" alt="53 built-in providers">
   <img src="https://img.shields.io/badge/build-0%20warnings-0E7A45" alt="Zero lint warnings">
-  <a href="https://github.com/JordanNewell/curtis-ai-chat/discussions"><img src="https://img.shields.io/github/discussions/JordanNewell/curtis-ai-chat?label=discussions&color=0A0A0A" alt="GitHub Discussions"></a>
+  <a href="https://github.com/JordanNewell/curtis/discussions"><img src="https://img.shields.io/github/discussions/JordanNewell/curtis?label=discussions&color=0A0A0A" alt="GitHub Discussions"></a>
 </p>
 
 <p align="center">
@@ -30,7 +30,7 @@
   <a href="#features">Features</a> ·
   <a href="docs/INDEX.md">Docs</a> ·
   <a href="CHANGELOG.md">Changelog</a> ·
-  <a href="https://github.com/JordanNewell/curtis-ai-chat/discussions">Feedback</a>
+  <a href="https://github.com/JordanNewell/curtis/discussions">Feedback</a>
 </p>
 
 ---
@@ -41,11 +41,11 @@ Real captures, regenerated any time with `npm run shots && npm run mockups` (gen
 
 | | |
 |---|---|
-| <img src="https://raw.githubusercontent.com/JordanNewell/curtis-ai-chat/master/assets/screenshots/arena-streaming-dark.png" alt="Arena — one prompt streaming to two models side by side, per-column Stop while streaming" width="100%"> | |
-| <img src="https://raw.githubusercontent.com/JordanNewell/curtis-ai-chat/master/assets/screenshots/arena-final-light.png" alt="Arena, light theme — both answers complete, Promote to chat on each column" width="100%"> | <img src="https://raw.githubusercontent.com/JordanNewell/curtis-ai-chat/master/assets/screenshots/phone-arena-framed-dark.png" alt="Arena on a phone — columns stack vertically" width="220"> |
-| <img src="https://raw.githubusercontent.com/JordanNewell/curtis-ai-chat/master/assets/screenshots/multipane-tabs-dark.png" alt="Multi-pane chat — two titled chat tabs in the center tab strip, each its own conversation and model; the pane menu renames, opens new tabs and windows" width="100%"> | |
-| <img src="https://raw.githubusercontent.com/JordanNewell/curtis-ai-chat/master/assets/feature-gallery/videos/memory-edit.gif" alt="Memory — a plain markdown note in your vault; add or edit a fact, save, and Curtis recalls it in the next turn" width="720"> | |
-| <img src="https://raw.githubusercontent.com/JordanNewell/curtis-ai-chat/master/assets/screenshots/desktop-chat.png" alt="Desktop — vault open, agent conversation on a local Ollama model with tool call and result" width="100%"> | <img src="https://raw.githubusercontent.com/JordanNewell/curtis-ai-chat/master/assets/screenshots/phone-chat-framed.png" alt="Phone — the agent conversation at phone width" width="220"> |
+| <img src="https://raw.githubusercontent.com/JordanNewell/curtis/master/assets/screenshots/arena-streaming-dark.png" alt="Arena — one prompt streaming to two models side by side, per-column Stop while streaming" width="100%"> | |
+| <img src="https://raw.githubusercontent.com/JordanNewell/curtis/master/assets/screenshots/arena-final-light.png" alt="Arena, light theme — both answers complete, Promote to chat on each column" width="100%"> | <img src="https://raw.githubusercontent.com/JordanNewell/curtis/master/assets/screenshots/phone-arena-framed-dark.png" alt="Arena on a phone — columns stack vertically" width="220"> |
+| <img src="https://raw.githubusercontent.com/JordanNewell/curtis/master/assets/screenshots/multipane-tabs-dark.png" alt="Multi-pane chat — two titled chat tabs in the center tab strip, each its own conversation and model; the pane menu renames, opens new tabs and windows" width="100%"> | |
+| <img src="https://raw.githubusercontent.com/JordanNewell/curtis/master/assets/feature-gallery/videos/memory-edit.gif" alt="Memory — a plain markdown note in your vault; add or edit a fact, save, and Curtis recalls it in the next turn" width="720"> | |
+| <img src="https://raw.githubusercontent.com/JordanNewell/curtis/master/assets/screenshots/desktop-chat.png" alt="Desktop — vault open, agent conversation on a local Ollama model with tool call and result" width="100%"> | <img src="https://raw.githubusercontent.com/JordanNewell/curtis/master/assets/screenshots/phone-chat-framed.png" alt="Phone — the agent conversation at phone width" width="220"> |
 
 ---
 
@@ -53,7 +53,7 @@ Real captures, regenerated any time with `npm run shots && npm run mockups` (gen
 
 **60 seconds to your first message.**
 
-1. **Install** — download the [latest release][releases] (`main.js`, `manifest.json`, `styles.css`) into `<vault>/.obsidian/plugins/curtis-ai-chat/`, then enable it under **Settings → Community plugins**. Or use [BRAT][brat] for auto-updates during the beta.
+1. **Install** — download the [latest release][releases] (`main.js`, `manifest.json`, `styles.css`) into `<vault>/.obsidian/plugins/curtis/`, then enable it under **Settings → Community plugins**. Or use [BRAT][brat] for auto-updates during the beta.
 
 2. **Configure one provider** — open **Settings → Curtis.ai → Provider Configuration**, enable a provider, paste an API key. Keys are stored in your OS keychain via the Obsidian `SecretStorage` API. No key for some plans: **ChatGPT (Sign in)** uses OpenAI's official OAuth against your ChatGPT Plus/Pro plan, and **Kimi for Coding** / **Alibaba Coding Plan** take a plan key from those consoles. See [Subscription plans and sign-in](docs/PROVIDERS.md#subscription-plans-and-sign-in).
 
@@ -382,15 +382,15 @@ Scheduled runs execute through the agent loop with shell access always excluded,
 ### Manual install
 
 1. Download the [latest release](../../releases) `main.js`, `manifest.json`, and `styles.css`.
-2. In your vault, create `.obsidian/plugins/curtis-ai-chat/`.
+2. In your vault, create `.obsidian/plugins/curtis/`.
 3. Copy the three files into that folder.
 4. Open **Settings → Community plugins**, refresh the list, enable **Curtis.ai**.
 
 ### From source (developers)
 
 ```bash
-git clone https://github.com/JordanNewell/curtis-ai-chat.git
-cd curtis-ai-chat
+git clone https://github.com/JordanNewell/curtis.git
+cd curtis
 npm install
 npm run build
 ```
@@ -458,12 +458,12 @@ History: through v1.1.x the floor was 1.11.4 (set by the `SecretStorage` API for
 
 All feedback is public and lives on GitHub:
 
-- **Bug found?** [Open an issue](https://github.com/JordanNewell/curtis-ai-chat/issues)
-- **Feature idea?** [Start a discussion](https://github.com/JordanNewell/curtis-ai-chat/discussions/categories/ideas)
-- **Love it?** [Share in Show & Tell](https://github.com/JordanNewell/curtis-ai-chat/discussions/categories/show-and-tell)
-- **Stuck?** [Ask in Q&A](https://github.com/JordanNewell/curtis-ai-chat/discussions/categories/q-a)
+- **Bug found?** [Open an issue](https://github.com/JordanNewell/curtis/issues)
+- **Feature idea?** [Start a discussion](https://github.com/JordanNewell/curtis/discussions/categories/ideas)
+- **Love it?** [Share in Show & Tell](https://github.com/JordanNewell/curtis/discussions/categories/show-and-tell)
+- **Stuck?** [Ask in Q&A](https://github.com/JordanNewell/curtis/discussions/categories/q-a)
 
-No GitHub account? Email [hello@jordannewell.com](mailto:hello@jordannewell.com) and it gets posted publicly for you.
+No GitHub account? Email [info@curtisai.tech](mailto:info@curtisai.tech) and it gets posted publicly for you.
 
 ---
 
@@ -473,6 +473,6 @@ No GitHub account? Email [hello@jordannewell.com](mailto:hello@jordannewell.com)
 
 <p align="right">
   <a href="https://jordannewell.com" title="Built by Jordan Newell">
-    <img src="https://raw.githubusercontent.com/JordanNewell/curtis-ai-chat/master/assets/newell-badge.png" alt="Built by Jordan Newell" width="48" height="48">
+    <img src="https://raw.githubusercontent.com/JordanNewell/curtis/master/assets/newell-badge.png" alt="Built by Jordan Newell" width="48" height="48">
   </a>
 </p>

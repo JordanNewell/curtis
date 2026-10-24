@@ -4,7 +4,7 @@
 // Helicone, self-hosted llama.cpp, and any future OpenAI-compat service.
 
 import { App, Modal, Setting } from 'obsidian';
-import type { ProviderDefinition, AuthType } from '../../types';
+import type { ProviderDefinition, AuthType } from '@curtisai/shared';
 
 export interface CustomProviderResult {
 	definition: ProviderDefinition;
@@ -28,6 +28,7 @@ export class CustomProviderModal extends Modal {
 		existingKey?: string
 	) {
 		super(app);
+		this.modalEl.addClass('curtis-modal');
 		this.onSubmit = onSubmit;
 		this.existing = existing;
 		if (existing) {

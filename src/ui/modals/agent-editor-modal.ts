@@ -6,9 +6,9 @@
 // persisted agent so callers can bind it right away.
 
 import { App, DropdownComponent, Modal, Notice, Setting } from 'obsidian';
-import type { Agent } from '../../types';
+import type { Agent } from '@curtisai/shared';
 import type CurtisPlugin from '../../main';
-import { normalizeClaimsPolicy } from '../../agents/pcp';
+import { normalizeClaimsPolicy } from '@curtisai/agents';
 import { agentToClaudeMarkdown } from '../../import/claude-setup';
 
 export class AgentEditorModal extends Modal {
@@ -37,6 +37,7 @@ export class AgentEditorModal extends Modal {
 		onSave: (agent: Agent) => void
 	) {
 		super(app);
+		this.modalEl.addClass('curtis-modal');
 		this.plugin = plugin;
 		this.existing = existing;
 		this.onSave = onSave;

@@ -127,4 +127,4 @@ Reference documentation for every feature. Start here, follow links to the detai
 - **[Provider documentation](PROVIDERS.md#built-in-providers)** — every built-in provider's endpoint, key scheme, and console link, verified per release
 - **[Curtis Porter](https://github.com/JordanNewell/curtis-ai-chat-porter)** — standalone converter: any chat export → `.curt` and vault-ready markdown (chat history only — skills, agents, and MCP import in-plugin, since those are shared formats that need no translation)
 - **[llms.txt](llms.txt)** — a terse, LLM-readable summary of the product and its network posture
-- **[Issues & discussions](https://github.com/JordanNewell/curtis-ai-chat/issues)** — bug reports, feature ideas, show & tell
+- **[Issues & discussions](https://github.com/JordanNewell/curtis/issues)** — bug reports, feature ideas, show & tell

@@ -2,7 +2,7 @@
 // Completion prompt construction + response cleanup. Pure functions — the
 // request itself rides the shared chat transport (plugin.callCompletion).
 
-import type { AIMessage } from '../types';
+import type { AIMessage } from '@curtisai/shared';
 
 /** Server-side cap — small by design: a ghost is a sentence, not a paragraph.
  *  60 tokens ≈ 45 words; the hard cost ceiling per request. */

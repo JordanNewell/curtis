@@ -7,7 +7,7 @@
 // pills) but add a checkbox-style selected state.
 
 import { App, Modal, Notice, setIcon } from 'obsidian';
-import type { AIModel } from '../../types';
+import type { AIModel } from '@curtisai/shared';
 import { CURTIS_ICON_ID } from '../../icons';
 
 export interface ArenaModelEntry {
@@ -56,6 +56,7 @@ export class ArenaModelPickerModal extends Modal {
 		onSubmit: (selections: ArenaSelection[]) => void
 	) {
 		super(app);
+		this.modalEl.addClass('curtis-modal');
 		this.entries = entries;
 		this.onSubmit = onSubmit;
 	}

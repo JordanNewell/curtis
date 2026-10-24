@@ -8,7 +8,7 @@
 import { parseConversationMarkdown } from '../chat/conversation-format';
 import { vaultYamlPort } from '../chat/conversation-files';
 import { unzipSync, strFromU8 } from 'fflate';
-import type { Conversation } from '../types';
+import type { Conversation } from '@curtisai/shared';
 import type { DetectedFile, ParsedChat } from './types';
 import { parseChatGptExport } from './chatgpt';
 import { parseClaudeExport } from './claude';

@@ -4,6 +4,12 @@
 
 The GCP connector links Curtis to a Google Cloud project with a service-account key and exposes three read-only Cloud Storage tools to agent mode: list buckets, list objects, read one object. Ask about your buckets in chat and Curtis answers from the live API — no copy-pasting console output.
 
+## Why a service-account key, and why read-only
+
+Google Cloud doesn't hand personal logins to programs. A **service account** is an identity created for software, and a **key file** is its credential — a JSON file holding a private key that lets an application sign in as that identity. The identity carries permissions you grant, and nothing more: the key file can only do what the service account is allowed to do.
+
+That mechanism is what makes the connector's safety default possible. Curtis asks for the narrowest grant that works — read-only Cloud Storage. The principle is least privilege: give a credential only what it needs, so its worst case stays small. If this key ever leaks, what's exposed is data you could already read; nothing on your buckets can be deleted, overwritten, or uploaded. That's why the setup below stops at a viewer role and why writes are out of scope in v1.
+
 ## Setup
 
 1. In the Google Cloud console, create a service account (IAM & Admin → Service accounts) and grant it read access. **Storage Object Viewer** (`roles/storage.objectViewer`) covers object listing and reads; bucket *listing* additionally needs `storage.buckets.list`, which **Storage Viewer** (`roles/storage.viewer`) or a custom role grants.

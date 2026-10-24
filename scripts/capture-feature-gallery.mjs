@@ -2,8 +2,10 @@
 // categorized into assets/feature-gallery/, across themes, desktop + phone.
 //
 // Boot contract is the same as capture-screenshots.mjs:
-// real Obsidian on the demo vault over CDP; the running Obsidian is closed for
-// the duration and relaunched at the end. Two boots: desktop (1680x1050), then
+// Runs the SMOKE CLONE of Obsidian (C:/tmp/obsidian-smoke/ObsidianSmoke.exe — a
+// renamed copy with its own userData dir), so the user's live Obsidian is
+// never touched: smokes kill only the ObsidianSmoke.exe process name.
+// Two boots: desktop (1680x1050), then
 // a phone-emulated pass (390x844 @2x DPR).
 //
 // Streaming scenes are driven by a local OpenAI-compatible MOCK server
@@ -34,13 +36,13 @@ const { chromium } = require('playwright-core');
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const VAULT = resolve(ROOT, 'demo-vault');
-const PLUGIN_DIR = resolve(VAULT, '.obsidian/plugins/curtis-ai-chat');
+const PLUGIN_DIR = resolve(VAULT, '.obsidian/plugins/curtis');
 const GALLERY = resolve(ROOT, 'assets', 'feature-gallery');
 const MANIFEST_PATH = resolve(GALLERY, 'shots-manifest.json');
 
 const OBSIDIAN_EXE =
 	process.env.OBSIDIAN_EXE ||
-	resolve(process.env.USERPROFILE ?? process.env.HOME, 'scoop/apps/obsidian/current/Obsidian.exe');
+	'C:/tmp/obsidian-smoke/ObsidianSmoke.exe'; // smoke clone — never touches the live app
 
 const PORT = Number(process.env.PORT || 9250);
 const MOCK_KEY = 'gallery-mock-key';
@@ -64,7 +66,8 @@ const PHONE_THEMES = ['Minimal', 'Royal Velvet'];
 mkdirSync(GALLERY, { recursive: true });
 let manifest;
 try { manifest = JSON.parse(readFileSync(MANIFEST_PATH, 'utf8')); } catch { manifest = { runs: [], steps: {} }; }
-manifest.runs.push({ startedAt: new Date().toISOString(), host: process.env.COMPUTERNAME || '?' });
+// No host field — machine hostnames are OPSEC-flagged and add nothing here.
+manifest.runs.push({ startedAt: new Date().toISOString() });
 const saveManifest = () => writeFileSync(MANIFEST_PATH, JSON.stringify(manifest, null, 2));
 
 // ---------------------------------------------------------------------------
@@ -264,7 +267,7 @@ function bootstrapVault() {
 		cpSync(resolve(ROOT, f), resolve(PLUGIN_DIR, f));
 	}
 	const obsidianDir = resolve(VAULT, '.obsidian');
-	writeFileSync(resolve(obsidianDir, 'community-plugins.json'), JSON.stringify(['curtis-ai-chat']));
+	writeFileSync(resolve(obsidianDir, 'community-plugins.json'), JSON.stringify(['curtis']));
 	// Stale layouts restore stale windows/popouts — start clean.
 	for (const f of ['workspace.json', 'workspace-mobile.json']) {
 		rmSync(resolve(obsidianDir, f), { force: true });
@@ -406,7 +409,7 @@ function restoreSettings() {
 
 let originalLaunchVault = null;
 function registerDemoVault() {
-	const p = resolve(process.env.APPDATA, 'obsidian', 'obsidian.json');
+	const p = resolve(process.env.APPDATA, 'obsidian-smoke', 'obsidian.json');
 	let d = {};
 	try { d = JSON.parse(readFileSync(p, 'utf8')); } catch { /* fresh */ }
 	if (!d || typeof d !== 'object' || Array.isArray(d)) d = {};
@@ -428,7 +431,7 @@ function registerDemoVault() {
 
 function restoreLaunchVault() {
 	try {
-		const p = resolve(process.env.APPDATA, 'obsidian', 'obsidian.json');
+		const p = resolve(process.env.APPDATA, 'obsidian-smoke', 'obsidian.json');
 		const d = JSON.parse(readFileSync(p, 'utf8'));
 		const vaults = d.vaults || {};
 		for (const v of Object.values(vaults)) {
@@ -496,7 +499,7 @@ async function waitForAnyPage(ctx, pred, timeoutMs, label) {
 }
 
 async function killObsidian() {
-	try { execSync('taskkill /IM Obsidian.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
+	try { execSync('taskkill /IM ObsidianSmoke.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
 	await sleep(2500);
 }
 
@@ -540,15 +543,15 @@ async function bootInstance(port, { width = 1680, height = 1050 } = {}) {
 	let page = await waitForVaultPage(ctx, () => true, 30000, 'window');
 	try { await page.getByRole('button', { name: /trust/i }).click({ timeout: 8000 }); } catch { /* trusted */ }
 	await page.evaluate(async () => {
-		try { await window.app.plugins.enablePlugin('curtis-ai-chat'); } catch { /* on */ }
+		try { await window.app.plugins.enablePlugin('curtis'); } catch { /* on */ }
 	});
 	page = await waitForVaultPage(
 		ctx,
-		() => !!window.app?.plugins?.plugins?.['curtis-ai-chat']?.conversationStore,
+		() => !!window.app?.plugins?.plugins?.['curtis']?.conversationStore,
 		45000,
 		'plugin onload'
 	);
-	await waitForVaultPage(ctx, () => !!window.app?.commands?.commands?.['curtis-ai-chat:open-chat'], 15000, 'commands');
+	await waitForVaultPage(ctx, () => !!window.app?.commands?.commands?.['curtis:open-chat'], 15000, 'commands');
 
 	// Real desktop geometry — Obsidian restores its own bounds otherwise.
 	try {
@@ -586,7 +589,7 @@ const evalSafe = async (page, fn, ...args) => {
 
 const seedFactsAndConversations = async (page, { chartPng }) =>
 	page.evaluate(({ chartPng }) => {
-		const p = window.app.plugins.plugins['curtis-ai-chat'];
+		const p = window.app.plugins.plugins['curtis'];
 		const store = p.conversationStore;
 		const DAY = 86400000;
 		const now = Date.now();
@@ -710,13 +713,13 @@ const seedFactsAndConversations = async (page, { chartPng }) =>
 	}, { chartPng });
 
 const openChatAndRender = async () => {
-	window.app.commands.executeCommandById('curtis-ai-chat:open-chat');
+	window.app.commands.executeCommandById('curtis:open-chat');
 	const deadline = Date.now() + 10000;
 	while (Date.now() < deadline) {
 		if (document.querySelector('.workspace-leaf-content[data-type="curtis-chat"]')) break;
 		await new Promise((r) => setTimeout(r, 200));
 	}
-	const p = window.app.plugins.plugins['curtis-ai-chat'];
+	const p = window.app.plugins.plugins['curtis'];
 	const view = window.app.workspace.getLeavesOfType('curtis-chat')[0]?.view;
 	const current = p.conversationStore.getCurrentConversation();
 	if (view && current && typeof view.switchConversation === 'function') view.switchConversation(current.id);
@@ -724,7 +727,7 @@ const openChatAndRender = async () => {
 };
 
 const switchToConv = (marker) => {
-	const p = window.app.plugins.plugins['curtis-ai-chat'];
+	const p = window.app.plugins.plugins['curtis'];
 	const convs = p.conversationStore.getAllConversations();
 	const conv = convs.find((c) => (c.messages[0]?.content ?? '').startsWith(marker))
 		?? convs.find((c) => c.title?.startsWith(marker));
@@ -960,11 +963,11 @@ async function openPluginSettings(ctx) {
 	const main = ctx.pages().find((p) => p.url()) ?? ctx.pages()[0];
 	await main.evaluate(() => {
 		window.app.setting.open();
-		window.app.setting.openTabById('curtis-ai-chat');
+		window.app.setting.openTabById('curtis');
 	});
 	return waitForAnyPage(
 		ctx,
-		() => document.body.innerText.includes('Provider configuration') || document.body.innerText.includes('Active provider'),
+		() => /provider configuration|active provider/i.test(document.body.innerText),
 		20000,
 		'settings open'
 	);
@@ -991,13 +994,13 @@ async function closeSettings(settingsPage) {
 /** Toggle streamResponse with a reload — tool scenes need buffered answers. */
 async function setStreamResponse(inst, page, on) {
 	await page.evaluate((on) => {
-		const p = window.app.plugins.plugins['curtis-ai-chat'];
+		const p = window.app.plugins.plugins['curtis'];
 		p.settings.streamResponse = on;
 		p.saveSettings();
 	}, on);
 	await page.evaluate(() => location.reload());
-	let p = await waitForVaultPage(inst.ctx, () => !!window.app?.plugins?.plugins?.['curtis-ai-chat']?.conversationStore, 45000, 'reload');
-	await waitForVaultPage(inst.ctx, () => !!window.app?.commands?.commands?.['curtis-ai-chat:open-chat'], 15000, 'commands (reload)');
+	let p = await waitForVaultPage(inst.ctx, () => !!window.app?.plugins?.plugins?.['curtis']?.conversationStore, 45000, 'reload');
+	await waitForVaultPage(inst.ctx, () => !!window.app?.commands?.commands?.['curtis:open-chat'], 15000, 'commands (reload)');
 	return p;
 }
 
@@ -1010,7 +1013,7 @@ async function reacquirePage(inst, page) {
 	console.log('[gallery]   page lost — re-acquiring');
 	return waitForVaultPage(
 		inst.ctx,
-		() => !!window.app?.plugins?.plugins?.['curtis-ai-chat']?.conversationStore,
+		() => !!window.app?.plugins?.plugins?.['curtis']?.conversationStore,
 		45000,
 		'reacquire page'
 	);
@@ -1241,7 +1244,7 @@ async function desktopPass() {
 	});
 
 	await step('chat-new-empty', 'chat', 'Chat — new chat', 'The empty state: provider pill, composer, and the vault behind.', async () => {
-		await page.evaluate(() => window.app.commands.executeCommandById('curtis-ai-chat:new-chat'));
+		await page.evaluate(() => window.app.commands.executeCommandById('curtis:new-chat'));
 		await page.waitForTimeout(900);
 		await parkMouse(page);
 		await shoot(page, 'chat/new-chat-empty.png');
@@ -1260,7 +1263,7 @@ async function desktopPass() {
 			{ kind: 'tool', calls: [{ name: 'read_note', arguments: { path: 'Daily/2026-10-02.md' } }], content: 'Reading the latest daily note first.' },
 			{ kind: 'buffered', text: 'Thursday carried the week: v2.0.0 shipped (53 providers, swarm, terminal pane), the LM Studio key bug is fixed, and the launch post is drafted. Coffee settled at 1:16 — 92°C, three minutes.' },
 		);
-		await page.evaluate(() => window.app.commands.executeCommandById('curtis-ai-chat:new-chat'));
+		await page.evaluate(() => window.app.commands.executeCommandById('curtis:new-chat'));
 		await page.waitForTimeout(700);
 		await page.click('.ai-chat-input');
 		await page.type('.ai-chat-input', 'Read my latest daily note and tell me what changed this week.', { delay: 10 });
@@ -1278,7 +1281,7 @@ async function desktopPass() {
 			{ kind: 'buffered', text: 'Created **Projects/Idea Inbox.md** with three candidates. The skill marketplace idea is the strongest — it compounds the existing Skills loader.' },
 		);
 		createdFiles.push('Projects/Idea Inbox.md');
-		await page.evaluate(() => window.app.commands.executeCommandById('curtis-ai-chat:new-chat'));
+		await page.evaluate(() => window.app.commands.executeCommandById('curtis:new-chat'));
 		await page.waitForTimeout(700);
 		await page.click('.ai-chat-input');
 		await page.type('.ai-chat-input', 'Create a note at Projects/Idea Inbox.md with three feature ideas for the plugin.', { delay: 10 });
@@ -1295,7 +1298,7 @@ async function desktopPass() {
 	await step('swarm-live', 'swarm', 'Swarm — leader spawns a follower', 'Leader chat marked with /leader, then one send: the spawn_agent tool starts a follower conversation in its own pane, which reports back into the leader thread.', async (rec) => {
 		// Leader badge still first — slash commands execute on SEND: fill the
 		// input and click send; the send path intercepts the command.
-		await page.evaluate(() => window.app.commands.executeCommandById('curtis-ai-chat:new-chat'));
+		await page.evaluate(() => window.app.commands.executeCommandById('curtis:new-chat'));
 		await page.waitForTimeout(600);
 		mock.clear();
 		await page.fill('.ai-chat-input', '/leader');
@@ -1393,7 +1396,7 @@ async function desktopPass() {
 			editor.setCursor({ line, ch: 0 });
 			editor.setSelection({ line, ch: 0 }, { line, ch: editor.getLine(line).length });
 		});
-		await page.evaluate(() => window.app.commands.executeCommandById('curtis-ai-chat:rewrite-with-ai'));
+		await page.evaluate(() => window.app.commands.executeCommandById('curtis:rewrite-with-ai'));
 		await page.waitForSelector('.ai-diff-rewrite-modal', { timeout: 30000 });
 		await page.waitForTimeout(900);
 		await parkMouse(page);
@@ -1417,7 +1420,7 @@ async function desktopPass() {
 
 	await step('autocomplete', 'writing', 'Inline autocomplete', 'Ghost text while typing in a note (dedicated model, off by default) — Tab accepts. Real run through the autocomplete controller.', async (rec) => {
 		await page.evaluate(() => {
-			const p = window.app.plugins.plugins['curtis-ai-chat'];
+			const p = window.app.plugins.plugins['curtis'];
 			p.settings.enableAutocomplete = true;
 			p.settings.autocompleteProviderId = 'mock-llm';
 			p.settings.autocompleteModelId = 'mock-mini';
@@ -1469,7 +1472,7 @@ async function desktopPass() {
 			try { const out = await video(page, base, flow); if (out) made.push(base); } catch (e) { console.log(`[gallery]   ${base} failed: ${String(e.message).slice(0, 90)}`); }
 		};
 		await safeVideo('videos/chat-send-stream', async () => {
-			await page.evaluate(() => window.app.commands.executeCommandById('curtis-ai-chat:new-chat'));
+			await page.evaluate(() => window.app.commands.executeCommandById('curtis:new-chat'));
 			await page.waitForTimeout(600);
 			mock.clear();
 			mock.stage({
@@ -1488,7 +1491,7 @@ async function desktopPass() {
 			await sleep(1600);
 		});
 		await safeVideo('videos/slash-commands-model-picker', async () => {
-			await page.evaluate(() => window.app.commands.executeCommandById('curtis-ai-chat:new-chat'));
+			await page.evaluate(() => window.app.commands.executeCommandById('curtis:new-chat'));
 			await page.waitForTimeout(500);
 			await page.click('.ai-chat-input');
 			// The slash menu opens on "/" — then /model takes an argument and
@@ -1529,7 +1532,7 @@ async function desktopPass() {
 		const made = [];
 		try {
 			await video(page, 'videos/agent-tool-run', async () => {
-				await page.evaluate(() => window.app.commands.executeCommandById('curtis-ai-chat:new-chat'));
+				await page.evaluate(() => window.app.commands.executeCommandById('curtis:new-chat'));
 				await page.waitForTimeout(500);
 				mock.clear();
 				mock.stage(
@@ -1547,7 +1550,7 @@ async function desktopPass() {
 			// Terminal as a TAB — the window variant records as a separate OS
 			// window the main-page capture never sees (frames go static).
 			await video(page, 'videos/terminal-shell', async () => {
-				await page.evaluate(() => window.app.commands.executeCommandById('curtis-ai-chat:open-terminal-tab'));
+				await page.evaluate(() => window.app.commands.executeCommandById('curtis:open-terminal-tab'));
 				await page.waitForTimeout(2500);
 				// Focus the terminal's command input whatever its exact tag is.
 				await page.evaluate(() => {
@@ -1569,7 +1572,7 @@ async function desktopPass() {
 			// Tab split only — the popout is an OS window the main-page capture
 			// can't see (a static main page skips the encode).
 			await video(page, 'videos/multipane-tabs', async () => {
-				await page.evaluate(() => window.app.commands.executeCommandById('curtis-ai-chat:open-new-chat-tab'));
+				await page.evaluate(() => window.app.commands.executeCommandById('curtis:open-new-chat-tab'));
 				await page.waitForTimeout(1800);
 				await page.evaluate(switchToConv, 'Weekly review');
 				await page.waitForTimeout(900);
@@ -1582,7 +1585,7 @@ async function desktopPass() {
 	await step('terminal-stills', 'terminal', 'Terminal pane', 'A desktop shell in its own pane (or window) — fresh shell per command, real output. Mobile gets a vault-only shell.', async (rec) => {
 		// Window variant: the terminal lives in its own OS window — find that
 		// CDP page and shoot it directly.
-		await page.evaluate(() => window.app.commands.executeCommandById('curtis-ai-chat:open-terminal'));
+		await page.evaluate(() => window.app.commands.executeCommandById('curtis:open-terminal'));
 		await page.waitForTimeout(2500);
 		let termWin = null;
 		for (const p of ctx.pages()) {
@@ -1598,7 +1601,7 @@ async function desktopPass() {
 			await page.waitForTimeout(600);
 		}
 		// Tab variant on the main page.
-		await page.evaluate(() => window.app.commands.executeCommandById('curtis-ai-chat:open-terminal-tab'));
+		await page.evaluate(() => window.app.commands.executeCommandById('curtis:open-terminal-tab'));
 		await page.waitForTimeout(1800);
 		await page.evaluate(() => {
 			const input = document.querySelector('.workspace-leaf-content[data-type="curtis-terminal"] input, .workspace-leaf-content[data-type="curtis-terminal"] textarea');
@@ -1609,16 +1612,16 @@ async function desktopPass() {
 		await page.waitForTimeout(2200);
 		await parkMouse(page);
 		await shoot(page, 'terminal/terminal-pane.png');
-		await page.evaluate(() => window.app.commands.executeCommandById('curtis-ai-chat:open-chat'));
+		await page.evaluate(() => window.app.commands.executeCommandById('curtis:open-chat'));
 		await page.waitForTimeout(700);
 	});
 
 	await step('multipane-stills', 'multipane', 'Multi-pane chat', 'A second chat as a titled tab and as its own OS window — each pane with its own conversation and model.', async (rec) => {
-		await page.evaluate(() => window.app.commands.executeCommandById('curtis-ai-chat:open-new-chat-tab'));
+		await page.evaluate(() => window.app.commands.executeCommandById('curtis:open-new-chat-tab'));
 		await page.waitForTimeout(1600);
 		await parkMouse(page);
 		await shoot(page, 'multipane/multipane-tabs.png');
-		await page.evaluate(() => window.app.commands.executeCommandById('curtis-ai-chat:open-chat-window'));
+		await page.evaluate(() => window.app.commands.executeCommandById('curtis:open-chat-window'));
 		await page.waitForTimeout(2600);
 		// The popout is its own CDP page target.
 		let popout = null;
@@ -1639,7 +1642,7 @@ async function desktopPass() {
 	});
 
 	await step('arena-stills', 'arena', 'Multi-model arena', 'One prompt to two models in parallel: picker, live streaming duel, per-column stop, and promote-to-chat. Mock duel, real arena pipeline.', async (rec) => {
-		await page.evaluate(() => window.app.commands.executeCommandById('curtis-ai-chat:new-chat'));
+		await page.evaluate(() => window.app.commands.executeCommandById('curtis:new-chat'));
 		await page.waitForTimeout(700);
 		mock.clear();
 		await page.click('.ai-chat-arena-btn');
@@ -1696,7 +1699,7 @@ async function desktopPass() {
 		// Light theme duel still.
 		await setTheme(page, 'light');
 		await page.waitForTimeout(800);
-		await page.evaluate(() => window.app.commands.executeCommandById('curtis-ai-chat:new-chat'));
+		await page.evaluate(() => window.app.commands.executeCommandById('curtis:new-chat'));
 		await page.waitForTimeout(600);
 		mock.clear();
 		await page.click('.ai-chat-arena-btn');
@@ -1724,7 +1727,7 @@ async function desktopPass() {
 		await page.evaluate(openChatAndRender);
 		await page.addStyleTag({ content: HIDE_TOASTS });
 		await video(page, 'videos/arena-duel', async () => {
-			await page.evaluate(() => window.app.commands.executeCommandById('curtis-ai-chat:new-chat'));
+			await page.evaluate(() => window.app.commands.executeCommandById('curtis:new-chat'));
 			await page.waitForTimeout(700);
 			mock.clear();
 			// The arena button lives in the composer of a fresh chat pane — make
@@ -1788,7 +1791,7 @@ async function desktopPass() {
 			await page.waitForTimeout(2400);
 		});
 		await video(page, 'videos/theme-switch', async () => {
-			await page.evaluate(() => window.app.commands.executeCommandById('curtis-ai-chat:new-chat'));
+			await page.evaluate(() => window.app.commands.executeCommandById('curtis:new-chat'));
 			await page.waitForTimeout(600);
 			await setTheme(page, 'light');
 			await page.waitForTimeout(1400);
@@ -1818,7 +1821,7 @@ async function desktopPass() {
 			await page.keyboard.press('Control+s');
 			await page.waitForTimeout(800);
 		});
-		await page.evaluate(() => window.app.commands.executeCommandById('curtis-ai-chat:open-chat'));
+		await page.evaluate(() => window.app.commands.executeCommandById('curtis:open-chat'));
 		await page.waitForTimeout(800);
 		rec.videos = ['videos/memory-edit'];
 	});
@@ -1967,7 +1970,7 @@ async function desktopPass() {
 		const before = readdirSync(resolve(VAULT, 'AI', 'Conversations')).length;
 		const [chooser] = await Promise.all([
 			page.waitForEvent('filechooser', { timeout: 10000 }),
-			page.evaluate(() => window.app.commands.executeCommandById('curtis-ai-chat:import-chats')),
+			page.evaluate(() => window.app.commands.executeCommandById('curtis:import-chats')),
 		]);
 		await chooser.setFiles(exportPath);
 		// A single clean import reports via Notice — no summary modal. Shoot
@@ -1995,11 +1998,11 @@ async function desktopPass() {
 			await page.waitForTimeout(1200);
 			await parkMouse(page);
 			await shoot(page, 'import/imported-conversation-note.png');
-			await page.evaluate(() => window.app.commands.executeCommandById('curtis-ai-chat:open-chat'));
+			await page.evaluate(() => window.app.commands.executeCommandById('curtis:open-chat'));
 			await page.waitForTimeout(700);
 		}
 		// Claude Code setup import (MCP servers, skills, subagents, CLAUDE.md).
-		await page.evaluate(() => window.app.commands.executeCommandById('curtis-ai-chat:import-claude-setup'));
+		await page.evaluate(() => window.app.commands.executeCommandById('curtis:import-claude-setup'));
 		await page.waitForSelector('.modal-container', { timeout: 10000 }).catch(() => {});
 		await page.waitForTimeout(700);
 		await parkMouse(page);
@@ -2007,7 +2010,7 @@ async function desktopPass() {
 		await page.keyboard.press('Escape');
 		await page.waitForTimeout(400);
 		// .curt — export all, then open the archive in the .curt viewer.
-		await page.evaluate(() => window.app.commands.executeCommandById('curtis-ai-chat:export-all-chats-curt'));
+		await page.evaluate(() => window.app.commands.executeCommandById('curtis:export-all-chats-curt'));
 		await page.waitForTimeout(2500);
 		let curtPath = null;
 		try {
@@ -2048,7 +2051,7 @@ async function desktopPass() {
 			await shoot(page, 'writing/selection-context-menu.png');
 			await page.keyboard.press('Escape');
 		}
-		await page.evaluate(() => window.app.commands.executeCommandById('curtis-ai-chat:open-chat'));
+		await page.evaluate(() => window.app.commands.executeCommandById('curtis:open-chat'));
 		await page.waitForTimeout(600);
 	});
 
@@ -2072,7 +2075,7 @@ async function desktopPass() {
 		// fresh leaf.
 		await page.evaluate(() => {
 			const ws = window.app.workspace;
-			const p = window.app.plugins.plugins['curtis-ai-chat'];
+			const p = window.app.plugins.plugins['curtis'];
 			const hero = p.conversationStore.getAllConversations().find((c) => (c.messages[0]?.content ?? '').startsWith('Weekly review'));
 			if (hero) p.conversationStore.setCurrentConversation(hero.id);
 			const leaf = ws.createLeafInParent(ws.rootSplit, ws.rootSplit.children.length);
@@ -2165,15 +2168,15 @@ async function mobilePass() {
 
 	// Phone metrics at 2x DPR, then reload so the layout reflows.
 	await page.evaluate(() => {
-		const p = window.app.plugins.plugins['curtis-ai-chat'];
+		const p = window.app.plugins.plugins['curtis'];
 		p.settings.chatViewPosition = 'left';
 		p.saveSettings();
 	});
 	const cdp = await ctx.newCDPSession(page);
 	await cdp.send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 2, mobile: true });
 	await page.evaluate(() => location.reload());
-	page = await waitForVaultPage(ctx, () => !!window.app?.plugins?.plugins?.['curtis-ai-chat']?.conversationStore, 45000, 'phone reload');
-	await waitForVaultPage(ctx, () => !!window.app?.commands?.commands?.['curtis-ai-chat:open-chat'], 15000, 'commands (phone)');
+	page = await waitForVaultPage(ctx, () => !!window.app?.plugins?.plugins?.['curtis']?.conversationStore, 45000, 'phone reload');
+	await waitForVaultPage(ctx, () => !!window.app?.commands?.commands?.['curtis:open-chat'], 15000, 'commands (phone)');
 	await page.addStyleTag({ content: HIDE_TOASTS });
 
 	// Strip desktop chrome ONCE at boot — every phone shot is full-bleed app
@@ -2196,7 +2199,7 @@ async function mobilePass() {
 		let heroIndexed = false;
 		for (let i = 0; i < 30 && !heroIndexed; i++) {
 			heroIndexed = await evalSafe(page, () => {
-				const p = window.app.plugins.plugins['curtis-ai-chat'];
+				const p = window.app.plugins.plugins['curtis'];
 				return p.conversationStore.getAllConversations().some((c) => (c.messages[0]?.content ?? '').startsWith('Weekly review'));
 			});
 			if (!heroIndexed) await sleep(1000);
@@ -2246,7 +2249,7 @@ async function mobilePass() {
 	});
 
 	await step('mobile-arena', 'mobile', 'Phone — arena duel', 'The arena columns stack and stream at phone width.', async (rec) => {
-		await page.evaluate(() => window.app.commands.executeCommandById('curtis-ai-chat:new-chat'));
+		await page.evaluate(() => window.app.commands.executeCommandById('curtis:new-chat'));
 		await page.waitForTimeout(700);
 		mock.clear();
 		await page.click('.ai-chat-arena-btn');
@@ -2273,7 +2276,7 @@ async function mobilePass() {
 
 	await step('mobile-video', 'mobile', 'Phone — video: send + stream', 'Typing, sending, and a streamed reply at phone width.', async (rec) => {
 		await video(page, 'mobile/videos/phone-chat-send', async () => {
-			await page.evaluate(() => window.app.commands.executeCommandById('curtis-ai-chat:new-chat'));
+			await page.evaluate(() => window.app.commands.executeCommandById('curtis:new-chat'));
 			await page.waitForTimeout(600);
 			mock.clear();
 			mock.stage({ kind: 'sse', paceMs: 40, firstDelayMs: 450, chunks: 'Phone-first: the composer sits in the thumb zone, the send button never moves, and long replies collapse behind a sticky input.'.split(/(?<=\s)/) });
@@ -2304,7 +2307,7 @@ async function mobilePass() {
 	await step('mobile-settings', 'mobile', 'Phone — settings', 'The plugin settings emulated at phone width: provider list and scheduled runs card.', async (rec) => {
 		await page.evaluate(() => {
 			window.app.setting.open();
-			window.app.setting.openTabById('curtis-ai-chat');
+			window.app.setting.openTabById('curtis');
 		});
 		const settingsPage = await openPluginSettings(ctx);
 		const scdp = await ctx.newCDPSession(settingsPage);
@@ -2443,7 +2446,7 @@ async function main() {
 		console.error('[gallery] watchdog: 50 minutes exceeded — aborting, writing index');
 		restoreLaunchVault();
 		writeIndex();
-		try { execSync('taskkill /IM Obsidian.exe /F', { stdio: 'ignore' }); } catch { /* */ }
+		try { execSync('taskkill /IM ObsidianSmoke.exe /F', { stdio: 'ignore' }); } catch { /* */ }
 		process.exit(9);
 	}, 50 * 60 * 1000);
 	watchdog.unref?.();
@@ -2472,13 +2475,6 @@ async function main() {
 		console.error('[gallery] finished with failures — assets kept, manifest + INDEX.md written');
 		process.exit(2);
 	}
-	console.log('[gallery] done — gallery in assets/feature-gallery/, relaunching Obsidian…');
-	// Skip when stdout is piped: on Windows the detached child inherits the
-	// pipe's write end and holds it open after we exit — downstream readers
-	// (tail, tee) then wait on EOF forever.
-	if (process.stdout.isTTY) {
-		spawn(OBSIDIAN_EXE, [], { detached: true, stdio: 'ignore' }).unref();
-	}
 	process.exit(0);
 }
 
@@ -2486,6 +2482,6 @@ main().catch((e) => {
 	console.error('[gallery] fatal:', e);
 	restoreSettings();
 	restoreLaunchVault();
-	try { execSync('taskkill /IM Obsidian.exe /F', { stdio: 'ignore' }); } catch { /* */ }
+	try { execSync('taskkill /IM ObsidianSmoke.exe /F', { stdio: 'ignore' }); } catch { /* */ }
 	process.exit(1);
 });

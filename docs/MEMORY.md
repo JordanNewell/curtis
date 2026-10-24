@@ -2,6 +2,10 @@
 
 Curtis.ai remembers durable facts about you across conversations. This doc explains what gets stored, where, how it's used, how to manage it, and the editing UI new in v1.0.
 
+A language model has no memory of its own. It sees only its context window — the text in the current request — and forgets everything the moment the request ends. Long-term memory closes that gap by writing facts down: Curtis keeps them in a plain markdown file in your vault and reads that file into the prompt on every send. The model never remembers anything by itself; it re-reads your records each time.
+
+Because the file is yours, memory here is auditable in a way most AI products are not. Open `AI/Curtis Memory.md` and you are looking at exactly what the model knows about you — edit it like any note.
+
 ## What memory is for
 
 Facts the model should know in every future chat:

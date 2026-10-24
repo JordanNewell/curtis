@@ -10,9 +10,8 @@
 // session-expired → re-initialize → retry recovery.
 
 import { strict as assert } from 'node:assert/strict';
-import { McpClient, formatToolCallResult, McpTransportError } from '../src/mcp/client';
-import { buildMcpToolName, sanitizeServerKey } from '../src/mcp/manager';
-import type { HttpSender } from '../src/mcp/transport';
+import { McpClient, formatToolCallResult, McpTransportError, buildMcpToolName, sanitizeServerKey } from '@curtisai/core';
+import type { HttpSender } from '@curtisai/core';
 
 // Node has no `window`; production code uses window timers (obsidianmd lint).
 // Same functions, same global — alias before any client code runs.

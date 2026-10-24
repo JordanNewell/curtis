@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Rules-based issue triage for curtis-ai-chat (the "Curtis bot", v1).
+// Rules-based issue triage for curtis (the "Curtis bot", v1).
 //
 // Runs on every newly opened issue via .github/workflows/triage.yml:
 //   1. keyword-matches the title + body against the feature table below

@@ -1,6 +1,6 @@
 name: Track downloads
 
-# Weekly snapshot of marketplace downloads for curtis-ai-chat.
+# Weekly snapshot of marketplace downloads for curtis.
 # scripts/fetch-plugin-stats.mjs fetches Obsidian's official plugin stats
 # (community-plugin-stats.json) and appends one row to docs/metrics/downloads.csv;
 # this workflow commits the CSV back to the default branch (master).

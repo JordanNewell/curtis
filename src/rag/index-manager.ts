@@ -25,7 +25,7 @@
 
 import { TFile, debounce } from 'obsidian';
 import type { App, PluginManifest } from 'obsidian';
-import type { EmbeddingChunk, RetrievalResult } from '../types';
+import type { EmbeddingChunk, RetrievalResult } from '@curtisai/shared';
 import type CurtisPlugin from '../main';
 import { resolveApiKey } from '../core/secrets';
 import { EmbeddingError, embedTexts, embeddingsUrlFromChatUrl, type EmbeddingEndpoint } from './embeddings';

@@ -1,48 +1,40 @@
 {
   "runs": [
     {
-      "startedAt": "2026-10-11T11:49:42.524Z",
-      "host": "redacted"
+      "startedAt": "2026-10-11T11:49:42.524Z"
     },
     {
-      "startedAt": "2026-10-11T12:04:31.440Z",
-      "host": "redacted"
+      "startedAt": "2026-10-11T12:04:31.440Z"
     },
     {
-      "startedAt": "2026-10-11T12:12:13.699Z",
-      "host": "redacted"
+      "startedAt": "2026-10-11T12:12:13.699Z"
     },
     {
-      "startedAt": "2026-10-11T12:20:29.685Z",
-      "host": "redacted"
+      "startedAt": "2026-10-11T12:20:29.685Z"
     },
     {
-      "startedAt": "2026-10-11T12:24:01.162Z",
-      "host": "redacted"
+      "startedAt": "2026-10-11T12:24:01.162Z"
     },
     {
-      "startedAt": "2026-10-11T12:27:20.027Z",
-      "host": "redacted"
+      "startedAt": "2026-10-11T12:27:20.027Z"
     },
     {
-      "startedAt": "2026-10-11T12:35:12.539Z",
-      "host": "redacted"
+      "startedAt": "2026-10-11T12:35:12.539Z"
     },
     {
-      "startedAt": "2026-10-11T12:57:41.679Z",
-      "host": "redacted"
+      "startedAt": "2026-10-11T12:57:41.679Z"
     },
     {
-      "startedAt": "2026-10-11T13:03:27.582Z",
-      "host": "redacted"
+      "startedAt": "2026-10-11T13:03:27.582Z"
     },
     {
-      "startedAt": "2026-10-11T15:31:15.841Z",
-      "host": "redacted"
+      "startedAt": "2026-10-11T15:31:15.841Z"
     },
     {
-      "startedAt": "2026-10-11T15:35:46.404Z",
-      "host": "redacted"
+      "startedAt": "2026-10-11T15:35:46.404Z"
+    },
+    {
+      "startedAt": "2026-10-14T04:34:00.946Z"
     }
   ],
   "steps": {
@@ -53,271 +45,270 @@
       "desc": "Seeds memory facts, six fixture conversations, and the mock provider; opens the chat beside the daily note.",
       "files": [],
       "ok": true,
-      "startedAt": "2026-10-11T15:36:04.397Z",
+      "startedAt": "2026-10-14T04:34:16.847Z",
       "seeded": {
         "factIds": [
-          "36984741-6bde-40d7-a4a7-1a9523580fe1",
-          "0b92c529-5c3a-4de1-9b64-7cf0d6991f90",
-          "6ddb2a31-09d9-4941-848e-adaa2b6ebe56"
+          "27cecefc-0a20-4403-a7c3-d8e73735a27f",
+          "cf3c6ace-05fb-43a6-984f-cac04848ed06",
+          "9180a17c-e103-43f3-ab6d-4b84cc276e7e"
         ],
-        "hero": "conv_1791732964401_4kuxivt3k",
-        "mention": "conv_1791732964401_pfgvv7i96",
-        "image": "conv_1791732964402_jtef589u4",
-        "memory": "conv_1791732964402_f4kcmgout",
-        "rag": "conv_1791732964402_chz6nu6h7",
-        "agent": "conv_1791732964402_ylkswlm8h"
+        "hero": "conv_1791952456851_wvkl090n5",
+        "mention": "conv_1791952456851_6l5a9ulx5",
+        "image": "conv_1791952456852_e2egqiabv",
+        "memory": "conv_1791952456852_rdoy92wj6",
+        "rag": "conv_1791952456852_r4emolxzj",
+        "agent": "conv_1791952456852_uiop13jjk"
       },
-      "ms": 2202
+      "ms": 1869
     },
     "chat-conversation": {
       "id": "chat-conversation",
       "group": "chat",
-      "title": "Chat — conversation view",
+      "title": "Chat \u2014 conversation view",
       "desc": "Markdown answers, provider/model pills, token counts, day separators, and a note open behind the chat. Default dark theme.",
       "files": [],
       "ok": true,
-      "startedAt": "2026-10-11T12:35:34.506Z",
-      "ms": 680
+      "startedAt": "2026-10-14T04:34:18.722Z",
+      "ms": 551
     },
     "chat-code-table": {
       "id": "chat-code-table",
       "group": "chat",
-      "title": "Chat — markdown rendering",
+      "title": "Chat \u2014 markdown rendering",
       "desc": "Tables, checklists, and a fenced code block rendered inside answers.",
       "files": [],
       "ok": true,
-      "startedAt": "2026-10-11T12:35:35.189Z",
-      "ms": 702
+      "startedAt": "2026-10-14T04:34:19.275Z",
+      "ms": 548
     },
     "chat-history": {
       "id": "chat-history",
       "group": "chat",
-      "title": "Chat — conversation history",
+      "title": "Chat \u2014 conversation history",
       "desc": "The history dropdown over the conversation: every chat is a persisted, searchable markdown note.",
       "files": [],
       "ok": true,
-      "startedAt": "2026-10-11T12:04:50.840Z",
-      "ms": 1430
+      "startedAt": "2026-10-14T04:34:19.825Z",
+      "ms": 1404
     },
     "chat-model-picker": {
       "id": "chat-model-picker",
       "group": "chat",
-      "title": "Chat — model picker",
-      "desc": "The model picker across every enabled provider — 53 built-ins plus custom endpoints.",
+      "title": "Chat \u2014 model picker",
+      "desc": "The model picker across every enabled provider \u2014 53 built-ins plus custom endpoints.",
       "files": [],
       "ok": true,
-      "startedAt": "2026-10-11T12:04:52.274Z",
-      "ms": 2200
+      "startedAt": "2026-10-14T04:34:21.232Z",
+      "ms": 2171
     },
     "chat-slash-menu": {
       "id": "chat-slash-menu",
       "group": "chat",
-      "title": "Chat — slash commands",
-      "desc": "Typing \"/\" opens the 20-command menu: clear, regen, model, agent, leader, export, prompt library…",
+      "title": "Chat \u2014 slash commands",
+      "desc": "Typing \"/\" opens the 20-command menu: clear, regen, model, agent, leader, export, prompt library\u2026",
       "files": [],
       "ok": true,
-      "startedAt": "2026-10-11T11:50:43.595Z",
-      "ms": 1414
+      "startedAt": "2026-10-14T04:34:23.404Z",
+      "ms": 1200
     },
     "chat-prompt-library": {
       "id": "chat-prompt-library",
       "group": "chat",
-      "title": "Chat — prompt library",
+      "title": "Chat \u2014 prompt library",
       "desc": "The /prompt picker over the saved prompt library (slash commands execute on send).",
       "files": [],
       "ok": true,
-      "startedAt": "2026-10-11T12:12:33.672Z",
-      "ms": 2412
+      "startedAt": "2026-10-14T04:34:24.606Z",
+      "ms": 2274
     },
     "chat-mention": {
       "id": "chat-mention",
       "group": "chat",
-      "title": "Chat — @-mention notes",
+      "title": "Chat \u2014 @-mention notes",
       "desc": "Typing \"@\" fuzzy-searches the vault and attaches the note as context (pill on the bubble).",
       "files": [],
       "ok": true,
-      "startedAt": "2026-10-11T11:50:53.835Z",
-      "ms": 1709
+      "startedAt": "2026-10-14T04:34:26.882Z",
+      "ms": 1597
     },
     "chat-mention-pill": {
       "id": "chat-mention-pill",
       "group": "chat",
-      "title": "Chat — attached-note pill",
+      "title": "Chat \u2014 attached-note pill",
       "desc": "A sent message with an @-attached note: the pill names the file; its content went to the model, not the bubble.",
       "files": [],
       "ok": true,
-      "startedAt": "2026-10-11T12:35:35.894Z",
-      "ms": 1251
+      "startedAt": "2026-10-14T04:34:28.480Z",
+      "ms": 1146
     },
     "chat-image": {
       "id": "chat-image",
       "group": "chat",
-      "title": "Chat — image attachments",
+      "title": "Chat \u2014 image attachments",
       "desc": "A pasted chart on the user bubble and a vision answer below it.",
       "files": [],
       "ok": true,
-      "startedAt": "2026-10-11T12:35:37.149Z",
-      "ms": 1243
+      "startedAt": "2026-10-14T04:34:29.628Z",
+      "ms": 1163
     },
     "chat-memory-chip": {
       "id": "chat-memory-chip",
       "group": "chat",
-      "title": "Chat — memory chip",
+      "title": "Chat \u2014 memory chip",
       "desc": "The \"memories\" badge on a turn that drew on long-term memory; click it to see the facts used.",
       "files": [],
       "ok": true,
-      "startedAt": "2026-10-11T12:35:38.395Z",
-      "ms": 1208
+      "startedAt": "2026-10-14T04:34:30.793Z",
+      "ms": 1150
     },
     "chat-rag-card": {
       "id": "chat-rag-card",
       "group": "context",
-      "title": "Vault retrieval — semantic_search card",
+      "title": "Vault retrieval \u2014 semantic_search card",
       "desc": "The RAG tool card with retrieved excerpts (seeded render; the hybrid index itself is a settings toggle).",
       "files": [],
       "ok": true,
-      "startedAt": "2026-10-11T12:35:39.608Z",
-      "ms": 1240
+      "startedAt": "2026-10-14T04:34:31.945Z",
+      "ms": 1153
     },
     "chat-agent-seeded": {
       "id": "chat-agent-seeded",
       "group": "agent",
-      "title": "Agent — tool-call cards",
+      "title": "Agent \u2014 tool-call cards",
       "desc": "read_note called inside a chat: the card shows the tool, its arguments, and the result (seeded render).",
       "files": [],
       "ok": true,
-      "startedAt": "2026-10-11T12:35:40.850Z",
-      "ms": 1267
+      "startedAt": "2026-10-14T04:34:33.100Z",
+      "ms": 1165
     },
     "chat-new-empty": {
       "id": "chat-new-empty",
       "group": "chat",
-      "title": "Chat — new chat",
+      "title": "Chat \u2014 new chat",
       "desc": "The empty state: provider pill, composer, and the vault behind.",
       "files": [],
       "ok": true,
-      "startedAt": "2026-10-11T12:35:42.120Z",
-      "ms": 1559
+      "startedAt": "2026-10-14T04:34:34.267Z",
+      "ms": 1476
     },
     "agent-live-read": {
       "id": "agent-live-read",
       "group": "agent",
-      "title": "Agent — live tool run",
+      "title": "Agent \u2014 live tool run",
       "desc": "A real agent turn through the loop: the model calls read_note, the tool executes against the vault, the answer cites it.",
       "files": [],
       "ok": true,
-      "startedAt": "2026-10-11T12:12:44.877Z",
-      "live": "mock LLM over local SSE — real tool execution in the vault",
-      "ms": 6156
+      "startedAt": "2026-10-14T04:34:36.811Z",
+      "live": "mock LLM over local SSE \u2014 real tool execution in the vault",
+      "ms": 5208
     },
     "agent-live-write": {
       "id": "agent-live-write",
       "group": "agent",
-      "title": "Agent — vault write",
+      "title": "Agent \u2014 vault write",
       "desc": "create_note executes for real: the note lands in the vault and opens next to the tool card that made it.",
       "files": [],
       "ok": true,
-      "startedAt": "2026-10-11T12:12:51.036Z",
-      "live": "mock LLM over local SSE — real note created in the vault",
-      "ms": 6475
+      "startedAt": "2026-10-14T04:34:42.022Z",
+      "live": "mock LLM over local SSE \u2014 real note created in the vault",
+      "ms": 6156
     },
     "swarm-live": {
       "id": "swarm-live",
       "group": "swarm",
-      "title": "Swarm — leader spawns a follower",
+      "title": "Swarm \u2014 leader spawns a follower",
       "desc": "Leader chat marked with /leader, then one send: the spawn_agent tool starts a follower conversation in its own pane, which reports back into the leader thread.",
       "files": [],
       "ok": true,
-      "startedAt": "2026-10-11T12:24:23.059Z",
-      "live": "mock LLM over local SSE — real spawn_agent + follower conversation",
-      "ms": 18698
+      "startedAt": "2026-10-14T04:34:48.179Z",
+      "live": "mock LLM over local SSE \u2014 real spawn_agent + follower conversation",
+      "ms": 17595
     },
     "scheduled-run": {
       "id": "scheduled-run",
       "group": "scheduled",
-      "title": "Scheduled runs — Run now",
+      "title": "Scheduled runs \u2014 Run now",
       "desc": "The settings card with a daily job, then a real manual fire: the headless run lands as a markdown note and the row shows its status.",
       "files": [
         "scheduled/scheduled-runs-card.png",
         "scheduled/scheduled-runs-card-after.png"
       ],
       "ok": true,
-      "startedAt": "2026-10-11T12:13:15.280Z",
-      "runNote": "AI\\Scheduled\\Morning vault digest 2026-10-11 08-13.md",
-      "ms": 11782
+      "startedAt": "2026-10-14T04:35:05.775Z",
+      "runNote": "AI\\Scheduled\\Morning vault digest 2026-10-14 00-35.md",
+      "ms": 8057
     },
     "diff-rewrite": {
       "id": "diff-rewrite",
       "group": "writing",
       "title": "Inline diff rewrite",
-      "desc": "Select text → rewrite-with-AI → review the word-level diff → Accept or Reject. Real run: the mock rewrite replaces the selection.",
+      "desc": "Select text \u2192 rewrite-with-AI \u2192 review the word-level diff \u2192 Accept or Reject. Real run: the mock rewrite replaces the selection.",
       "files": [],
       "ok": true,
-      "startedAt": "2026-10-11T12:58:04.004Z",
+      "startedAt": "2026-10-14T04:35:15.076Z",
       "live": "mock rewrite through the real selection-action pipeline",
-      "ms": 5542
+      "ms": 4939
     },
     "autocomplete": {
       "id": "autocomplete",
       "group": "writing",
       "title": "Inline autocomplete",
-      "desc": "Ghost text while typing in a note (dedicated model, off by default) — Tab accepts. Real run through the autocomplete controller.",
+      "desc": "Ghost text while typing in a note (dedicated model, off by default) \u2014 Tab accepts. Real run through the autocomplete controller.",
       "files": [],
       "ok": true,
-      "startedAt": "2026-10-11T13:03:50.425Z",
+      "startedAt": "2026-10-14T04:35:20.017Z",
       "live": "mock autocomplete model over local SSE",
-      "ms": 6070
+      "ms": 5685
     },
     "videos-chat": {
       "id": "videos-chat",
       "group": "videos",
-      "title": "Video — send + streamed reply",
-      "desc": "Type a prompt, send, watch the reply stream token by token over real SSE. Then /model → picker, @-mention, and cross-conversation search.",
+      "title": "Video \u2014 send + streamed reply",
+      "desc": "Type a prompt, send, watch the reply stream token by token over real SSE. Then /model \u2192 picker, @-mention, and cross-conversation search.",
       "files": [],
       "ok": true,
-      "startedAt": "2026-10-11T13:03:56.497Z",
+      "startedAt": "2026-10-14T04:35:25.704Z",
       "videos": [
-        "videos/chat-send-stream",
         "videos/slash-commands-model-picker",
         "videos/mention-note",
         "videos/search-conversations"
       ],
-      "ms": 26090
+      "ms": 22922
     },
     "videos-agent-terminal-multipane": {
       "id": "videos-agent-terminal-multipane",
       "group": "videos",
-      "title": "Video — agent tools, terminal shell, multipane",
+      "title": "Video \u2014 agent tools, terminal shell, multipane",
       "desc": "Agent tool cards appearing live; a real shell session in the terminal pane; a second chat tab and a popout window.",
       "files": [],
       "ok": true,
-      "startedAt": "2026-10-11T13:04:22.590Z",
+      "startedAt": "2026-10-14T04:35:48.628Z",
       "videos": [
         "videos/agent-tool-run",
         "videos/terminal-shell",
         "videos/multipane-tabs"
       ],
-      "ms": 28429
+      "ms": 25365
     },
     "terminal-stills": {
       "id": "terminal-stills",
       "group": "terminal",
       "title": "Terminal pane",
-      "desc": "A desktop shell in its own pane (or window) — fresh shell per command, real output. Mobile gets a vault-only shell.",
+      "desc": "A desktop shell in its own pane (or window) \u2014 fresh shell per command, real output. Mobile gets a vault-only shell.",
       "files": [],
       "ok": true,
-      "startedAt": "2026-10-11T12:14:22.942Z",
-      "ms": 10243
+      "startedAt": "2026-10-14T04:36:13.995Z",
+      "ms": 8227
     },
     "multipane-stills": {
       "id": "multipane-stills",
       "group": "multipane",
       "title": "Multi-pane chat",
-      "desc": "A second chat as a titled tab and as its own OS window — each pane with its own conversation and model.",
+      "desc": "A second chat as a titled tab and as its own OS window \u2014 each pane with its own conversation and model.",
       "files": [],
       "ok": true,
-      "startedAt": "2026-10-11T12:14:33.189Z",
-      "ms": 7119
+      "startedAt": "2026-10-14T04:36:22.223Z",
+      "ms": 6850
     },
     "arena-stills": {
       "id": "arena-stills",
@@ -325,42 +316,37 @@
       "title": "Multi-model arena",
       "desc": "One prompt to two models in parallel: picker, live streaming duel, per-column stop, and promote-to-chat. Mock duel, real arena pipeline.",
       "files": [],
-      "ok": true,
-      "startedAt": "2026-10-11T12:06:26.502Z",
-      "live": "mock duel through the real arena pipeline",
-      "ms": 24722
+      "ok": false,
+      "startedAt": "2026-10-14T04:36:29.075Z",
+      "error": "page.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.ai-chat-arena-btn')\u001b[22m\n\u001b[2m    - locator resolved to 4 elements. Proceeding with the first one: <button title=\"Arena mode\" aria-label=\"Arena mode\" class=\"ai-chat-icon-btn ai-chat-arena-btn\">\u2026</button>\u001b[22m\n\u001b[2m  - attemp",
+      "ms": 30727
     },
     "video-arena-theme-memory": {
       "id": "video-arena-theme-memory",
       "group": "videos",
-      "title": "Video — arena duel + live theme switch",
-      "desc": "A full arena take (picker → duel → per-column stop → promote) and the app re-theming live: dark → light → Minimal → Royal Velvet.",
+      "title": "Video \u2014 arena duel + live theme switch",
+      "desc": "A full arena take (picker \u2192 duel \u2192 per-column stop \u2192 promote) and the app re-theming live: dark \u2192 light \u2192 Minimal \u2192 Royal Velvet.",
       "files": [],
-      "ok": true,
-      "startedAt": "2026-10-11T15:36:08.849Z",
-      "videos": [
-        "videos/arena-duel",
-        "videos/theme-switch"
-      ],
-      "ms": 47138
+      "ok": false,
+      "startedAt": "2026-10-14T04:36:59.805Z",
+      "error": "page.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.ai-chat-input')\u001b[22m\n\u001b[2m    - locator resolved to 4 elements. Proceeding with the first one: <textarea rows=\"1\" enterkeyhint=\"send\" class=\"ai-chat-input\"></textarea>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 \u00d7 w",
+      "ms": 32390
     },
     "video-memory-file": {
       "id": "video-memory-file",
       "group": "videos",
-      "title": "Video — memory file",
-      "desc": "Memory is a plain markdown note: open AI/Curtis Memory.md, add a fact, save — Curtis recalls it next turn.",
+      "title": "Video \u2014 memory file",
+      "desc": "Memory is a plain markdown note: open AI/Curtis Memory.md, add a fact, save \u2014 Curtis recalls it next turn.",
       "files": [],
-      "ok": true,
-      "startedAt": "2026-10-11T13:05:23.431Z",
-      "videos": [
-        "videos/memory-edit"
-      ],
-      "ms": 5842
+      "ok": false,
+      "startedAt": "2026-10-14T04:37:32.198Z",
+      "error": "page.evaluate: TypeError: Cannot read properties of undefined (reading 'lineCount')\n    at eval (eval at evaluate (:311:30), <anonymous>:4:22)\n    at UtilityScript.evaluate (<anonymous>:313:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)",
+      "ms": 1416
     },
     "settings-groups": {
       "id": "settings-groups",
       "group": "settings",
-      "title": "Settings — every group",
+      "title": "Settings \u2014 every group",
       "desc": "The full settings surface: providers, generation, agent, agents, skills, terminal, chat UI, voice, notes, conversations, MCP, GCP, about.",
       "files": [
         "settings/active-provider.png",
@@ -377,11 +363,13 @@
         "settings/conversations.png",
         "settings/about.png",
         "context/memory-settings.png",
-        "context/memory-edit-modal.png"
+        "context/memory-edit-modal.png",
+        "providers/provider-ollama.png",
+        "providers/custom-provider-modal.png"
       ],
       "ok": true,
-      "startedAt": "2026-10-11T12:24:49.747Z",
-      "ms": 24588
+      "startedAt": "2026-10-14T04:37:33.617Z",
+      "ms": 21840
     },
     "import-flow": {
       "id": "import-flow",
@@ -389,19 +377,21 @@
       "title": "Chat importer",
       "desc": "ChatGPT/Claude exports, .curt files, and role-labeled markdown in; every conversation lands as a markdown note under AI/Conversations/. Real import of a role-labeled JSON through the OS file picker.",
       "files": [],
-      "ok": true,
-      "startedAt": "2026-10-11T12:15:10.779Z",
-      "ms": 8044
+      "ok": false,
+      "startedAt": "2026-10-14T04:38:01.720Z",
+      "error": "page.waitForEvent: Timeout 10000ms exceeded while waiting for event \"filechooser\"\n=========================== logs ===========================\nwaiting for event \"filechooser\"\n============================================================",
+      "ms": 10015
     },
     "selection-menu": {
       "id": "selection-menu",
       "group": "writing",
       "title": "Selection actions",
-      "desc": "Right-click any selection in a note: explain, summarize, refactor, translate, code review — plus custom actions.",
+      "desc": "Right-click any selection in a note: explain, summarize, refactor, translate, code review \u2014 plus custom actions.",
       "files": [],
-      "ok": true,
-      "startedAt": "2026-10-11T12:15:18.826Z",
-      "ms": 32333
+      "ok": false,
+      "startedAt": "2026-10-14T04:38:11.737Z",
+      "error": "page.evaluate: TypeError: Cannot read properties of undefined (reading 'setSelection')\n    at eval (eval at evaluate (:311:30), <anonymous>:4:11)\n    at UtilityScript.evaluate (<anonymous>:313:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)",
+      "ms": 925
     },
     "notifications-voice": {
       "id": "notifications-voice",
@@ -413,96 +403,96 @@
         "voice/notification-settings.png"
       ],
       "ok": true,
-      "startedAt": "2026-10-11T12:15:51.162Z",
-      "ms": 7670
+      "startedAt": "2026-10-14T04:38:12.665Z",
+      "ms": 3772
     },
     "theme-matrix": {
       "id": "theme-matrix",
       "group": "themes",
-      "title": "Theme matrix — 11 themes",
+      "title": "Theme matrix \u2014 11 themes",
       "desc": "The same conversation rendered full-window in default dark/light and the nine most-installed community themes.",
       "files": [],
       "ok": true,
-      "startedAt": "2026-10-11T12:25:14.337Z",
-      "ms": 19762
+      "startedAt": "2026-10-14T04:38:16.440Z",
+      "ms": 18948
     },
     "gallery-hero-themes": {
       "id": "gallery-hero-themes",
       "group": "themes",
-      "title": "Theme details — composer close-ups",
+      "title": "Theme details \u2014 composer close-ups",
       "desc": "The composer and message bubbles in three flagships: default dark, Minimal, Royal Velvet (cropped to the chat surface).",
       "files": [],
       "ok": true,
-      "startedAt": "2026-10-11T12:25:34.102Z",
-      "ms": 6338
+      "startedAt": "2026-10-14T04:38:35.394Z",
+      "ms": 6210
     },
     "mobile-chat": {
       "id": "mobile-chat",
       "group": "mobile",
-      "title": "Phone — conversation",
-      "desc": "The full chat at phone width (390×844): bubbles, pills, composer — the same view, reflowed.",
+      "title": "Phone \u2014 conversation",
+      "desc": "The full chat at phone width (390\u00d7844): bubbles, pills, composer \u2014 the same view, reflowed.",
       "files": [],
       "ok": true,
-      "startedAt": "2026-10-11T12:22:00.423Z",
-      "ms": 3885
+      "startedAt": "2026-10-14T04:38:58.716Z",
+      "ms": 3570
     },
     "mobile-menus": {
       "id": "mobile-menus",
       "group": "mobile",
-      "title": "Phone — history, model picker, slash, mention",
+      "title": "Phone \u2014 history, model picker, slash, mention",
       "desc": "Every picker reflows to the sheet style at phone width.",
       "files": [],
       "ok": true,
-      "startedAt": "2026-10-11T12:16:38.961Z",
-      "ms": 12875
+      "startedAt": "2026-10-14T04:39:02.289Z",
+      "ms": 4748
     },
     "mobile-arena": {
       "id": "mobile-arena",
       "group": "mobile",
-      "title": "Phone — arena duel",
+      "title": "Phone \u2014 arena duel",
       "desc": "The arena columns stack and stream at phone width.",
       "files": [],
       "ok": true,
-      "startedAt": "2026-10-11T12:16:51.840Z",
-      "ms": 7483
+      "startedAt": "2026-10-14T04:39:07.040Z",
+      "ms": 6843
     },
     "mobile-video": {
       "id": "mobile-video",
       "group": "mobile",
-      "title": "Phone — video: send + stream",
+      "title": "Phone \u2014 video: send + stream",
       "desc": "Typing, sending, and a streamed reply at phone width.",
       "files": [],
       "ok": true,
-      "startedAt": "2026-10-11T12:16:59.325Z",
+      "startedAt": "2026-10-14T04:39:13.884Z",
       "videos": [
         "mobile/videos/phone-chat-send"
       ],
-      "ms": 12196
+      "ms": 10707
     },
     "mobile-themes": {
       "id": "mobile-themes",
       "group": "mobile",
-      "title": "Phone — themes",
+      "title": "Phone \u2014 themes",
       "desc": "The chat in default light plus two community themes at phone width.",
       "files": [],
       "ok": true,
-      "startedAt": "2026-10-11T12:17:11.523Z",
-      "ms": 3635
+      "startedAt": "2026-10-14T04:39:24.595Z",
+      "ms": 3516
     },
     "mobile-settings": {
       "id": "mobile-settings",
       "group": "mobile",
-      "title": "Phone — settings",
+      "title": "Phone \u2014 settings",
       "desc": "The plugin settings emulated at phone width: provider list and scheduled runs card.",
       "files": [],
       "ok": true,
-      "startedAt": "2026-10-11T12:17:15.162Z",
-      "ms": 7503
+      "startedAt": "2026-10-14T04:39:28.114Z",
+      "ms": 6771
     },
     "settings-extended": {
       "id": "settings-extended",
       "group": "settings",
-      "title": "Settings — MCP client + Curtis’s own MCP server + GCP",
+      "title": "Settings \u2014 MCP client + Curtis\u2019s own MCP server + GCP",
       "desc": "MCP servers you already run can be added as agent tools; Curtis can also SERVE the vault itself over localhost MCP; GCP connects read-only Cloud Storage.",
       "files": [
         "mcp/mcp-client-servers.png",
@@ -511,8 +501,8 @@
         "settings/gcp-connection.png"
       ],
       "ok": true,
-      "startedAt": "2026-10-11T12:27:43.564Z",
-      "ms": 12130
+      "startedAt": "2026-10-14T04:37:55.460Z",
+      "ms": 6257
     }
   }
 }

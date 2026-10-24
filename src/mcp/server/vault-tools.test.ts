@@ -128,6 +128,30 @@ describe('search_notes / findTextHits', () => {
 		expect(await findTextHits(fakePort(), 'ALPHA', 20)).toHaveLength(2);
 	});
 
+	// Regression: a duplicate-era vault ("Hollis, Robert" vs "Hollis_R" vs
+	// "Hollis-estate") used to hide the comma folder — a plain path-sorted
+	// scan let whichever folder collated first exhaust the hit budget before
+	// the punctuation-heavy sibling was ever reached.
+	it('surfaces every duplicate-era folder, not just the one that collates first', async () => {
+		const folders = ['Matters/Hollis, Robert', 'Matters/Hollis-estate', 'Matters/Hollis_R'];
+		const files: Record<string, string> = {};
+		for (const folder of folders) {
+			for (let i = 1; i <= 30; i++) {
+				files[`${folder}/meeting notes ${String(i).padStart(2, '0')}.md`] = `Hollis matter meeting ${i}`;
+			}
+		}
+		const port: VaultToolPort = {
+			listFiles: () => Object.keys(files).map((path) => ({ path })),
+			read: async (path) => files[path] ?? null,
+			write: async () => 'created',
+		};
+		const hits = await findTextHits(port, 'Hollis', 9);
+		const matched = new Set(
+			hits.map((h) => h.path.slice(0, h.path.lastIndexOf('/')))
+		);
+		expect([...matched].sort()).toEqual(folders);
+	});
+
 	it('formats the tool result with excerpts', async () => {
 		const backend = createVaultBackend(fakePort(), { allowWrites: false });
 		const res = await backend.callTool('search_notes', { query: 'alpha' });

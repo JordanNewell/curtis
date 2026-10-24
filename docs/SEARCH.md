@@ -4,6 +4,8 @@
 
 Every conversation is a markdown file in `AI/Conversations/` (see [IMPORT.md](IMPORT.md#where-chats-live)). Cross-conversation search scans those vault conversation files in memory, fuzzy-matching against **every conversation title and every message body** at once, then jumps you straight to the result.
 
+Because chats live as files you own, this search runs over your own records — not a hidden database on someone else's server. There is nothing to configure and nothing to trust: the same text Obsidian can see, Curtis can search. This answers "what did I decide about X three weeks ago"; for questions about your *notes*, use [vault retrieval](VAULT_RETRIEVAL.md) instead — that searches the vault, this searches your chat history.
+
 ## Opening the search
 
 Two ways:

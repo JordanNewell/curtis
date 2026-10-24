@@ -2,6 +2,10 @@
 
 > Curtis embeds your notes once, then quietly hands the model the relevant excerpts with every message — and `semantic_search` becomes an agent tool.
 
+This feature is retrieval-augmented generation (RAG) in plain terms. A model can only reason about what is in its prompt, and your vault is far too large to fit in one. So instead of pasting notes by hand, Curtis does the fetching for you: before each send it searches an index of your notes for passages relevant to your message and puts those excerpts in the prompt. The model answers from your records without you locating anything.
+
+The search runs two ways at once. An **embedding** turns a passage of text into a list of numbers (a vector) such that passages with similar meaning land close together — so "launch notes for the telescope project" can find a note that never uses those words. **BM25** is the other channel: a classic keyword index that matches exact words, names, and identifiers — the things embeddings are worst at. Running both and merging the rankings is **hybrid retrieval**, and it matters because real queries are half meaning, half exact terms.
+
 Vault retrieval is how Curtis answers questions about notes it hasn't been pointed at. Your notes are chunked, embedded, and indexed; on each send, excerpts from the notes most relevant to your message are injected into the prompt automatically. Retrieval is hybrid — semantic and lexical at once — so "that thread about the Kepler launch" finds the note titled *Rocketry log* by meaning, and "the Zebra migration RFC" finds it by exact words.
 
 **Off by default.** Settings → Curtis.ai → **Vault retrieval** → enable. Building the index is a separate, explicit step (below).

@@ -2,7 +2,7 @@
 // Edit Fact Modal — edit a single memory fact's content + category.
 
 import { App, Modal, Notice, Setting } from 'obsidian';
-import type { MemoryFact } from '../../types';
+import type { MemoryFact } from '@curtisai/shared';
 
 /** The only categories that round-trip through the memory markdown file. */
 const FACT_CATEGORIES = ['preference', 'identity', 'project', 'instruction', 'other'] as const;
@@ -14,6 +14,7 @@ export class EditFactModal extends Modal {
 
 	constructor(app: App, fact: MemoryFact, onSave: (content: string, category: string) => void) {
 		super(app);
+		this.modalEl.addClass('curtis-modal');
 		this.onSave = onSave;
 		this.content = fact.content;
 		this.category = fact.category || '';

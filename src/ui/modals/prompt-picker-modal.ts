@@ -5,7 +5,7 @@
 // flow inserts it immediately (mirrors AgentPickerModal).
 
 import { App, FuzzySuggestModal, Notice, setIcon } from 'obsidian';
-import type { PromptLibraryEntry } from '../../types';
+import type { PromptLibraryEntry } from '@curtisai/shared';
 import type CurtisPlugin from '../../main';
 import { PromptEditorModal } from './prompt-editor-modal';
 

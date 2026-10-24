@@ -1,7 +1,7 @@
 // Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 // Curtis plugin API — the surface other Obsidian plugins consume.
 //
-// Reachable as `app.plugins.plugins['curtis-ai-chat'].api` once Curtis is
+// Reachable as `app.plugins.plugins['curtis'].api` once Curtis is
 // loaded. Deliberately small and read-mostly: headless runs of the full
 // agent loop (chat targets the default assistant, runAgent a named agent),
 // vault reads/searches, and memory reads. It shares the MCP server's vault
@@ -10,15 +10,15 @@
 // Stability: this object is a public contract. Add things; don't change or
 // remove existing members without a major version bump and a docs note.
 
-import type { AIMessage, MemoryFact, TokenUsage } from '../types';
+import type { AIMessage, MemoryFact, TokenUsage } from '@curtisai/shared';
 import type CurtisPlugin from '../main';
 import { composeSystemPrompt, resolveHarnessPrompt } from '../core/system-prompt';
 import { noteLinkGuidanceForVault } from '../vault/links';
 import { RUN_COMMAND_TOOL } from '../core/command-tools';
-import { SWARM_TOOL_NAME } from '../swarm';
+import { SWARM_TOOL_NAME } from '@curtisai/core';
 import { buildVaultToolPort } from '../mcp/server/manager';
 import { findTextHits, safeVaultPath } from '../mcp/server/vault-tools';
-import { ThinkingStreamSplitter } from '../providers/anthropic';
+import { ThinkingStreamSplitter } from '@curtisai/llms';
 
 export interface CurtisApiChatOptions {
 	/** Replaces Curtis's default system prompt (date + core prompt + the
@@ -253,7 +253,7 @@ export function createPublicApi(plugin: CurtisPlugin): CurtisPublicApi {
 		async searchNotes(query, limit = 20) {
 			const trimmed = query.trim();
 			if (!trimmed) return [];
-			const hits = await findTextHits(buildVaultToolPort(plugin), trimmed, Math.min(100, Math.max(1, limit)));
+			const hits = await findTextHits(buildVaultToolPort(plugin), trimmed, Math.min(500, Math.max(1, limit)));
 			return hits.flatMap((hit) =>
 				hit.lines.map((l) => ({ path: hit.path, line: l.line, excerpt: l.text }))
 			);

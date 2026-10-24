@@ -2,6 +2,8 @@
 
 > Cursor-style AI rewrite with an Accept/Reject diff modal.
 
+An AI writing into your note is the highest-trust operation in the plugin, so Curtis treats it as a two-step act: generate, then review. No replace-mode action can change text you didn't see change. Every result is rendered as a line-level diff — additions, deletions, unchanged — and the note is modified only after an explicit Accept. Reject leaves the note exactly as it was, so trying a rewrite costs nothing you can't undo.
+
 Select text in any note, trigger a rewrite, and review the AI's changes line-by-line before they land. Green for additions, red for deletions, plain for unchanged. Accept to apply, reject to discard.
 
 ## What it is

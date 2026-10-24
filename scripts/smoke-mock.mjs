@@ -27,11 +27,11 @@ const { chromium } = require('playwright-core');
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const VAULT = resolve(ROOT, 'demo-vault');
-const PLUGIN_DIR = resolve(VAULT, '.obsidian/plugins/curtis-ai-chat');
+const PLUGIN_DIR = resolve(VAULT, '.obsidian/plugins/curtis');
 const DEBUG_PORT = 9340;
 const OBSIDIAN_EXE =
 	process.env.OBSIDIAN_EXE ||
-	resolve(process.env.USERPROFILE ?? process.env.HOME, 'scoop/apps/obsidian/current/Obsidian.exe');
+	'C:/tmp/obsidian-smoke/ObsidianSmoke.exe'; // smoke clone — never touches the live app
 
 const MOCK_KEY = 'mock-secret-key';
 const USAGE = { prompt_tokens: 12, completion_tokens: 34, total_tokens: 46 };
@@ -43,13 +43,13 @@ const ok = (cond, name, detail = '') => {
 	cond ? pass++ : fail++;
 };
 
-// Console gate: plugin:curtis-ai-chat errors fail the run even when every
+// Console gate: plugin:curtis errors fail the run even when every
 // assertion passes. Anything else (theme ENOENTs, core Obsidian) is surfaced
 // but never gates — same contract as the other suites.
 const pluginErrors = [];
 const watchPluginErrors = (text, url = '') => {
 	const s = `${text}\n${url}`;
-	if (!s.includes('plugin:curtis-ai-chat')) return;
+	if (!s.includes('plugin:curtis')) return;
 	// M5 deliberately induces a 401; the view logs it (console.error) before
 	// rendering the inline warning the assertions check for. Expected, handled.
 	if (text.includes('[Curtis] Stream error:') && text.includes('Mock LLM API error (401)')) return;
@@ -180,7 +180,7 @@ function bootstrapVault(port) {
 		cpSync(resolve(ROOT, f), resolve(PLUGIN_DIR, f));
 	}
 	const obsidianDir = resolve(VAULT, '.obsidian');
-	writeFileSync(resolve(obsidianDir, 'community-plugins.json'), JSON.stringify(['curtis-ai-chat']));
+	writeFileSync(resolve(obsidianDir, 'community-plugins.json'), JSON.stringify(['curtis']));
 	// Reset the persisted layout — prior runs leave floating windows behind and
 	// a stale popout would swallow the chat tab.
 	for (const f of ['workspace.json', 'workspace-mobile.json']) {
@@ -232,7 +232,7 @@ function restoreDataJson() {
 let originalLaunchVault = null;
 
 function registerDemoVault() {
-	const p = resolve(process.env.APPDATA, 'obsidian', 'obsidian.json');
+	const p = resolve(process.env.APPDATA, 'obsidian-smoke', 'obsidian.json');
 	let d = {};
 	try { d = JSON.parse(readFileSync(p, 'utf8')); } catch { /* fresh */ }
 	if (!d || typeof d !== 'object' || Array.isArray(d)) d = {};
@@ -254,7 +254,7 @@ function registerDemoVault() {
 
 function restoreLaunchVault() {
 	try {
-		const p = resolve(process.env.APPDATA, 'obsidian', 'obsidian.json');
+		const p = resolve(process.env.APPDATA, 'obsidian-smoke', 'obsidian.json');
 		const d = JSON.parse(readFileSync(p, 'utf8'));
 		for (const v of Object.values(d.vaults || {})) {
 			if (v && typeof v === 'object') v.open = false;
@@ -312,14 +312,14 @@ async function until(page, expr, timeoutMs, label) {
 
 const INSTALL_HELPERS = `(() => {
 	window.__smoke = {
-		plugin: () => window.app.plugins.plugins['curtis-ai-chat'],
+		plugin: () => window.app.plugins.plugins['curtis'],
 		chatView: () => {
 			const leaves = window.app.workspace.getLeavesOfType('curtis-chat');
 			if (leaves.length === 0) throw new Error('no chat view open');
 			return leaves[0].view;
 		},
 		async openChat() {
-			window.app.commands.executeCommandById('curtis-ai-chat:open-chat');
+			window.app.commands.executeCommandById('curtis:open-chat');
 			const deadline = Date.now() + 10000;
 			while (Date.now() < deadline) {
 				if (document.querySelector('.workspace-leaf-content[data-type="curtis-chat"]')) return true;
@@ -342,7 +342,7 @@ async function main() {
 
 	bootstrapVault(port);
 	registerDemoVault();
-	try { execSync('taskkill /IM Obsidian.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
+	try { execSync('taskkill /IM ObsidianSmoke.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
 	await sleep(2500);
 
 	const child = spawn(OBSIDIAN_EXE, [
@@ -381,7 +381,7 @@ async function main() {
 	});
 	setTimeout(() => {
 		console.error('[smoke] fatal: watchdog timeout (4 min) — aborting');
-		try { execSync('taskkill /IM Obsidian.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
+		try { execSync('taskkill /IM ObsidianSmoke.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
 		restoreLaunchVault();
 		restoreDataJson();
 		process.exit(1);
@@ -393,11 +393,11 @@ async function main() {
 		console.log('[smoke] dismissed trust-vault modal');
 	} catch { /* already trusted */ }
 	await page.evaluate(async () => {
-		try { await window.app.plugins.enablePlugin('curtis-ai-chat'); } catch { /* already on */ }
+		try { await window.app.plugins.enablePlugin('curtis'); } catch { /* already on */ }
 	});
 	page = await waitForVaultPage(
 		ctx,
-		() => !!window.app.plugins.plugins['curtis-ai-chat']?.conversationStore,
+		() => !!window.app.plugins.plugins['curtis']?.conversationStore,
 		30000,
 		'plugin onload complete'
 	);
@@ -574,13 +574,13 @@ async function main() {
 		// A pre-chunk failure stores no assistant message — the warning lives
 		// in the live bubble only.
 		await until(page, () => [...document.querySelectorAll('.ai-message-content')]
-			.some((el) => el.textContent.includes('⚠️')), 20000, 'error surfaced in the view');
+			.some((el) => el.textContent.includes('error:')), 20000, 'error surfaced in the view');
 		const m5req = requests.filter((r) => r.path === '/v1/chat/completions').at(-1);
 		ok(m5req.auth === 'Bearer wrong-key' && !m5req.authOk && requests.some((r) => r.path === '/v1/chat/completions' && r.auth === 'Bearer wrong-key'),
 			'M5 server rejected the bad key (401 path exercised)');
 		const m5dom = await page.evaluate(() =>
 			[...document.querySelectorAll('.ai-message-content')].map((el) => el.textContent).join('|'));
-		ok(m5dom.includes('⚠️'), 'M5 view shows the failure inline', m5dom.slice(-160));
+		ok(m5dom.includes('error:'), 'M5 view shows the failure inline', m5dom.slice(-160));
 	} finally {
 		// --- cleanup -------------------------------------------------------------
 		await page.evaluate(async (ids) => {
@@ -601,13 +601,6 @@ async function main() {
 	child.kill();
 	restoreLaunchVault();
 	restoreDataJson();
-	// Relaunch the user's Obsidian, as the harness took it over. Skip when stdout
-	// is piped: libuv spawns with bInheritHandles=TRUE on Windows, so this detached
-	// child inherits the stdout pipe's write end and keeps it open after we exit —
-	// downstream readers (tail, cat) then wait on EOF forever.
-	if (process.stdout.isTTY) {
-		try { spawn(OBSIDIAN_EXE, [], { detached: true, stdio: 'ignore' }).unref(); } catch { /* best effort */ }
-	}
 	process.exit(fail > 0 || pluginErrors.length > 0 ? 1 : 0);
 }
 
@@ -615,6 +608,6 @@ main().catch((e) => {
 	console.error('[smoke] fatal:', e.message);
 	restoreLaunchVault();
 	restoreDataJson();
-	try { execSync('taskkill /IM Obsidian.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
+	try { execSync('taskkill /IM ObsidianSmoke.exe /F', { stdio: 'ignore' }); } catch { /* not running */ }
 	process.exit(1);
 });

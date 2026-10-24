@@ -104,7 +104,7 @@ const SEARCH_TOOL: McpToolSpec = {
 		type: 'object',
 		properties: {
 			query: { type: 'string', description: 'Text to search for' },
-			limit: { type: 'number', description: 'Max notes with hits to return (default 20, cap 100)' },
+			limit: { type: 'number', description: 'Max notes with hits to return (default 20, cap 500)' },
 		},
 		required: ['query'],
 	},
@@ -155,7 +155,7 @@ const WRITE_TOOL: McpToolSpec = {
 // Limits for the scan-based tools — a big vault must not make one call
 // unreadable (or one call read the whole vault).
 const SEARCH_FILES_SCANNED = 2000;
-const SEARCH_TOTAL_CHARS = 8_000_000;
+const SEARCH_TOTAL_CHARS = 10_000_000;
 const EXCERPT_MAX = 160;
 const READ_MAX_CHARS_CAP = 200_000;
 const RESULT_TEXT_CAP = 100_000;
@@ -234,6 +234,35 @@ interface SearchHit {
 	lines: { line: number; text: string }[];
 }
 
+/** Scan order that round-robins across folders (each folder's own files
+ *  path-sorted): a plain path sort lets whichever folder collates first
+ *  exhaust the hit budget before sibling folders are ever reached, so a
+ *  duplicate-era vault ("Hollis, Robert" vs "Hollis_R" vs "Hollis-estate")
+ *  can hide whole folders from keyword search — punctuation-heavy names
+ *  collate unpredictably under localeCompare. */
+export function folderInterleaved<T extends { path: string }>(files: T[]): T[] {
+	const folders = new Map<string, T[]>();
+	for (const file of files) {
+		const cut = file.path.lastIndexOf('/');
+		const folder = cut === -1 ? '' : file.path.slice(0, cut);
+		const queue = folders.get(folder);
+		if (queue) queue.push(file);
+		else folders.set(folder, [file]);
+	}
+	const queues = [...folders.values()].map((q) => q.sort((a, b) => a.path.localeCompare(b.path)));
+	const out: T[] = [];
+	for (let left = queues.reduce((n, q) => n + q.length, 0); left > 0; ) {
+		for (const q of queues) {
+			const file = q.shift();
+			if (file) {
+				out.push(file);
+				left -= 1;
+			}
+		}
+	}
+	return out;
+}
+
 /** Scan the vault for a case-insensitive substring. Shared by the MCP
  *  search_notes tool and the plugin API (which wants the structured hits). */
 export async function findTextHits(
@@ -244,7 +273,7 @@ export async function findTextHits(
 	const needle = query.toLowerCase();
 	const hits: SearchHit[] = [];
 	let charsRead = 0;
-	const files = port.listFiles().sort((a, b) => a.path.localeCompare(b.path));
+	const files = folderInterleaved(port.listFiles());
 	for (const [index, file] of files.entries()) {
 		if (hits.length >= limit || charsRead > SEARCH_TOTAL_CHARS || index >= SEARCH_FILES_SCANNED) break;
 		const content = await port.read(file.path);
@@ -273,7 +302,7 @@ export async function findTextHits(
 async function searchNotes(port: VaultToolPort, args: Record<string, unknown>): Promise<McpCallResultText> {
 	const query = stringArg(args.query).trim();
 	if (!query) return textResult('Empty query.', true);
-	const limit = clampInt(args.limit, 1, 100, 20);
+	const limit = clampInt(args.limit, 1, 500, 20);
 
 	const hits = await findTextHits(port, query, limit);
 	if (hits.length === 0) return textResult(`No notes contain "${query}".`);

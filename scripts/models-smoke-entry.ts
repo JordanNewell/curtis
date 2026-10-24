@@ -11,9 +11,24 @@
 // def.models arrays, and removeCustomProvider's keepDiscoveredCache flag.
 
 import { strict as assert } from 'node:assert/strict';
-import { ProviderRegistry, PROVIDER_DEFINITIONS } from '../src/providers/registry';
-import type { AIModel, ProviderConfig, ProviderDefinition } from '../src/types';
-import { __setRequestRouter, requestsSeen } from './obsidian-stub-models';
+import { ProviderRegistry, PROVIDER_DEFINITIONS } from '@curtisai/llms';
+import type { HttpPort } from '@curtisai/llms';
+import type { AIModel, ProviderConfig, ProviderDefinition } from '@curtisai/shared';
+import { __setRequestRouter, requestsSeen, requestUrl, type StubRequest } from './obsidian-stub-models';
+
+// The package registry speaks the HttpPort; route it through the stubbed
+// requestUrl so the in-process router + request recorder still see calls.
+const stubHttp: HttpPort = {
+	async request(req) {
+		const resp = await requestUrl(req as StubRequest);
+		return {
+			status: resp.status,
+			text: JSON.stringify(resp.json ?? ''),
+			arrayBuffer: async () => new ArrayBuffer(0),
+			json: async <T>() => resp.json as T,
+		};
+	},
+};
 
 // --- fixture: one custom OpenAI-compat provider -----------------------------
 
@@ -51,6 +66,7 @@ async function main(): Promise<void> {
 	const persisted: Record<string, AIModel[]> = {};
 	let persistedWrites = 0;
 	const registry = new ProviderRegistry(
+		stubHttp,
 		{ 'fake-openai': FAKE_CFG },
 		[FAKE_DEF],
 		(_id, config) => config?.apiKey || '',
@@ -106,7 +122,7 @@ async function main(): Promise<void> {
 		if (req.url !== ANTHROPIC_URL) return { status: 404 };
 		return { status: 200, json: { data: [{ id: 'claude-smoke-1', display_name: 'Claude Smoke' }] } };
 	});
-	const registryA = new ProviderRegistry({ anthropic: { enabled: true, apiKey: 'ak-test' } }, [], () => 'ak-test');
+	const registryA = new ProviderRegistry(stubHttp, { anthropic: { enabled: true, apiKey: 'ak-test' } }, [], () => 'ak-test');
 	await registryA.initializeProviders();
 	// requestsSeen accumulates across registries — the earlier registry's
 	// headerless configless-anthropic attempt shares this URL; assert on the
@@ -131,6 +147,7 @@ async function main(): Promise<void> {
 		{ id: 'extra-manual', name: 'Extra With Metadata', contextLength: 2000, inputPrice: 0, outputPrice: 0 },
 	];
 	const registry2 = new ProviderRegistry(
+		stubHttp,
 		{ 'fake-openai': FAKE_CFG },
 		[FAKE_DEF],
 		(_id, c) => c?.apiKey || '',
@@ -144,6 +161,7 @@ async function main(): Promise<void> {
 	assert.equal(requestsSeen.length, seenBefore, 'reconstruction makes no network calls');
 
 	const registry3 = new ProviderRegistry(
+		stubHttp,
 		{ 'fake-openai': FAKE_CFG },
 		[FAKE_DEF],
 		(_id, c) => c?.apiKey || '',

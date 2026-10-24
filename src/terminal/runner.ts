@@ -10,7 +10,7 @@
 // node-pty tier).
 //
 // Node is reached through window.require like the network transport
-// (src/providers/transport.ts) — never a static import, so the bundle stays
+// (the @curtisai/llms transport) — never a static import, so the bundle stays
 // loadable on mobile where child_process doesn't exist.
 
 import { FileSystemAdapter, Platform } from 'obsidian';

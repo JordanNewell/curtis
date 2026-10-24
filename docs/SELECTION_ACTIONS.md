@@ -1,6 +1,6 @@
 # Selection actions
 
-Right-click any text selection in a note for AI-powered transformations. Each action runs the selection through your active model — replace-mode actions open a diff review before anything is written, insert-below actions append directly.
+Right-click any text selection in a note to run it through your active model as a one-shot transformation. What happens to the result depends on the action's insert mode: replace-mode actions never write to your note on their own — the result opens in a diff review first, and nothing lands until you accept. Insert-below actions keep the original and append the result underneath. That split is the design: transformations that would overwrite your words always pass through review; transformations that only add material don't need to.
 
 ## Access
 

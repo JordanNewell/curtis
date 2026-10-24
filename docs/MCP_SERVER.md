@@ -1,5 +1,11 @@
 # MCP server
 
+## What MCP is
+
+The Model Context Protocol (MCP) is an open standard for wiring tools to AI applications. An MCP **server** is a small program that exposes tools — search a database, read files, call an API. An MCP **client** is an AI application that discovers those tools and calls them on the model's behalf. Because the protocol is shared, one server works with every client that speaks it: Claude Desktop, coding agents, Curtis. You install or write the integration once.
+
+Serving your vault is a bigger promise than calling tools. It hands an outside application access to your notes, which is why everything below defaults to closed: the server binds to localhost and requires a bearer token rather than trusting whatever connects.
+
 Curtis is an MCP [client](AGENT.md#mcp-servers) — it calls tools from servers you run. Server mode is the reverse: **Curtis serves your vault as MCP tools** so external AI apps (Claude Desktop, coding agents, anything that speaks MCP) can list, read, and search your notes without a line of Curtis chat.
 
 ## Enable

@@ -1,13 +1,22 @@
 // Curtis.ai — Copyright (c) 2026 Jordan Newell. Source-available under BUSL-1.1 (see LICENSE); production use free under the Additional Use Grant.
 import { App, TFile } from 'obsidian';
-import { asStringArray, isRecord } from './types/json-helpers';
+import { asStringArray, isRecord } from '@curtisai/shared';
 import { getActiveNoteFile } from '../vault/active-note';
 import { WEB_SEARCH_TOOL, READ_URL_TOOL } from './web-tools';
 import { RUN_COMMAND_TOOL } from './command-tools';
+import {
+	scanContentCredentials,
+	scanContentMarkers,
+	triageFilename,
+	formatCredentialHits,
+	formatConfidentialHits,
+} from './sensitive-scan';
+import type { SensitiveHit } from './sensitive-scan';
 import type { RagIndexManager } from '../rag/index-manager';
 import type CurtisPlugin from '../main';
 import type { JsonSchemaObject, ToolParameter } from './tool-schema';
 import { buildToolParametersSchema } from './tool-schema';
+import { folderInterleaved } from '../mcp/server/vault-tools';
 
 // The pure schema-builder half lives in ./tool-schema (Obsidian-free, so
 // providers and their tests can import it under node). Re-exported here to
@@ -47,6 +56,8 @@ const SEMANTIC_SEARCH_TOOL_NAME = 'semantic_search';
 //   get_current_note — Get the note open in the editor
 //   get_current_date — Get the current date/time
 //   calculator       — Evaluate an arithmetic expression
+//   scan_sensitive   — Credential-pattern sweep + confidentiality triage
+//                      (pattern logic in ./sensitive-scan)
 //
 // Optional web tools (settings toggle):
 //   web_search       — Search the web (DuckDuckGo)
@@ -351,12 +362,15 @@ export class ToolRegistry {
 			description: 'Search for notes in the vault by filename or content. Returns a list of matching notes.',
 			parameters: {
 				query: { type: 'string', description: 'Search query to match against note filenames and content', required: true },
-				max_results: { type: 'number', description: 'Maximum number of results (default: 10)', default: 10 },
+				max_results: { type: 'number', description: 'Maximum number of results (default: 25)', default: 25 },
 			},
 			execute: async (params) => {
 				const query = str(params.query).toLowerCase();
-				const max = num(params.max_results) || 10;
-				const files = this.app.vault.getMarkdownFiles();
+				const max = num(params.max_results) || 25;
+				// Folder-interleaved so the first-N cap can't hide duplicate-era
+				// folders ("Hollis, Robert" vs "Hollis_R") behind whichever
+				// folder the vault's file order happens to list first.
+				const files = folderInterleaved(this.app.vault.getMarkdownFiles());
 				const results: string[] = [];
 
 				for (const file of files) {
@@ -370,11 +384,16 @@ export class ToolRegistry {
 				}
 
 				if (results.length === 0) {
-					// Content fallback used to read EVERY vault file per miss —
-					// cap the scan (newest 300 files, ~2MB read) so a large vault
-					// can't stall the agent loop.
-					const MAX_SCAN_FILES = 300;
-					const MAX_SCAN_CHARS = 2_000_000;
+					// Content fallback reads files newest-first under a cap so a
+					// large vault can't stall the agent loop. Exhaustive-looking
+					// queries (counts, "all", "every") get full-vault coverage;
+					// quick lookups stop at the base tier.
+					const BASE_SCAN_FILES = 2000;
+					const BASE_SCAN_CHARS = 10_000_000;
+					const EXHAUSTIVE_SCAN_CHARS = 50_000_000;
+					const exhaustive = /\ball\b|\bevery\b|\bcount\b|how many|\btotal\b/.test(query);
+					const MAX_SCAN_FILES = exhaustive ? files.length : BASE_SCAN_FILES;
+					const MAX_SCAN_CHARS = exhaustive ? EXHAUSTIVE_SCAN_CHARS : BASE_SCAN_CHARS;
 					const scanList = [...files]
 						.sort((a, b) => b.stat.mtime - a.stat.mtime)
 						.slice(0, MAX_SCAN_FILES);
@@ -397,8 +416,9 @@ export class ToolRegistry {
 						} catch { /* skip unreadable files */ }
 					}
 
+					const cappedFiles = scanList.length < files.length;
 					const capNote = capHit
-						? ` (content scan capped at the ${MAX_SCAN_FILES} most recently modified files / ~2 MB)`
+						? ` (content scan capped at ~${Math.round(MAX_SCAN_CHARS / 1_000_000)} MB of reads${cappedFiles ? ` across the ${scanList.length} most recently modified files` : ''})`
 						: '';
 
 					if (contentMatches.length > 0) {
@@ -627,6 +647,102 @@ export class ToolRegistry {
 				},
 			},
 			execute: async (params) => formatCalcResult(evaluateExpression(str(params.expression))),
+		});
+
+		this.register({
+			name: 'scan_sensitive',
+			description:
+				'Scan the vault for sensitive content. Two categories: "credentials" (secret-shaped content: ' +
+				'passwords, API keys, tokens — matches are reported by file/line only, the matched value is never ' +
+				'echoed) and "confidential" (files whose NAME or content signals confidentiality: "do not share", ' +
+				'"confidential", client/customer, PHI/health, financial, legal, and .mdenc encrypted files). ' +
+				'"Sensitive" is context-dependent: if the conversation established a professional/confidentiality ' +
+				'context (legal, medical, financial), run the "confidential" category alongside "credentials" by ' +
+				'default when asked to find sensitive or confidential material. Confidential results are ' +
+				'summary-first (counts + categories + top-level folders) — listing confidential filenames into ' +
+				'chat can itself be a leak on a shared screen; per-file names only via reveal_names=true on ' +
+				'explicit follow-up.',
+			parameters: {
+				category: {
+					type: 'string',
+					enum: ['credentials', 'confidential', 'all'],
+					default: 'all',
+					description: 'Which dimension to scan (default: all)',
+				},
+				folder: { type: 'string', description: 'Folder to scan (default: entire vault)', default: '/' },
+				reveal_names: {
+					type: 'boolean',
+					default: false,
+					description: 'Confidential results only: list flagged filenames instead of a summary. Default false — summary-first.',
+				},
+				max_results: { type: 'number', description: 'Maximum per-file entries reported (default: 25)', default: 25 },
+			},
+			execute: async (params) => {
+				const category = str(params.category) || 'all';
+				if (!['credentials', 'confidential', 'all'].includes(category)) {
+					return `Unknown category: ${category}`;
+				}
+				const folder = str(params.folder) || '/';
+				const revealNames = params.reveal_names === true;
+				const max = num(params.max_results) || 25;
+
+				const prefix = folder === '/' ? '' : (folder.endsWith('/') ? folder : folder + '/');
+				const files = this.app.vault.getFiles().filter((f) => !prefix || f.path.startsWith(prefix));
+
+				const credHits: SensitiveHit[] = [];
+				const confHits: SensitiveHit[] = [];
+				const triaged = new Set<string>();
+
+				// Filename triage first — cheap, no file reads. Catches a note
+				// titled "DO NOT SHARE client personal note" without opening it.
+				if (category !== 'credentials') {
+					for (const f of files) {
+						const t = triageFilename(f.path);
+						if (t) {
+							confHits.push({ path: f.path, category: 'confidential', kind: t.group });
+							triaged.add(f.path);
+						}
+					}
+				}
+
+				// Content pass — markdown only, capped like search_notes (newest
+				// 300 files / ~2 MB) so a large vault can't stall the loop.
+				const MAX_SCAN_FILES = 300;
+				const MAX_SCAN_CHARS = 2_000_000;
+				const mdFiles = files.filter((f) => f.extension === 'md');
+				const scanList = [...mdFiles]
+					.sort((a, b) => b.stat.mtime - a.stat.mtime)
+					.slice(0, MAX_SCAN_FILES);
+				const capHit = scanList.length < mdFiles.length;
+				let scannedChars = 0;
+
+				for (const file of scanList) {
+					if (scannedChars >= MAX_SCAN_CHARS) break;
+					try {
+						const content = await this.app.vault.read(file);
+						scannedChars += content.length;
+						if (category !== 'confidential') {
+							credHits.push(...scanContentCredentials(file.path, content));
+						}
+						if (category !== 'credentials' && !triaged.has(file.path)) {
+							confHits.push(...scanContentMarkers(file.path, content));
+						}
+					} catch { /* skip unreadable files */ }
+				}
+
+				const capNote = capHit
+					? `\n(Content scan capped at the ${MAX_SCAN_FILES} most recently modified files / ~2 MB)`
+					: '';
+
+				const sections: string[] = [];
+				if (category !== 'confidential') {
+					sections.push(formatCredentialHits(credHits, max));
+				}
+				if (category !== 'credentials') {
+					sections.push(formatConfidentialHits(confHits, revealNames, max));
+				}
+				return sections.join('\n\n') + capNote;
+			},
 		});
 	}
 }

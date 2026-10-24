@@ -12,6 +12,7 @@ export class RenameConversationModal extends Modal {
 
 	constructor(app: App, title: string, onRename: (title: string) => void) {
 		super(app);
+		this.modalEl.addClass('curtis-modal');
 		this.initialTitle = title;
 		this.title = title;
 		this.onRename = onRename;
