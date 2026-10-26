@@ -62,7 +62,7 @@
     "vitest": "^4.1.12"
   },
   "dependencies": {
-    "@curtisai/agents": "^0.1.2",
+    "@curtisai/agents": "^0.1.3",
     "@curtisai/core": "^0.1.2",
     "@curtisai/llms": "^0.1.2",
     "@curtisai/shared": "^0.1.2",
