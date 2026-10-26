@@ -59,7 +59,7 @@
     "obsidian": "^1.14.4",
     "playwright-core": "^1.63.0",
     "typescript": "^5.9.3",
-    "vitest": "^4.1.11"
+    "vitest": "^4.1.12"
   },
   "dependencies": {
     "@curtisai/agents": "^0.1.2",
