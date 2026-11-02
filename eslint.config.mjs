@@ -55,11 +55,15 @@ export default [
 			'src/gcp/http.ts',
 			'src/gcp/storage.ts',
 			'src/gcp/storage.test.ts',
+			'src/import/curt-format.test.ts',
 			'src/terminal/vshell.ts',
 			'src/terminal/vshell.test.ts',
 		],
 		rules: {
 			'obsidianmd/prefer-window-timers': 'off',
+			// curt-format.test.ts reads pinned conformance fixtures from disk;
+			// vitest runs it in Node, so node builtins are correct here.
+			'obsidianmd/no-nodejs-modules': 'off',
 			'no-restricted-globals': ['error', 'window'],
 		},
 	},
