@@ -4,7 +4,9 @@
 // dot_curt/conformance/vectors (core.json, extensions.json); refresh them
 // from the spec repo when the spec revision moves.
 
+// eslint-disable-next-line obsidianmd/no-nodejs-modules
 import { readFileSync } from 'node:fs';
+// eslint-disable-next-line obsidianmd/no-nodejs-modules
 import { fileURLToPath } from 'node:url';
 import { describe, it, expect } from 'vitest';
 import { parseCurt } from './curt-format';

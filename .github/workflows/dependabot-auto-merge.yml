@@ -28,7 +28,7 @@ jobs:
           # Matches the `lint` job and all `test (os)` matrix jobs; a dep bump
           # that passes tests but trips lint (new eslint rules fail on warnings)
           # must not be auto-merged.
-          check-name: '(lint|test)'
+          check-regexp: '^(lint|test)'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           wait-interval: 10
 
