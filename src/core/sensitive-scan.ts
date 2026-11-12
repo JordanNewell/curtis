@@ -40,10 +40,11 @@ export interface PatternRule {
 /** Value shapes the agent's ad-hoc sweeps have historically looked for. The
  *  matched TEXT is never reported — only file, line, and pattern name. */
 export const CREDENTIAL_PATTERNS: PatternRule[] = [
-	{ name: 'password', re: /(?<![A-Za-z])(?:password|passwd|pwd)\s*[:=]\s*['"]?\S{4,}/i },
-	// (?<![A-Za-z]) not \b — "stripe_api_key" is one \w run, so \b never fires
+	// (^|[^A-Za-z]) not \b — "stripe_api_key" is one \w run, so \b never fires
 	// before the "api"; we only need to rule out a letter right before it.
-	{ name: 'api_key', re: /(?<![A-Za-z])api[_-]?key\s*[:=]\s*['"]?[A-Za-z0-9_-]{8,}/i },
+	// Lookbehind is avoided: iOS<16.4 WebView lacks it.
+	{ name: 'password', re: /(^|[^A-Za-z])(?:password|passwd|pwd)\s*[:=]\s*['"]?\S{4,}/i },
+	{ name: 'api_key', re: /(^|[^A-Za-z])api[_-]?key\s*[:=]\s*['"]?[A-Za-z0-9_-]{8,}/i },
 	{ name: 'sk-', re: /\bsk-[A-Za-z0-9]{16,}\b/ },
 	{ name: 'AKIA', re: /\bAKIA[0-9A-Z]{16}\b/ },
 	{ name: 'ghp_', re: /\bgh[pousr]_[A-Za-z0-9]{20,}\b/ },

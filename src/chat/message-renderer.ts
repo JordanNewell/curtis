@@ -94,10 +94,10 @@ export class MessageRenderer {
 	 */
 	renderThinkingBlock(container: HTMLElement, text: string, streaming: boolean): void {
 		const found = container.querySelector(':scope > details.ai-thinking-block');
-		const details = found instanceof HTMLDetailsElement ? found : this.createThinkingBlock(container);
+		const details = found?.instanceOf(HTMLDetailsElement) ? found : this.createThinkingBlock(container);
 		details.toggleClass('is-streaming', streaming);
 		const content = details.querySelector('.ai-thinking-content');
-		if (content instanceof HTMLElement) content.setText(text);
+		if (content?.instanceOf(HTMLElement)) content.setText(text);
 		if (streaming) {
 			details.open = true;
 		} else if (details.dataset.userToggled !== 'open') {

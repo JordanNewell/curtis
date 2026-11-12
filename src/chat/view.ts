@@ -516,7 +516,7 @@ export class ChatView extends ItemView {
 		this.plugin.settings.activeModel = modelId;
 		void this.plugin.saveSettings();
 		const btn = this.contentEl.querySelector('.ai-model-picker-btn');
-		if (btn instanceof HTMLElement) this.updateModelPickerButton(btn);
+		if (btn?.instanceOf(HTMLElement)) this.updateModelPickerButton(btn);
 	}
 
 	/**
@@ -787,7 +787,7 @@ export class ChatView extends ItemView {
 	 */
 	private refreshActiveNoteIndicator(): void {
 		const topbar = this.contentEl.querySelector('.ai-chat-topbar-inner');
-		if (!(topbar instanceof HTMLElement)) return;
+		if (!topbar?.instanceOf(HTMLElement)) return;
 		// Remove any existing pill (could be stale after a note switch).
 		const existing = topbar.querySelector('.ai-chat-active-note');
 		existing?.remove();
@@ -797,7 +797,7 @@ export class ChatView extends ItemView {
 		const tempHost = createDiv();
 		this.renderActiveNoteIndicator(tempHost);
 		const pill = tempHost.firstElementChild;
-		if (!(pill instanceof HTMLElement)) return;
+		if (!pill?.instanceOf(HTMLElement)) return;
 		// Position: right after the new-chat button, before the spacer.
 		const newChatBtn = topbar.querySelector('.ai-chat-icon-btn');
 		if (newChatBtn) {
@@ -1325,7 +1325,7 @@ export class ChatView extends ItemView {
 			}
 			if (e.key === 'Enter' || e.key === 'Tab') {
 				const sel = this.mentionMenu.querySelector('.is-selected');
-				if (sel instanceof HTMLElement) {
+				if (sel?.instanceOf(HTMLElement)) {
 					e.preventDefault();
 					sel.click();
 					return;
@@ -1347,7 +1347,7 @@ export class ChatView extends ItemView {
 			}
 			if (e.key === 'Enter' || e.key === 'Tab') {
 				const sel = this.slashMenu.querySelector('.is-selected');
-				if (sel instanceof HTMLElement) {
+				if (sel?.instanceOf(HTMLElement)) {
 					e.preventDefault();
 					sel.click();
 					return;
@@ -1381,7 +1381,7 @@ export class ChatView extends ItemView {
 	}
 
 	private autoResizeInput(): void {
-		this.inputEl.setCssProps({ height: 'auto' });
+		this.inputEl.style.height = '';
 		this.inputEl.setCssProps({ height: `${Math.min(this.inputEl.scrollHeight, 320)}px` });
 	}
 
@@ -2176,7 +2176,7 @@ export class ChatView extends ItemView {
 		// concatenated text.
 		const nodes: { node: Text; start: number }[] = [];
 		let full = '';
-		const walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, {
+		const walker = activeDocument.createTreeWalker(body, NodeFilter.SHOW_TEXT, {
 			acceptNode: (node) => {
 				const parent = (node as Text).parentElement;
 				if (!parent?.textContent?.trim()) return NodeFilter.FILTER_SKIP;
@@ -2692,7 +2692,7 @@ export class ChatView extends ItemView {
 			const fact = byId.get(id);
 			const row = pop.createDiv({ cls: 'ai-mem-popover-row' });
 			if (!fact) {
-				row.createDiv({ cls: 'ai-mem-popover-fact is-removed', text: '(since removed)' });
+				row.createDiv({ cls: 'ai-mem-popover-fact is-removed', text: '(Since removed)' });
 				continue;
 			}
 			row.createDiv({ cls: 'ai-mem-popover-fact', text: fact.content });
@@ -3285,7 +3285,7 @@ export class ChatView extends ItemView {
 					// for users who turned token display off).
 					if (this.plugin.settings.showTokenUsage) {
 						const info = assistantWrapper.querySelector('.ai-message-info');
-						if (info instanceof HTMLElement) {
+						if (info?.instanceOf(HTMLElement)) {
 							info.setText(`${usage.totalTokens} tok`);
 						} else {
 							meta.createDiv({ cls: 'ai-message-info', text: `${usage.totalTokens} tok` });
@@ -3507,7 +3507,7 @@ export class ChatView extends ItemView {
 	/** Sync the composer's arena toggle with `active`. */
 	private setArenaToggle(active: boolean): void {
 		const btn = this.contentEl.querySelector('.ai-chat-arena-btn');
-		if (btn instanceof HTMLElement) btn.toggleClass('is-active', active);
+		if (btn?.instanceOf(HTMLElement)) btn.toggleClass('is-active', active);
 	}
 
 	/** Toggle arena on/off. When turning on, open the multi-select modal. */
@@ -3804,7 +3804,7 @@ export class ChatView extends ItemView {
 				onUsage: (usage: TokenUsage) => {
 					columnUsage.current = usage;
 					const usageEl = footer.querySelector('.ai-arena-column-usage');
-					if (usageEl instanceof HTMLElement) {
+					if (usageEl?.instanceOf(HTMLElement)) {
 						usageEl.setText(`${usage.totalTokens} tok`);
 					} else {
 						footer.createDiv({

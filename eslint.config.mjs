@@ -29,8 +29,12 @@ export default [
 			// enforceCamelCaseLower would demand "webgpu". "Settings →" keeps the
 			// real casing of in-product navigation paths ("Settings → Skills"),
 			// and "OS keychain" the correct casing of the credential-store
-			// mention — both would otherwise be lowercased mid-string.
-			'obsidianmd/ui/sentence-case': ['warn', { enforceCamelCaseLower: true, ignoreRegex: ['MCP', 'GCP', 'Curtis', 'ChatGPT', 'Jordan Newell', 'AI', 'WebGPU', 'Settings →', 'OS keychain'] }],
+			// mention — both would otherwise be lowercased mid-string. "Claude
+			// Code", "Hugging Face" and "ONNX" are product/brand names the
+			// defaults don't cover (added with eslint-plugin-obsidianmd 0.5.1);
+			// plain "OS" covers the OS mention outside the keychain string, and
+			// "history" keeps the terminal label lowercase on purpose.
+			'obsidianmd/ui/sentence-case': ['warn', { enforceCamelCaseLower: true, ignoreRegex: ['MCP', 'GCP', 'Curtis', 'ChatGPT', 'Jordan Newell', 'AI', 'WebGPU', 'Settings →', 'OS keychain', 'Claude Code', 'Hugging Face', 'ONNX', 'OS', 'history'] }],
 		},
 	},
 	{
