@@ -66,7 +66,7 @@ export class AgentPickerModal extends FuzzySuggestModal<AgentPick> {
 			}
 		} else if (pick.kind === 'none') {
 			el.createSpan({ cls: 'ai-agent-suggestion-name', text: 'Default assistant' });
-			el.createSpan({ cls: 'ai-agent-suggestion-sub', text: 'no agent — global system prompt' });
+			el.createSpan({ cls: 'ai-agent-suggestion-sub', text: 'No agent — global system prompt' });
 		} else {
 			const icon = el.createSpan({ cls: 'ai-agent-suggestion-emoji' });
 			setIcon(icon, 'plus');
