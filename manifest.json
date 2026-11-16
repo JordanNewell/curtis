@@ -1,7 +1,6 @@
 {
 	"id": "curtis",
 	"name": "Curtis.ai",
-	"version": "1.0.0",
 	"minAppVersion": "1.13.0",
 	"description": "The agent for Obsidian. 53 providers: ChatGPT, Claude, Gemini, DeepSeek, Ollama + local. Agent tools edit your notes, MCP client & server, skills, RAG vault search, scheduled runs, multi-model arena. Free, source-available.",
 	"author": "Jordan Newell",
@@ -10,5 +9,6 @@
 		"Buy Me a Coffee": "https://www.buymeacoffee.com/jordannewell",
 		"GitHub Sponsors": "https://github.com/sponsors/jordannewell"
 	},
-	"isDesktopOnly": false
+	"isDesktopOnly": false,
+	"version": "1.0.1"
 }

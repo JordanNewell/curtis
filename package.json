@@ -1,6 +1,6 @@
 {
   "name": "curtis",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Curtis AI Chat — your polyglot AI chat for Obsidian. 53 providers, image attachments, memory, slash commands.",
   "main": "main.js",
   "engines": {
