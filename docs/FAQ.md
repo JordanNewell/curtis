@@ -60,4 +60,4 @@ Search runs over an index of your notes, and that index only exists after you bu
 
 ## Still stuck
 
-Check the dev console (`Ctrl+Shift+I`) for errors, then [file an issue](https://github.com/JordanNewell/curtis/issues) with your Obsidian version, plugin version, provider + model, and the console output. Security issues go to [security@jordannewell.com](mailto:security@jordannewell.com) — never a public issue. → [CONTRIBUTING.md](../CONTRIBUTING.md#filing-issues)
+Check the dev console (`Ctrl+Shift+I`) for errors, then [file an issue](https://github.com/curtis-ai-tech/curtis/issues) with your Obsidian version, plugin version, provider + model, and the console output. Security issues go to [security@jordannewell.com](mailto:security@jordannewell.com) — never a public issue. → [CONTRIBUTING.md](../CONTRIBUTING.md#filing-issues)

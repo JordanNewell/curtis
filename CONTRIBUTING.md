@@ -85,7 +85,7 @@ Contributions are welcome — bug reports, feature requests, and (once 2.0 stabi
 Requirements: **Node 20+**, Obsidian 1.13+, a vault for testing.
 
 ```bash
-git clone https://github.com/JordanNewell/curtis.git
+git clone https://github.com/curtis-ai-tech/curtis.git
 cd curtis
 npm install
 ```

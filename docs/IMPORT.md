@@ -23,7 +23,7 @@ Beyond chat history, Curtis can adopt your whole Claude Code setup in one pass �
 
 Everything imports disabled: nothing connects, nothing runs, until you turn it on. Existing items are never overwritten — duplicates by URL (MCP) or name (agents, skills) are skipped and reported. Re-running the import is safe. Export goes the other way too: the agent editor has "Copy as a Claude agent file", and Settings → Curtis.ai → Agents → "Export agents as Claude files" writes every agent into `AI/Exports/Claude agents/`.
 
-**Why [Curtis Porter](https://github.com/JordanNewell/curtis-ai-chat-porter) isn't part of this.** Porter solves a translation problem: it converts *proprietary chat exports* (ChatGPT/Claude `conversations.json`) into Curtis's conversation format, for people who aren't in Obsidian yet. The Claude Code legs need no translation — skills and subagents are already shared open formats, so "conversion" is a file copy plus a small field map that has to run where the destinations live (the vault and Curtis's settings stores). It lives in the plugin, on the far side of the install line from Porter. The mapping logic is nevertheless written to the same Obsidian-free standard as the conversation serializer, so a future Porter command could scaffold a fresh vault with skills and agents pre-staged before first launch — if that ever earns its keep.
+**Why [Curtis Porter](https://github.com/curtis-ai-tech/curtis-ai-chat-porter) isn't part of this.** Porter solves a translation problem: it converts *proprietary chat exports* (ChatGPT/Claude `conversations.json`) into Curtis's conversation format, for people who aren't in Obsidian yet. The Claude Code legs need no translation — skills and subagents are already shared open formats, so "conversion" is a file copy plus a small field map that has to run where the destinations live (the vault and Curtis's settings stores). It lives in the plugin, on the far side of the install line from Porter. The mapping logic is nevertheless written to the same Obsidian-free standard as the conversation serializer, so a future Porter command could scaffold a fresh vault with skills and agents pre-staged before first launch — if that ever earns its keep.
 
 ## Where chats live
 
@@ -35,7 +35,7 @@ The layout is stable and human-readable:
 - **`# Title`** — the conversation title
 - **One section per message** — `## You`, `## AI`, `## Tool`, or `## System`, each opening with a small `<!-- curtis:msg {...} -->` HTML comment that carries the machine metadata: id, timestamp, role, and where applicable the provider/model, token and cost figures, image and attachment references, tool-call records, and which memories a reply used
 
-The serializer/parser for this format is deliberately Obsidian-free, so external tools can read and write it — [Curtis Porter](https://github.com/JordanNewell/curtis-ai-chat-porter) does exactly that. History that predates conversation files (the old localStorage store) imports itself into the folder once on upgrade; the original copy is left in place.
+The serializer/parser for this format is deliberately Obsidian-free, so external tools can read and write it — [Curtis Porter](https://github.com/curtis-ai-tech/curtis-ai-chat-porter) does exactly that. History that predates conversation files (the old localStorage store) imports itself into the folder once on upgrade; the original copy is left in place.
 
 ## Supported sources (auto-detected)
 
@@ -67,7 +67,7 @@ Re-running an import is idempotent: conversations already present are skipped, s
 
 "Export all chats as .curt (zip)" — command palette, or Settings → Conversations — writes every conversation as a `.curt` file into one zip (`curtis-chats-<date>.zip`, named `<date> <title> <id6>.curt` inside). Whole-history backup, vault-to-vault move, machine-to-machine transfer. The zip is itself importable: drop it into another vault's import flow and it's auto-detected as a batch of `.curt` files — already-present conversations are skipped, so re-importing is safe.
 
-The zip also feeds [Curtis Porter](https://github.com/JordanNewell/curtis-ai-chat-porter), the standalone converter for people not in Obsidian yet — it turns any export into `.curt` and vault-ready markdown, local-first.
+The zip also feeds [Curtis Porter](https://github.com/curtis-ai-tech/curtis-ai-chat-porter), the standalone converter for people not in Obsidian yet — it turns any export into `.curt` and vault-ready markdown, local-first.
 
 ## Full backup
 
